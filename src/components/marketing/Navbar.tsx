@@ -1,28 +1,26 @@
+
 import logoImage from "@/images/logo.svg";
 import Image from "next/image";
-import Container from "../Container";
-import { homePath, howItWork, pricingPath } from "@/paths";
 import ActiveLink from "../ActiveLink";
 import Button from "../Button";
 import Link from "next/link";
 
+import MobileNavigation from "./MobileNavigation";
 
-const navbarData = [
-  { name: "Home", href: homePath },
-  { name: "How It Work", href: howItWork },
-  { name: "Pricing", href: pricingPath },
-]
+import navbarData from "@/data/navbarData";
+
+
 
 
 export default function Navbar() {
   return <header className="bg-grey-100 px-6">
-    <nav className="flex items-center relative xl:max-w-[95%] mx-auto">
-      <div className="flex-1">
+    <nav className="flex items-center justify-between relative xl:max-w-[95%] mx-auto">
+      <div className="lg:flex-1">
         <Image src={logoImage} alt="logo" />
       </div>
-      <div className="hidden lg:flex"> <DesktopNavigation /></div>
-      <div className="flex-1 flex justify-end">
-        <div className="hidden lg:flex gap-6">
+      <div className="hidden md:flex"><DesktopNavigation /></div>
+      <div className="lg:flex-1 flex justify-end">
+        <div className="hidden md:flex gap-4 lg:gap-6">
           <Button size="sm" variant="secondary" asChild>
             <Link href="/login">Login</Link>
           </Button>
@@ -30,22 +28,22 @@ export default function Navbar() {
             <Link href="/signup">Sign Up</Link>
           </Button>
         </div>
+        <div className="md:hidden">
+
+          <MobileNavigation />
+        </div>
       </div>
     </nav>
   </header>
 };
 
 function DesktopNavigation() {
-  return <ul className="flex items-center gap-16">
+  return <ul className="flex items-center gap-6 lg:gap-16">
     {navbarData.map((item) => (
       <li key={item.name}>
-        <ActiveLink href={item.href()}>{item.name}</ActiveLink>
+        <ActiveLink className="lg:text-2xl" href={item.href()}>{item.name}</ActiveLink>
       </li>
     ))}
   </ul>
 }
 
-
-function MobileNavigation() {
-
-}
