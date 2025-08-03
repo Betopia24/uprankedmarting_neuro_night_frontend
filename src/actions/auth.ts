@@ -5,6 +5,13 @@ import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
 
 // Schemas
+const OtpSchema = z.object({
+  "otp-1": z.string().length(1, "OTP digit required."),
+  "otp-2": z.string().length(1, "OTP digit required."),
+  "otp-3": z.string().length(1, "OTP digit required."),
+  "otp-4": z.string().length(1, "OTP digit required."),
+});
+
 const ForgotPasswordSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." }),
 });
@@ -48,10 +55,49 @@ export type FormState = {
     name?: string[];
     confirmPassword?: string[];
     terms?: string[];
+    otp?: string[];
   };
 };
 
 // Actions
+export async function verifyOtp(
+  prevState: FormState | undefined,
+  formData: FormData
+) {
+  const validatedFields = OtpSchema.safeParse(
+    Object.fromEntries(formData.entries())
+  );
+
+  if (!validatedFields.success) {
+    const fieldErrors = validatedFields.error.flatten().fieldErrors;
+    const otpErrors = Object.values(fieldErrors).flat();
+    return {
+      errors: { otp: otpErrors },
+      message: "Please enter a valid 4-digit OTP.",
+    };
+  }
+
+  const otp = Object.values(validatedFields.data).join('');
+
+  // --- TODO: External API Call to verify OTP --- //
+  // For example:
+  // const res = await fetch(`${process.env.EXTERNAL_API_URL}/auth/verify-otp`, {
+  //   method: 'POST',
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify({ otp }),
+  // });
+  // if (!res.ok) { ... handle error ... }
+
+  console.log(`Verifying OTP: ${otp}`);
+
+  // Simulate successful verification
+  if (otp === "1234") {
+    return { message: "OTP verified successfully!" };
+  } else {
+    return { message: "Invalid OTP. Please try again.", errors: { otp: ["Invalid OTP."] } };
+  }
+}
+
 export async function sendPasswordResetLink(
   prevState: FormState | undefined,
   formData: FormData
