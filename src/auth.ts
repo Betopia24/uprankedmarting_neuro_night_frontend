@@ -31,6 +31,7 @@ export const {
         if (parsedCredentials.success) {
           const { email, password } = parsedCredentials.data;
 
+          // Replace with your actual user authentication logic
           if (email === "admin@example.com" && password === "password") {
             const user: User = {
               id: "1",
