@@ -1,6 +1,5 @@
 import BusinessTools from "@/components/marketing/BusinessTools";
 import FAQ from "@/components/marketing/Faq";
-import Footer from "@/components/marketing/Footer";
 import Greetings from "@/components/marketing/Greetings";
 import Hero from "@/components/marketing/Hero";
 import OurFeatures from "@/components/marketing/OurFeatures";
@@ -19,7 +18,6 @@ export default function Home() {
       <OurFeatures />
       <OurOffer />
       <FAQ />
-      <Footer />
     </>
   );
 }

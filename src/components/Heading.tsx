@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 type Variant = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 type FontWeight = "semibold" | "bold" | "regular" | "medium" | "light";
-type FontSize = "6.5xl" | 40 | 30 | 22 | 18 | 16 | 12;
+type FontSize = "6.5xl" | 48 | 40 | 30 | 22 | 18 | 16 | 12;
 
 export type HeadingProps = React.HTMLAttributes<HTMLHeadingElement> & {
   as?: Variant;
@@ -12,7 +12,8 @@ export type HeadingProps = React.HTMLAttributes<HTMLHeadingElement> & {
 };
 
 const fontSizeClasses: Record<FontSize, string> = {
-  '6.5xl': 'text-[clamp(24px,3.5vw,64px)]',
+  "6.5xl": "text-[clamp(24px,3.5vw,64px)]",
+  48: "text-[48px]",
   40: "text-[40px]",
   30: "text-[30px]",
   22: "text-[22px]",
