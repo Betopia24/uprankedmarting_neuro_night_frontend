@@ -2,17 +2,20 @@ import { Slot } from "@radix-ui/react-slot";
 import { cn } from "@/lib/utils";
 
 type Variant = "primary" | "secondary";
-type Tone = "default";
+type Tone = "default" | "outline";
 type Weight = "bold" | "medium";
 type Size = "sm" | "lg";
 type Shape = "default" | "pill";
 
-const buttonVariantClasses: Record<Variant, Record<Tone, string>> = {
+const buttonVariantClasses: Record<Variant, Record<Partial<Tone>, string>> = {
   primary: {
     default: "bg-primary text-white hover:bg-color-primary/80",
+    outline:
+      "border border-primary text-primary hover:bg-primary hover:text-white",
   },
   secondary: {
     default: "bg-white text-black hover:opacity-90",
+    outline: "border border-grey-300 text-black",
   },
 };
 
