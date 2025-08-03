@@ -4,6 +4,23 @@ import { z } from "zod";
 import { signIn } from "@/auth";
 import { AuthError } from "next-auth";
 
+// Schemas
+const ForgotPasswordSchema = z.object({
+  email: z.string().email({ message: "Please enter a valid email address." }),
+});
+
+const ResetPasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(6, { message: "Password must be at least 6 characters." }),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
+  });
+
 const LoginFormSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." }),
   password: z
@@ -17,16 +34,94 @@ const RegisterFormSchema = z.object({
   password: z
     .string()
     .min(6, { message: "Password must be at least 6 characters." }),
+  terms: z.boolean().refine((val) => val === true, {
+    message: "You must accept the terms and conditions.",
+  }),
 });
 
+// State Types
 export type FormState = {
   message: string;
   errors?: {
     email?: string[];
     password?: string[];
     name?: string[];
+    confirmPassword?: string[];
+    terms?: string[];
   };
 };
+
+// Actions
+export async function sendPasswordResetLink(
+  prevState: FormState | undefined,
+  formData: FormData
+) {
+  const validatedFields = ForgotPasswordSchema.safeParse(
+    Object.fromEntries(formData.entries())
+  );
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Invalid email address.",
+    };
+  }
+
+  const { email } = validatedFields.data;
+
+  // --- TODO: External API Call --- //
+  // Here you would call your external API to send the reset link.
+  // For example:
+  // const res = await fetch(`${process.env.EXTERNAL_API_URL}/auth/forgot-password`, {
+  //   method: 'POST',
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify({ email }),
+  // });
+  // if (!res.ok) { ... handle error ... }
+
+  console.log(`Password reset link sent to: ${email}`);
+
+  return {
+    message: "If an account with that email exists, a password reset link has been sent.",
+  };
+}
+
+export async function resetPassword(
+  token: string | null,
+  prevState: FormState | undefined,
+  formData: FormData
+) {
+  if (!token) {
+    return { message: "Invalid or missing reset token.", errors: {} };
+  }
+
+  const validatedFields = ResetPasswordSchema.safeParse(
+    Object.fromEntries(formData.entries())
+  );
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: "Missing Fields. Failed to Reset Password.",
+    };
+  }
+
+  const { password } = validatedFields.data;
+
+  // --- TODO: External API Call --- //
+  // Here you would call your external API to reset the password.
+  // For example:
+  // const res = await fetch(`${process.env.EXTERNAL_API_URL}/auth/reset-password`,
+  //   method: 'POST',
+  //   headers: { 'Content-Type': 'application/json' },
+  //   body: JSON.stringify({ token, password }),
+  // });
+  // if (!res.ok) { ... handle error ... }
+
+  console.log(`Password reset for token: ${token}`);
+
+  return { message: "Your password has been reset successfully. You can now log in." };
+}
 
 export async function login(
   prevState: FormState | undefined,
@@ -77,8 +172,10 @@ export async function register(
 
   const { name, email, password } = validatedFields.data;
 
+  // --- TODO: External API Call for registration --- //
   console.log("Registering user:", { name, email });
 
+  // Example of checking if user exists
   if (email === "user@example.com") {
     return {
       message: "An account with this email already exists.",

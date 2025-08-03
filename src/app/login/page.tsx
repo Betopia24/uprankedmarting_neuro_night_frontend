@@ -37,12 +37,12 @@ export default function LoginPage() {
               Password
             </label>
             <div className="text-sm">
-              <a
-                href="#"
+              <Link
+                href="/forgot-password"
                 className="font-medium text-primary hover:text-primary"
               >
                 Forgot your password?
-              </a>
+              </Link>
             </div>
           </div>
           <FormField
