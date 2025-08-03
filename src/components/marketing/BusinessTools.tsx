@@ -17,9 +17,9 @@ const tools = [{ name: "Sheet", icon: sheetIcon }, { name: "Dynamics", icon: dyn
 export default function BusinessTools() {
     return <Container className="text-center">
         <Heading>Work With Business Tools</Heading>
-        <div className="flex flex-wrap justify-center gap-10 lg:gap-10 max-w-4xl mx-auto py-12">
+        <div className="flex flex-wrap justify-center gap-10 lg:gap-10 py-12">
             {tools.map((tool, index) => (
-                <div key={index} className="flex-1text-center">
+                <div key={index} className="flex-1 flex-col flex items-center">
                     <Image className="size-20 object-contain" src={tool.icon} alt={tool.name} />
                     <p className="mt-2 font-light text-sm">{tool.name}</p>
                 </div>
