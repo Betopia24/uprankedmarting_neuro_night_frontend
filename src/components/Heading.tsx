@@ -8,18 +8,18 @@ export type HeadingProps = React.HTMLAttributes<HTMLHeadingElement> & {
   as?: Variant;
   size?: FontSize;
   weight?: FontWeight;
-  tracking?: string; // like 'tracking-wide', or custom class
+  tracking?: string;
 };
 
 const fontSizeClasses: Record<FontSize, string> = {
-  "6.5xl": "text-[clamp(24px,3.5vw,64px)]",
-  48: "text-[48px]",
-  40: "text-[40px]",
-  30: "text-[30px]",
-  22: "text-[22px]",
-  18: "text-[18px]",
-  16: "text-[16px]",
-  12: "text-[12px]",
+  "6.5xl": "text-fluid-6.5xl",
+  48: "text-fluid-48",
+  40: "text-fluid-40",
+  30: "text-fluid-30",
+  22: "text-fluid-22",
+  18: "text-fluid-18",
+  16: "text-fluid-16",
+  12: "text-fluid-12",
 };
 
 const fontWeightClasses: Record<FontWeight, string> = {

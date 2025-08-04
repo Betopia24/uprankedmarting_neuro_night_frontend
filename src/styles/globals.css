@@ -25,3 +25,43 @@
   --color-vibrant-blue: #1877f2;
   --color-deep-blue: #0a66c2;
 }
+
+.text-fluid-6\.5xl {
+  font-size: clamp(2.5rem, 3.5vw, 4rem);
+}
+
+.text-fluid-48 {
+  font-size: clamp(1.75rem, 3.5vw, 3rem);
+}
+
+.text-fluid-40 {
+  font-size: clamp(1.5rem, 3.5vw, 2.5rem);
+}
+
+.text-fluid-30 {
+  font-size: 1.875rem;
+}
+
+.text-fluid-24 {
+  font-size: clamp(1.25rem, 3.5vw, 1.5rem);
+}
+
+.text-fluid-22 {
+  font-size: 1.375rem;
+}
+
+.text-fluid-20 {
+  font-size: 1.25rem;
+}
+
+.text-fluid-18 {
+  font-size: clamp(1rem, 3.5vw, 1.125rem);
+}
+
+.text-fluid-16 {
+  font-size: clamp(0.875rem, 3.5vw, 1rem);
+}
+
+.text-fluid-12 {
+  font-size: 0.75rem;
+}
