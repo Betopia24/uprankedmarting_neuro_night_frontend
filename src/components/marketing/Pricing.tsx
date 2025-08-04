@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Button from "../Button";
 import Container from "../Container";
+import { LucideCheck } from "lucide-react";
 
 export default function Pricing() {
   const [billingPeriod, setBillingPeriod] = useState("monthly");
@@ -89,24 +90,8 @@ export default function Pricing() {
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               }`}
             >
-              Quarterly (Save 20%)
+              Yearly
             </button>
-          </div>
-          <div className="flex items-center gap-2">
-            {/* Custom Switch */}
-            <button
-              onClick={() => setIsAnnual(!isAnnual)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${
-                isAnnual ? "bg-teal-500" : "bg-gray-200"
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform duration-200 ${
-                  isAnnual ? "translate-x-6" : "translate-x-1"
-                }`}
-              />
-            </button>
-            <span className="text-gray-700 font-medium">Annual (25% off)</span>
           </div>
         </div>
       </div>
@@ -119,43 +104,30 @@ export default function Pricing() {
             className="relative bg-white/80 backdrop-blur-sm border border-gray-200 shadow-lg rounded-lg overflow-hidden flex flex-col justify-between"
           >
             {/* Card Header */}
-            <div className="p-6 pb-4 min-h-36">
-              <h3 className="text-xl font-bold text-gray-900 mb-3">
-                {plan.name}
-              </h3>
-              <p className="text-sm">{plan.description}</p>
+            <div className="p-6 pb-4 min-h-36 ">
+              <h3 className="text-xl font-bold text-[#0B0B0B]">{plan.name}</h3>
+              <p className="text-sm text-[#4D4D4D] mt-4">{plan.description}</p>
             </div>
 
             {/* Card Content */}
             <div className="px-6 pb-6 space-y-6 flex flex-col justify-stretch flex-1">
-              <div className="flex items-baseline gap-1">
-                <span className="text-4xl font-bold text-gray-900">
-                  ${plan.price}
-                </span>
-                <span className="text-gray-600">/mo</span>
+              <div className="border-t border-b border-grey-300 pt-8 pb-2">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-4xl font-bold text-gray-900 ">
+                    ${plan.price}
+                  </span>
+                  <span className="text-gray-600">/mo</span>
+                </div>
+                <p className="text-xs text-gray-600">Per agent</p>
               </div>
-              <p className="text-sm text-gray-600">Per agent</p>
 
               <div className="space-y-3">
                 {plan.features.map((feature, featureIndex) => (
                   <div key={featureIndex} className="flex items-start gap-3">
-                    {/* Custom Check Icon */}
                     <div className="w-4 h-4 mt-0.5 flex-shrink-0">
-                      <svg
-                        className="w-4 h-4 text-teal-500"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
+                      <LucideCheck size={16} />
                     </div>
-                    <span className="text-sm text-gray-700">{feature}</span>
+                    <span className="text-sm">{feature}</span>
                   </div>
                 ))}
               </div>
