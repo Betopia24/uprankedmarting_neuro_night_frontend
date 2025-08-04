@@ -9,7 +9,7 @@ export default function AgentManagement() {
       <Container>
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="space-y-4 text-fluid-24 order-2 lg:order-1">
-            <div className="space-y-4 text-fluid-20">
+            <div className="space-y-8 text-fluid-20">
               <Heading size={40}>
                 Know Out What Your AI Agent Can Do for You
               </Heading>
@@ -21,7 +21,7 @@ export default function AgentManagement() {
                 efficient, and flexible.
               </p>
             </div>
-            <ul className="list-disc space-y-4 pl-8 text-fluid-24">
+            <ul className="list-disc space-y-2 pl-8 text-fluid-24">
               <li>
                 View agent details like name, role, activity logs, and Review —
                 all in one dashboard.
@@ -46,7 +46,7 @@ export default function AgentManagement() {
             </div>
           </div>
           <Image
-            className="max-w-lg w-full mx-auto block object-contain order-1 lg:order-2"
+            className="h-full mx-auto block object-contain order-1 lg:order-2"
             src={agentManagementImage}
             alt="recording"
           />
