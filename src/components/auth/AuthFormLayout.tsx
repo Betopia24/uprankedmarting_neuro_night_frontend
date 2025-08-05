@@ -24,7 +24,7 @@ export default function AuthFormLayout({
   footerLinkText,
 }: AuthFormLayoutProps) {
   return (
-    <div className="flex hap-20 items-center justify-center h-screen">
+    <div className="flex gap-20 items-center justify-center h-screen">
       <div className="lg:flex lg:items-center lg:justify-between">
         <div className="lg:flex-1 max-w-md p-8 bg-white rounded-lg shadow-lg space-y-10">
           <Link href={homePath()}>
