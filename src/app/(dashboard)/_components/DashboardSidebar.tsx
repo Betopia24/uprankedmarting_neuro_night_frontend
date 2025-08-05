@@ -1,13 +1,8 @@
 "use client";
 
-import {
-  LucidePanelLeftDashed,
-  LucidePanelRightDashed,
-  LucideUser,
-} from "lucide-react";
+import { ChevronsRight, LucideUser } from "lucide-react";
 import { motion } from "framer-motion";
 import React, { createElement } from "react";
-import Button from "@/components/Button";
 import { cn } from "@/lib/utils";
 import { useSidebar } from "./SidebarProvider";
 import { Logo } from "@/components";
@@ -19,7 +14,7 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
   return (
     <motion.nav
       className={cn(
-        "h-screen flex flex-col bg-[#ECF1F8] gap-4 z-50 sticky top-0 text-sm whitespace-nowrap"
+        "h-screen flex flex-col bg-[#ECF1F8] gap-4 z-50 sticky top-0 text-sm whitespace-nowrap relative"
       )}
       style={{
         width: isCollapsedSidebar
@@ -37,6 +32,9 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
     >
+      <div className="absolute right-0 top-0 z-10">
+        <SidebarToggleButton />
+      </div>
       <SidebarHeader />
 
       <div className="flex-1 space-y-[var(--_sidebar-spacing)]">{children}</div>
@@ -106,17 +104,13 @@ function SidebarIcon({
 export function SidebarToggleButton() {
   const { isExpanded, toggleSidebarCollapse } = useSidebar();
   return (
-    <Button
-      size="icon"
-      variant="secondary"
-      tone="outline"
-      onClick={toggleSidebarCollapse}
-    >
-      {isExpanded ? (
-        <LucidePanelLeftDashed className="size-4" />
-      ) : (
-        <LucidePanelRightDashed className="size-4" />
-      )}
-    </Button>
+    <button className="p-1 cursor-pointer" onClick={toggleSidebarCollapse}>
+      <ChevronsRight
+        className={cn(
+          "size-4 text-gray-500",
+          isExpanded ? "-scale-100" : "scale-100"
+        )}
+      />
+    </button>
   );
 }

@@ -4,10 +4,8 @@ import { cn } from "@/lib/utils";
 
 export default function DashboardLayout({
   children,
-  header,
   sidebar,
 }: {
-  header: React.ReactNode;
   sidebar: React.ReactNode;
 } & React.PropsWithChildren) {
   const { isCollapsedSidebar } = useSidebar();
@@ -33,10 +31,7 @@ export default function DashboardLayout({
       className={cn(`grid transition-[grid] duration-300`)}
     >
       <div className="[grid-area:sidebar]">{sidebar}</div>
-      <div className="[grid-area:main] px-[var(--_sidebar-spacing)]">
-        {header}
-        {children}
-      </div>
+      <div className="[grid-area:main] px-10">{children}</div>
     </div>
   );
 }

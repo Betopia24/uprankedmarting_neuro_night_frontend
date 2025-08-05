@@ -21,10 +21,9 @@ export default function AdminDashboardLayout({
     <>
       <SidebarProvider>
         <DashboardLayout
-          header={<DashboardHeader />}
           sidebar={
             <DashboardSidebar>
-              <SidebarContent mainItems={adminRoutes} subItems={adminRoutes} />
+              <SidebarContent mainItems={adminRoutes} />
             </DashboardSidebar>
           }
         >

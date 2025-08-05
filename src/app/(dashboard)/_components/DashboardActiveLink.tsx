@@ -21,7 +21,7 @@ export default function DashboardActiveLink({
     <Link
       href={href}
       className={cn(
-        "block w-full",
+        "block w-full hover:bg-grey-400",
         isActive && "is-active-link bg-grey-400",
         className
       )}

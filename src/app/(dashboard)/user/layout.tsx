@@ -16,6 +16,8 @@ import {
   LucideGitFork,
   LucideCommand,
   LucideMessageSquare,
+  LucideSettings,
+  LucideCreditCard,
 } from "lucide-react";
 
 const clientRoutes = [
@@ -41,6 +43,15 @@ const clientRoutes = [
   { name: "Feedback", href: "/dashboard/roles", icon: <LucideMessageSquare /> },
 ] as SidebarItemType[];
 
+const clientSubRoutes = [
+  { name: "Settings", href: "/dashboard", icon: <LucideSettings /> },
+  {
+    name: "Payments",
+    href: "/dashboard/users",
+    icon: <LucideCreditCard />,
+  },
+];
+
 export default function AdminDashboardLayout({
   children,
 }: React.PropsWithChildren) {
@@ -53,7 +64,7 @@ export default function AdminDashboardLayout({
             <DashboardSidebar>
               <SidebarContent
                 mainItems={clientRoutes}
-                subItems={clientRoutes}
+                subItems={clientSubRoutes}
               />
             </DashboardSidebar>
           }
