@@ -6,6 +6,7 @@ import Link from "next/link";
 import AuthFormLayout from "@/components/auth/AuthFormLayout";
 import FormField from "@/components/auth/FormField";
 import FormButton from "@/components/auth/FormButton";
+import { signupPath } from "@/paths";
 
 export default function LoginPage() {
   const [state, dispatch] = useActionState(login, undefined);
@@ -15,7 +16,7 @@ export default function LoginPage() {
       title="Welcome Back!"
       description="Enter your Credentials to access your account"
       footerText="Don't have an account?"
-      footerLink="/register"
+      footerLink={signupPath()}
       footerLinkText="Sign up"
     >
       <form action={dispatch} className="space-y-6">

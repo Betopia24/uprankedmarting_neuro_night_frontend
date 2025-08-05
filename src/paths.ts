@@ -4,7 +4,7 @@ export const pricingPath = () => "/pricing";
 export const servicePath = () => "/service";
 export const aboutUsPath = () => "/about-us";
 export const loginPath = () => "/login";
-export const registerPath = () => "/register";
+export const signupPath = () => "/signup";
 
 export const privacyPolicyPath = () => "/privacy-policy";
 export const termsAndConditionsPath = () => "/terms-of-use";
