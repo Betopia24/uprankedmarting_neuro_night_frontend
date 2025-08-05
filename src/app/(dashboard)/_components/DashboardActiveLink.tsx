@@ -8,7 +8,7 @@ type ActiveLinkProps = {
   exact?: boolean;
 } & React.ComponentProps<"a">;
 
-export default function ActiveLink({
+export default function DashboardActiveLink({
   href = "",
   exact = false,
   className,
@@ -20,7 +20,11 @@ export default function ActiveLink({
   return (
     <Link
       href={href}
-      className={cn("block w-full", isActive && "is-active-link", className)}
+      className={cn(
+        "block w-full",
+        isActive && "is-active-link bg-grey-400",
+        className
+      )}
     >
       {children}
     </Link>

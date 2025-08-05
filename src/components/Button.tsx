@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 type Variant = "primary" | "secondary";
 type Tone = "default" | "outline";
 type Weight = "bold" | "medium";
-type Size = "sm" | "lg";
+type Size = "sm" | "lg" | "icon";
 type Shape = "default" | "pill";
 
 const buttonVariantClasses: Record<Variant, Record<Partial<Tone>, string>> = {
@@ -22,6 +22,7 @@ const buttonVariantClasses: Record<Variant, Record<Partial<Tone>, string>> = {
 const buttonSizeClasses: Record<Size, string> = {
   sm: "px-6 py-2 text-sm rounded-md h-10",
   lg: "px-10 py-3 text-base rounded-lg h-12",
+  icon: "size-8",
 };
 
 const buttonWeightClasses: Record<Weight, string> = {
@@ -60,7 +61,7 @@ export default function Button({
   return (
     <Comp
       className={cn(
-        "font-sans inline-flex items-center justify-center transition-[transform_opacity] focus:outline-none focus:ring-2 focus:ring-offset-px tracking-custom cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none disabled:hover:bg-transparent disabled:hover:text-inherit duration-300 hover:-translate-y-px gap-2.5 [&>svg]:size-5 [&>svg]:fill-current whitespace-nowrap",
+        "font-sans inline-flex items-center justify-center transition-[transform_opacity] focus:outline-none focus:ring focus:ring-offset-px ring-grey-300 tracking-custom cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none disabled:hover:bg-transparent disabled:hover:text-inherit duration-300 hover:-translate-y-px gap-2.5 [&>svg]:size-5 whitespace-nowrap",
         buttonVariantClasses[variant]?.[tone],
         buttonSizeClasses[size],
         buttonWeightClasses[weight],

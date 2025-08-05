@@ -15,7 +15,10 @@ export default async function DashboardPage() {
             await signOut();
           }}
         >
-          <button type="submit" className="w-full py-2 mt-4 text-white bg-red-500 rounded-md">
+          <button
+            type="submit"
+            className="w-full py-2 mt-4 text-white bg-red-500 rounded-md"
+          >
             Sign out
           </button>
         </form>

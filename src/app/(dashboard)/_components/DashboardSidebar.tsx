@@ -1,28 +1,25 @@
 "use client";
 
 import {
-  LucidePackage,
   LucidePanelLeftDashed,
   LucidePanelRightDashed,
   LucideUser,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { createElement } from "react";
-
-import Heading from "@/components/Heading";
+import React, { createElement } from "react";
 import Button from "@/components/Button";
 import { cn } from "@/lib/utils";
-
 import { useSidebar } from "./SidebarProvider";
+import { Logo } from "@/components";
 
-export default function Sidebar() {
+export default function Sidebar({ children }: React.PropsWithChildren) {
   const { handlePointerEnter, handlePointerLeave, isCollapsedSidebar } =
     useSidebar();
 
   return (
     <motion.nav
       className={cn(
-        "h-screen flex flex-col border-r border-border bg-sidebar gap-4 z-50 sticky top-0 text-sm whitespace-nowrap"
+        "h-screen flex flex-col bg-[#ECF1F8] gap-4 z-50 sticky top-0 text-sm whitespace-nowrap"
       )}
       style={{
         width: isCollapsedSidebar
@@ -42,7 +39,7 @@ export default function Sidebar() {
     >
       <SidebarHeader />
 
-      <div className="flex-1 overflow-y-scroll space-y-[var(--_sidebar-spacing)]"></div>
+      <div className="flex-1 space-y-[var(--_sidebar-spacing)]">{children}</div>
 
       <SidebarFooter />
     </motion.nav>
@@ -50,28 +47,15 @@ export default function Sidebar() {
 }
 
 function SidebarHeader() {
-  const { isExpanded } = useSidebar();
-
   return (
     <div className="p-[var(--_sidebar-spacing)] flex gap-2 items-center relative h-[var(--_sidebar-header-height)] after:absolute after:bottom-0 after:inset-x-2 after:h-px after:bg-border">
-      <span className="bg-accent text-primary rounded">
-        <SidebarIcon icon={LucidePackage} size="lg" />
-      </span>
-
-      {isExpanded && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="mt-2"
-        >
-          <Heading as="h4" className="leading-2.5">
-            App Name
-          </Heading>
-          <span className="text-sm text-muted-foreground">
-            Enterprise Edition
-          </span>
-        </motion.div>
-      )}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="mt-2 shrink-0 flex w-full justify-center"
+      >
+        <Logo />
+      </motion.div>
     </div>
   );
 }
@@ -90,52 +74,10 @@ function SidebarFooter() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="mt-2"
-        >
-          <Heading as="h4" className="leading-2.5">
-            Sarah Johnson
-          </Heading>
-          <span className="text-sm text-muted-foreground">
-            Store Administrator
-          </span>
-        </motion.div>
+        ></motion.div>
       )}
     </div>
   );
-}
-
-function ActiveLabel({
-  children,
-  className,
-  leftExpanded,
-}: { leftExpanded?: boolean } & React.ComponentProps<"span">) {
-  return (
-    <span
-      className={cn(
-        "block relative hover:bg-accent hover:text-accent-foreground rounded-sm [.is-active-link_&]:bg-accent [.is-active-link_&]:text-accent-foreground",
-        {
-          "-ml-[var(--_sidebar-spacing)] px-[var(--_sidebar-spacing)]":
-            leftExpanded,
-        },
-        className
-      )}
-    >
-      {children}
-    </span>
-  );
-}
-
-function AnimatedLabel({ children }: React.PropsWithChildren) {
-  const { isExpanded } = useSidebar();
-
-  return isExpanded ? (
-    <motion.span
-      initial={{ opacity: 0.5 }}
-      animate={{ opacity: 1 }}
-      className="py-1 block"
-    >
-      {children}
-    </motion.span>
-  ) : null;
 }
 
 function SidebarIcon({
@@ -164,7 +106,12 @@ function SidebarIcon({
 export function SidebarToggleButton() {
   const { isExpanded, toggleSidebarCollapse } = useSidebar();
   return (
-    <Button onClick={toggleSidebarCollapse}>
+    <Button
+      size="icon"
+      variant="secondary"
+      tone="outline"
+      onClick={toggleSidebarCollapse}
+    >
       {isExpanded ? (
         <LucidePanelLeftDashed className="size-4" />
       ) : (
