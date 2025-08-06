@@ -10,19 +10,19 @@ const step1 = {
 const step2 = {
   hidden: (custom: "top" | "bottom" | "left" | "right" | "none") => {
     const baseStyles = {
-      opacity: [0, 0, 0, 1, 1, 0, 0],
+      opacity: [0, 0, 1, 1, 0, 0],
       y:
         custom === "top"
-          ? [20, 20, 20, 0, 0, 20, 20]
+          ? [20, 20, 0, 0, 20, 20]
           : custom === "bottom"
-          ? [20, 20, 20, 0, 0, 20, 20]
-          : [0, 0, 0, 0, 0, 0, 0],
+          ? [20, 20, 0, 0, 20, 20]
+          : [0, 0, 0, 0, 0, 0],
       x:
         custom === "left"
-          ? [-20, -20, -20, 0, 0, -20, -20]
+          ? [-20, -20, 0, 0, -20, -20]
           : custom === "right"
-          ? [20, 20, 20, 0, 0, 20, 20]
-          : [0, 0, 0, 0, 0, 0, 0],
+          ? [20, 20, 0, 0, 20, 20]
+          : [0, 0, 0, 0, 0, 0],
     };
     return custom === "none" ? { ...baseStyles, y: 0, x: 0 } : baseStyles;
   },
@@ -43,7 +43,7 @@ type IntroAnimationProps = {
 export function IntroAnimation({
   variant,
   children,
-  duration = 6,
+  duration = 5,
   followUp = false,
   custom = "none",
 }: IntroAnimationProps) {
@@ -51,6 +51,7 @@ export function IntroAnimation({
     <motion.div
       variants={variants[variant]}
       animate="hidden"
+      initial={{ opacity: 0, y: 0, x: 0 }}
       transition={{
         duration,
         ease: "easeInOut",

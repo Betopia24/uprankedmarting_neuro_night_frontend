@@ -25,12 +25,7 @@ export default function Hero() {
                   alt="robot"
                 />
               </IntroAnimation>
-              <IntroAnimation
-                variant="step2"
-                duration={7}
-                custom="left"
-                followUp
-              >
+              <IntroAnimation variant="step2" custom="left" followUp>
                 <Image
                   className="size-28 lg:size-60 object-contain"
                   src={roboticEarphone}
@@ -58,12 +53,7 @@ export default function Hero() {
                   alt="robot"
                 />
               </IntroAnimation>
-              <IntroAnimation
-                variant="step2"
-                duration={7}
-                custom="right"
-                followUp
-              >
+              <IntroAnimation variant="step2" custom="right" followUp>
                 <Image
                   className="size-28 lg:size-60 object-contain lg:mt-20"
                   src={roboticPhone}
@@ -80,7 +70,7 @@ export default function Hero() {
                 alt="robot"
               />
             </IntroAnimation>
-            <IntroAnimation variant="step2" duration={7} custom="top" followUp>
+            <IntroAnimation variant="step2" custom="top" followUp>
               <Image
                 className="object-contain max-h-84"
                 src={personImage}
