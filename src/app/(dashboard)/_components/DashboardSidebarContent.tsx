@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 export type SidebarItemType = {
   name: string;
   href: string;
-  icon: React.ReactNode;
+  icon: React.ReactElement<{ className?: string }>; // Specify that icon accepts className
 };
 
 type SidebarContentType = {
@@ -34,7 +34,7 @@ export default function SidebarContent({
               )}
               href={item.href}
             >
-              {cloneElement(item.icon, {
+              {cloneElement(item.icon as React.ReactElement<any>, {
                 className: "size-5 text-gray-500 shrink-0",
               })}
               <AnimatedLabel>{item.name}</AnimatedLabel>
@@ -53,7 +53,7 @@ export default function SidebarContent({
                 )}
                 href={item.href}
               >
-                {cloneElement(item.icon, {
+                {cloneElement(item.icon as React.ReactElement<any>, {
                   className: "size-5 text-gray-500 shrink-0",
                 })}
                 <AnimatedLabel>{item.name}</AnimatedLabel>
