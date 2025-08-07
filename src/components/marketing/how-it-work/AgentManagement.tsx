@@ -16,7 +16,7 @@ export default function AgentManagement() {
               <p>
                 Our AI-powered Call Center comes with a powerful Agent
                 Management System that gives you complete control over both
-                human and AI agents. Whether you're managing a small team or
+                human and AI agents. Whether you&apos;re managing a small team or
                 scaling operations, our system ensures you stay organized,
                 efficient, and flexible.
               </p>
