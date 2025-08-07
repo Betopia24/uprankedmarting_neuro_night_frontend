@@ -1,4 +1,4 @@
-import { Suspense } from 'react';
+import { Suspense } from "react";
 import { DataTable } from "./_components/Table";
 import { Pagination } from "./_components/Pagination";
 import { Search } from "./_components/Search";
@@ -12,7 +12,13 @@ export default async function Page({ searchParams }) {
     <div className="p-4 space-y-4">
       <div className="flex justify-between items-center">
         <Search />
-        <Filter />
+        <Filter
+          filterOptions={[
+            { value: "Inbound", label: "Inbound" },
+            { value: "Outbound", label: "Outbound" },
+            { value: "Inquiry", label: "Inquiry" },
+          ]}
+        />
       </div>
 
       <Suspense fallback={<div>Loading...</div>}>

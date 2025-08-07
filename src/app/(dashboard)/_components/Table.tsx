@@ -159,7 +159,28 @@ export default function CallsPage({
 
   return (
     <div className="overflow-x-auto p-4">
-      <FilterBar initialFilters={filters} headers={headers} />
+      <FilterBar
+        initialFilters={filters}
+        filterConfig={[
+          { key: "Caller Number", label: "Caller Number", type: "text" },
+          {
+            key: "Call Type",
+            label: "Call Type",
+            type: "select",
+            options: [
+              { value: "Inbound", label: "Inbound" },
+              { value: "Outbound", label: "Outbound" },
+            ],
+          },
+          { key: "Call Time", label: "Call Time", type: "text" },
+          { key: "Call Duration", label: "Call Duration", type: "text" },
+          { key: "Receive", label: "Receive", type: "text" },
+          { key: "Agent Name", label: "Agent Name", type: "text" },
+          { key: "Date", label: "Date", type: "text" },
+          { key: "Call Record", label: "Call Record", type: "text" },
+          { key: "Call Summary", label: "Call Summary", type: "text" },
+        ]}
+      />
       <table className="mt-4 min-w-full border border-gray-300 border-collapse">
         <thead className="bg-gray-100 sticky top-0 z-10">
           <tr>
