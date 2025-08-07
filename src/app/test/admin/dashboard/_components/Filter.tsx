@@ -1,21 +1,30 @@
-'use client';
+"use client";
 
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams, useRouter } from "next/navigation";
 
-export function Filter() {
+type FilterOption = {
+  value: string;
+  label: string;
+};
+
+type FilterProps = {
+  filterOptions: FilterOption[];
+};
+
+export function Filter({ filterOptions }: FilterProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const currentFilter = searchParams.get('filter') ?? '';
+  const currentFilter = searchParams.get("filter") ?? "";
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     const params = new URLSearchParams(searchParams.toString());
     if (value) {
-      params.set('filter', value);
+      params.set("filter", value);
     } else {
-      params.delete('filter');
+      params.delete("filter");
     }
-    params.delete('page'); // Reset to first page
+    params.delete("page");
     router.push(`?${params.toString()}`);
   };
 
@@ -26,8 +35,11 @@ export function Filter() {
       className="border p-2 rounded-md"
     >
       <option value="">All</option>
-      <option value="Inbound">Inbound</option>
-      <option value="Outbound">Outbound</option>
+      {filterOptions.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
     </select>
   );
 }

@@ -3,12 +3,24 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-type FilterBarProps = {
-  initialFilters: Record<string, string>;
-  headers: string[];
+export type FilterOption = {
+  value: string;
+  label: string;
 };
 
-export function FilterBar({ initialFilters, headers }: FilterBarProps) {
+export type FilterConfig = {
+  key: string;
+  label: string;
+  type: "text" | "select";
+  options?: FilterOption[];
+};
+
+type FilterBarProps = {
+  initialFilters: Record<string, string>;
+  filterConfig: FilterConfig[];
+};
+
+export function FilterBar({ initialFilters, filterConfig }: FilterBarProps) {
   const router = useRouter();
   const [filters, setFilters] = useState(initialFilters);
 
@@ -33,19 +45,38 @@ export function FilterBar({ initialFilters, headers }: FilterBarProps) {
       onSubmit={handleSubmit}
       className="flex flex-wrap items-center gap-3 rounded-lg bg-gray-50 p-4"
     >
-      {headers.map((header) => (
-        <div key={header} className="flex flex-col">
-          <label htmlFor={header} className="text-sm font-medium text-gray-600">
-            {header}
+      {filterConfig.map((config) => (
+        <div key={config.key} className="flex flex-col">
+          <label
+            htmlFor={config.key}
+            className="text-sm font-medium text-gray-600"
+          >
+            {config.label}
           </label>
-          <input
-            id={header}
-            type="text"
-            placeholder={`Filter by ${header}...`}
-            value={filters[header] || ""}
-            onChange={(e) => handleFilterChange(header, e.target.value)}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:w-auto"
-          />
+          {config.type === "select" ? (
+            <select
+              id={config.key}
+              value={filters[config.key] || ""}
+              onChange={(e) => handleFilterChange(config.key, e.target.value)}
+              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:w-auto"
+            >
+              <option value="">All</option>
+              {config.options?.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              id={config.key}
+              type="text"
+              placeholder={`Filter by ${config.label}...`}
+              value={filters[config.key] || ""}
+              onChange={(e) => handleFilterChange(config.key, e.target.value)}
+              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:w-auto"
+            />
+          )}
         </div>
       ))}
       <button
