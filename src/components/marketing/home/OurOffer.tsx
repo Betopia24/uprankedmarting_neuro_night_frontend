@@ -1,11 +1,10 @@
-import Container from "../Container";
-import Heading from "../Heading";
+import { Section, Container } from "@/components";
 import handsImage from "@/images/hands.png";
 import Image from "next/image";
 
 export default function OurOffer() {
   return (
-    <section className="py-14">
+    <Section className="py-14">
       <Container>
         <div className="flex flex-col gap-10 lg:flex-row">
           <Image
@@ -14,10 +13,7 @@ export default function OurOffer() {
             alt="shake"
           />
           <div className="bg-warning space-y-4 flex-1 p-6 text-[20px]">
-            <Heading size={40} className="italic">
-              What We Offer
-            </Heading>
-
+            <Section.Heading className="italic">What We Offer</Section.Heading>
             <div className="text-base leading-relaxed space-y-2">
               <ul className="list-disc list-inside space-y-2">
                 <li>
@@ -57,6 +53,6 @@ export default function OurOffer() {
           </div>
         </div>
       </Container>
-    </section>
+    </Section>
   );
 }

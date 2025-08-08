@@ -46,7 +46,7 @@ export type ButtonProps = {
 } & React.ComponentPropsWithRef<"button">;
 
 export default function Button({
-  asChild,
+  asChild = false,
   variant = "primary",
   tone = "default",
   weight = "medium",

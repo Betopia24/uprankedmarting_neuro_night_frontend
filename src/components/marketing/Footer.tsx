@@ -50,14 +50,14 @@ export default function Footer() {
             alt="logo"
           />
         </div>
-        <ul className="flex gap-4 justify-center">
+        <ul className="flex flex-wrap gap-4 justify-center">
           {links.map((link) => (
             <li key={link.id}>
               <Link href={link.href()}>{link.name}</Link>
             </li>
           ))}
         </ul>
-        <ul className="flex gap-4 justify-center mt-4">
+        <ul className="flex flex-wrap gap-4 justify-center mt-4">
           {socialLinks.map((link) => (
             <li key={link.id}>
               <Link href={link.href}>
@@ -67,17 +67,17 @@ export default function Footer() {
           ))}
         </ul>
         <div className="mt-10 border-t border-primary flex justify-between items-center gap-2 py-4">
-          <ul className="flex gap-4 justify-center text-[10px]">
+          <ul className="flex flex-wrap gap-4 justify-center text-[10px]">
             {externalLinks.slice(0, 2).map((link) => (
               <li key={link.id}>
                 <Link href={link.href()}>{link.name}</Link>
               </li>
             ))}
           </ul>
-          <span>
+          <span className="text-sm">
             &copy;{new Date().getFullYear()} Autoawnser.ai. All rights reserved.
           </span>
-          <ul className="flex gap-4 justify-center text-[10px]">
+          <ul className="flex flex-wrap gap-4 justify-center text-[10px]">
             {externalLinks.slice(2).map((link) => (
               <li key={link.id}>
                 <Link href={link.href()}>{link.name}</Link>

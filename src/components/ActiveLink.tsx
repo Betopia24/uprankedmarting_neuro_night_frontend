@@ -5,30 +5,30 @@ import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
 
 type ActiveLinkProps = {
-    href: string;
-    children: React.ReactNode;
-    className?: string;
-    onClick?: () => void;
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+  onClick?: () => void;
 };
 
 export default function ActiveLink({
-    href,
-    children,
-    className,
-    ...props
+  href,
+  children,
+  className,
+  ...props
 }: ActiveLinkProps) {
-    const isActive = usePathname() === href;
-    return (
-        <Link
-            {...props}
-            href={href}
-            className={cn(
-                'rounded-md p-4 hover:bg-grey-300 hover:text-black transition-colors duration-300 inline-flex',
-                isActive && "bg-grey-300 text-black",
-                className
-            )}
-        >
-            {children}
-        </Link>
-    );
+  const isActive = usePathname() === href;
+  return (
+    <Link
+      {...props}
+      href={href}
+      className={cn(
+        "rounded-md px-4 py-2 hover:bg-grey-300 hover:text-black transition-colors duration-300 inline-flex",
+        isActive && "bg-grey-300 text-black",
+        className
+      )}
+    >
+      {children}
+    </Link>
+  );
 }

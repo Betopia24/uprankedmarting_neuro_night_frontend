@@ -1,17 +1,16 @@
-import Container from "../Container";
-import Heading from "../Heading";
+import { Section, Container } from "@/components";
 import shakeImage from "@/images/shake.png";
 import Image from "next/image";
 
 export default function OurFeatures() {
   return (
-    <section className="py-14">
+    <Section>
       <Container>
-        <div className="flex flex-col gap-10 lg:gap-0 lg:flex-row">
-          <div className="bg-warning space-y-4 flex-1 p-6 text-[20px] order-2 lg:order-1">
-            <Heading size={40} className="italic">
+        <div className="flex flex-col gap-10 lg:gap-0 lg:flex-row text-fluid-20 overflow-hidden">
+          <div className="bg-warning space-y-4 flex-1 p-6 text-fluid-2 order-2 lg:order-1 rounded">
+            <Section.Heading className="italic">
               AI Phone Agent & Virtual Receptionist for Smarter CX
-            </Heading>
+            </Section.Heading>
             <p>
               Harness the power of Autoawnser.ai to deliver seamless,
               natural-sounding phone support that operates 24/7.
@@ -22,7 +21,7 @@ export default function OurFeatures() {
               that:
             </p>
             <div className="text-base leading-relaxed space-y-2">
-              <ul className="list-disc list-inside space-y-2.5 font-medium text-[20px] pl-4">
+              <ul className="list-disc list-inside space-y-2.5 font-medium pl-4">
                 <li>
                   Automates customer service, scheduling, and lead capture with
                   intuitive “skills” and logic-driven flows.
@@ -57,6 +56,6 @@ export default function OurFeatures() {
           />
         </div>
       </Container>
-    </section>
+    </Section>
   );
 }

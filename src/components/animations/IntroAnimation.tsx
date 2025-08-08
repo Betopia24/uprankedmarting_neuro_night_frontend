@@ -40,7 +40,7 @@ type IntroAnimationProps = {
   custom?: "top" | "bottom" | "left" | "right" | "none";
 } & React.PropsWithChildren;
 
-export function IntroAnimation({
+export default function IntroAnimation({
   variant,
   children,
   duration = 5,

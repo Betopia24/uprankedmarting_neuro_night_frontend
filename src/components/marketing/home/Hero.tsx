@@ -1,23 +1,23 @@
-import Button from "../Button";
-import Container from "../Container";
-import Heading from "../Heading";
+import { Button, Container, Section, Heading } from "@/components";
 import Image from "next/image";
 import robotImage from "@/images/robot.png";
 import personImage from "@/images/person.png";
 import roboticEarphone from "@/images/robotic-earphone.png";
 import roboticPhone from "@/images/robotic-phone.png";
-import { IntroAnimation } from "../animations/IntroAnimation";
+import { IntroAnimation } from "@/components/animations";
 
 export default function Hero() {
   return (
-    <div className="bg-gradient-to-b from-[#78A4FF] via-white via-[#EEF2FF] to-[#EEF2FF] overflow-x-hidden">
+    <Section className="hero-gradient overflow-x-hidden">
       <Container>
         <div className="text-center py-12 relative flex flex-col gap-6 items-center">
-          <Heading size="6.5xl" weight="bold" className="leading-tight">
-            Your Dynamic AI-Driven Virtual Receptionist & With Human.
-          </Heading>
+          <div className="max-w-7xl mx-auto text-center">
+            <Heading size="6.5xl" weight="bold" className="leading-tight">
+              Your Dynamic AI-Driven Virtual Receptionist & With Human.
+            </Heading>
+          </div>
           <div className="flex">
-            <div className="shrink-0 relative">
+            <div className="shrink-0 relative hidden lg:block">
               <IntroAnimation variant="step1">
                 <Image
                   className="size-28 lg:size-60 object-contain"
@@ -33,7 +33,7 @@ export default function Hero() {
                 />
               </IntroAnimation>
             </div>
-            <div className="flex-1 text-center space-y-6">
+            <div className="flex-1 text-center space-y-4">
               <p>Get the #1 rated receptionist service for small business.</p>
               <p>
                 Never miss a call. Our AI and live receptionists answer 24/7,
@@ -45,7 +45,7 @@ export default function Hero() {
                 <div className="block text-xs">No credit card required*</div>
               </div>
             </div>
-            <div className="shrink-0 relative">
+            <div className="shrink-0 relative hidden lg:block">
               <IntroAnimation variant="step1">
                 <Image
                   className="size-28 lg:size-60 object-contain lg:mt-20"
@@ -80,6 +80,6 @@ export default function Hero() {
           </div>
         </div>
       </Container>
-    </div>
+    </Section>
   );
 }

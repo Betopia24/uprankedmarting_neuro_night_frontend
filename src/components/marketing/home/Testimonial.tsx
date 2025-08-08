@@ -1,8 +1,7 @@
 "use client";
 
-import Embla, { useEmblaContext } from "../Carousel";
-import Container from "../Container";
-import Heading from "../Heading";
+import Embla, { useEmblaContext } from "@/components/Carousel";
+import { Section, Container, Heading } from "@/components";
 import starFullImage from "@/images/star-full.svg";
 import Image from "next/image";
 
@@ -44,15 +43,17 @@ const testimonialsData = [
 export default function Testimonial() {
   return (
     <Embla>
-      <section className="bg-warning py-8 md:py16 lg:py-24">
+      <Section bg="bg-warning">
         <Container size="xl">
           <div className="text-center">
-            <Heading size={12} className="text-warning-500">
+            <Section.Name className="text-warning-500">
               Testimonial
-            </Heading>
-            <Heading size={30} className="text-accent-500">
-              What our clients say about us.
-            </Heading>
+            </Section.Name>
+            <Section.Heading>
+              <div className="text-violet-950">
+                What our clients say about us.
+              </div>
+            </Section.Heading>
           </div>
 
           <Embla data={testimonialsData} delay={6000} slidesPerView={3}>
@@ -66,7 +67,7 @@ export default function Testimonial() {
             </div>
           </Embla>
         </Container>
-      </section>
+      </Section>
     </Embla>
   );
 }

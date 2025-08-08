@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Container from "../Container";
-import Heading from "../Heading";
+import { Container, Section } from "@/components";
 import { LucideChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -32,20 +31,20 @@ export default function FAQ() {
   const isActive = (index: number) => activeIndex === index;
 
   return (
-    <section className="py-10 lg:py-16">
+    <Section>
+      <Section.Header>
+        <Section.Heading>FAQ</Section.Heading>
+      </Section.Header>
       <Container>
-        <Heading className="text-center" size={40}>
-          FAQ
-        </Heading>
         <div className="mt-16 space-y-4">
           {accordionData.map((item) => (
             <div
-              className="space-y-2 border-b border-grey-300 pb-2"
+              className="space-y-2.5 border-b border-grey-300 pb-2"
               key={item.id}
             >
               <div
                 onClick={() => setActiveIndex(item.id)}
-                className="text-2xl cursor-pointer font-medium flex justify-between items-center"
+                className="text-fluid-22 cursor-pointer font-medium flex justify-between items-start gap-2"
               >
                 {item.title}
                 <button>
@@ -61,6 +60,6 @@ export default function FAQ() {
           ))}
         </div>
       </Container>
-    </section>
+    </Section>
   );
 }
