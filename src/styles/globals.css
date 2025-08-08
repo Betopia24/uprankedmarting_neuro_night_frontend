@@ -310,9 +310,6 @@
   .md\:table {
     display: table;
   }
-  .md\:hidden {
-    display: none;
-  }
 }
 
 .hero-gradient {

@@ -8,7 +8,7 @@ import Logo from "../Logo";
 export default function Navbar() {
   return (
     <header className="bg-grey-100 px-6">
-      <nav className="flex items-center justify-between relative xl:max-w-[95%] mx-auto">
+      <nav className="flex items-center justify-between relative w-full xl:max-w-[95%] mx-auto">
         <div className="lg:flex-1">
           <Logo />
         </div>
@@ -24,9 +24,9 @@ export default function Navbar() {
               <Link href="/signup">Sign Up</Link>
             </Button>
           </div>
-          <div className="md:hidden">
-            <MobileNavigation />
-          </div>
+        </div>
+        <div className="flex md:hidden">
+          <MobileNavigation />
         </div>
       </nav>
     </header>

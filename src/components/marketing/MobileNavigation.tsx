@@ -13,13 +13,13 @@ export default function MobileNavigation() {
   const toggle = () => setOpen(!open);
   return (
     <>
-      <button onClick={toggle} className="cursor-pointer">
+      <button onClick={toggle} className="cursor-pointer size-10">
         <Image src={burgerMenu} alt="menu" />
       </button>
       <motion.div
         transition={{ duration: 0.3, ease: "linear" }}
         animate={{ y: open ? 0 : "-100%" }}
-        className="fixed top-0 inset-x-0 bg-grey-600 text-white pt-8 pb-14 space-y-6 px-6"
+        className="fixed z-[9999] top-0 inset-x-0 bg-grey-600 text-white pt-8 pb-14 space-y-6 px-6"
       >
         <div className="flex justify-end">
           <button onClick={toggle} className="cursor-pointer">

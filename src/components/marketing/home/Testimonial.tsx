@@ -74,7 +74,7 @@ export default function Testimonial() {
 
 function TestimonialCard({ data }: { data: TestimonialData }) {
   return (
-    <blockquote className="border border-warning-500 rounded-3xl p-10 h-full space-y-2 text-center">
+    <blockquote className="border border-warning-500 rounded-3xl p-2 md:p-6 lg:p-10 h-full space-y-2 text-center">
       <div className="size-32 rounded-full mx-auto border"></div>
       <Heading size={22}>{data.author}</Heading>
       <StarRating />
