@@ -1,3 +1,3 @@
-export default function AutoanswerNumberHighlight() {
-  return <div>AutoanswerNumberHighlight</div>;
+export default function AutoAnswerNumberHighlight() {
+  return <div>AutoAnswerNumberHighlight</div>;
 }

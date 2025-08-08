@@ -1,18 +1,16 @@
-import Button from "@/components/Button";
-import Container from "@/components/Container";
-import Heading from "@/components/Heading";
+import { Section, Container, Button } from "@/components";
 import recordingImage from "@/images/how-it-work/recording.png";
 import Image from "next/image";
 
 export default function AiCallExperienceSection() {
   return (
-    <section className="bg-success-500 py-10 lg:py-20">
+    <Section bg="bg-success-500">
       <Container>
         <div className="flex flex-col lg:flex-row gap-6">
-          <div className="space-y-4 text-fluid-24 order-2 lg:order-1">
-            <Heading size={40}>
+          <div className="space-y-4 text-fluid-20 order-2 lg:order-1">
+            <Section.Heading>
               Easily automate real customer calls without any coding.
-            </Heading>
+            </Section.Heading>
             <p>
               Launch your phone AI agent in just minutes by using your existing
               business information through voice. As it continuously speaks with
@@ -39,10 +37,10 @@ export default function AiCallExperienceSection() {
           />
         </div>
         <div className="text-center mt-10">
-          <Button>Get Started For Free</Button>
+          <Button size="sm">Get Started For Free</Button>
           <span className="block text-sm">No credit card required*</span>
         </div>
       </Container>
-    </section>
+    </Section>
   );
 }

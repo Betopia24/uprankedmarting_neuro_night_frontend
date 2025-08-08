@@ -1,27 +1,26 @@
-import Container from "@/components/Container";
-import Heading from "@/components/Heading";
+import { Section, Container } from "@/components";
 import agentManagementImage from "@/images/how-it-work/agent-management.png";
 import Image from "next/image";
 
 export default function AgentManagement() {
   return (
-    <section className="bg-grey-100 py-10 lg:py-20">
+    <Section>
       <Container>
         <div className="flex flex-col lg:flex-row gap-6">
-          <div className="space-y-4 text-fluid-24 order-2 lg:order-1">
+          <div className="space-y-4 text-fluid-20 order-2 lg:order-1">
             <div className="space-y-8 text-fluid-20">
-              <Heading size={40}>
+              <Section.Heading>
                 Know Out What Your AI Agent Can Do for You
-              </Heading>
+              </Section.Heading>
               <p>
                 Our AI-powered Call Center comes with a powerful Agent
                 Management System that gives you complete control over both
-                human and AI agents. Whether you&apos;re managing a small team or
-                scaling operations, our system ensures you stay organized,
+                human and AI agents. Whether you&apos;re managing a small team
+                or scaling operations, our system ensures you stay organized,
                 efficient, and flexible.
               </p>
             </div>
-            <ul className="list-disc space-y-2 pl-8 text-fluid-24">
+            <ul className="list-disc space-y-2 pl-8">
               <li>
                 View agent details like name, role, activity logs, and Review —
                 all in one dashboard.
@@ -39,7 +38,7 @@ export default function AgentManagement() {
                 exactly what they need — nothing more, nothing less.
               </li>
             </ul>
-            <div className="mt-10 text-fluid-24">
+            <div className="mt-6">
               Designed for simplicity and built for performance, our Agent
               Management System ensures smooth operations and maximized team
               productivity.
@@ -51,8 +50,7 @@ export default function AgentManagement() {
             alt="recording"
           />
         </div>
-        <div className="text-center"></div>
       </Container>
-    </section>
+    </Section>
   );
 }

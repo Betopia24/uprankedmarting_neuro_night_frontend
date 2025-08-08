@@ -1,8 +1,10 @@
-import AiCallExperienceSection from "@/components/marketing/how-it-work/AiCallExperienceSection";
-import AiAgentCapabilities from "@/components/marketing/how-it-work/AiAgentCapabilities";
-import AiAgentQuickStart from "@/components/marketing/how-it-work/AiAgentQuickStart";
-import AgentManagement from "@/components/marketing/how-it-work/AgentManagement";
-import AutoanswerNumberHighlight from "@/components/marketing/how-it-work/AutoanswerNumberHighlight";
+import {
+  AiCallExperienceSection,
+  AiAgentCapabilities,
+  AiAgentQuickStart,
+  AgentManagement,
+  AutoAnswerNumberHighlight,
+} from "@/components/marketing/how-it-work";
 
 export default function HowItWorksPage() {
   return (
@@ -11,7 +13,7 @@ export default function HowItWorksPage() {
       <AiAgentCapabilities />
       <AiAgentQuickStart />
       <AgentManagement />
-      <AutoanswerNumberHighlight />
+      <AutoAnswerNumberHighlight />
     </>
   );
 }

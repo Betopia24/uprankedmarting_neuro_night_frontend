@@ -77,36 +77,36 @@ export default function Pricing() {
             </Section.Heading>
           </div>
           <div className="max-w-5xl mx-auto">
-            <p className="text-2xl">
+            <p className="text-lg">
               Get smart support without the high costs. Designed to adapt as
               your business expands, our solution offers flexibility,
               efficiency, and value — no matter your size.
             </p>
           </div>
-        </div>
-        <div className="flex justify-center mb-12">
-          <div className="flex items-center gap-4">
-            <div className="flex bg-white rounded-lg p-1 shadow-sm border border-gray-200">
-              <button
-                onClick={() => setBillingPeriod("monthly")}
-                className={`px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-                  billingPeriod === "monthly"
-                    ? "bg-teal-500 text-white shadow-sm"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                }`}
-              >
-                Monthly
-              </button>
-              <button
-                onClick={() => setBillingPeriod("quarterly")}
-                className={`px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-                  billingPeriod === "quarterly"
-                    ? "bg-teal-500 text-white shadow-sm"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                }`}
-              >
-                Yearly
-              </button>
+          <div className="flex justify-center mb-12">
+            <div className="flex items-center gap-4">
+              <div className="flex bg-white rounded-lg p-1 shadow-sm border border-gray-200">
+                <button
+                  onClick={() => setBillingPeriod("monthly")}
+                  className={`px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 cursor-pointer ${
+                    billingPeriod === "monthly"
+                      ? "bg-teal-500 text-white shadow-sm"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                  }`}
+                >
+                  Monthly
+                </button>
+                <button
+                  onClick={() => setBillingPeriod("quarterly")}
+                  className={`px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 cursor-pointer ${
+                    billingPeriod === "quarterly"
+                      ? "bg-teal-500 text-white shadow-sm"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                  }`}
+                >
+                  Yearly
+                </button>
+              </div>
             </div>
           </div>
         </div>
