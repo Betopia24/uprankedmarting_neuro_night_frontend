@@ -1,8 +1,13 @@
 import { getData } from "@/lib/data";
 import { SortableHeader } from "./SortableHeader";
 
-export async function DataTable({ searchParams }) {
-  const { data, headers } = await getData(searchParams);
+type Props = {
+  searchParams: Promise<{ [key: string]: string }>;
+};
+
+export async function DataTable({ searchParams }: Props) {
+  const resolvedParams = await searchParams;
+  const { data, headers } = await getData(resolvedParams);
 
   return (
     <div className="border rounded text-sm">
