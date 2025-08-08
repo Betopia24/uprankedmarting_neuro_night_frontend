@@ -4,6 +4,7 @@ import {
   AiAgentQuickStart,
   AgentManagement,
   AutoAnswerNumberHighlight,
+  FAQ,
 } from "@/components/marketing/how-it-work";
 
 export default function HowItWorksPage() {
@@ -14,6 +15,7 @@ export default function HowItWorksPage() {
       <AiAgentQuickStart />
       <AgentManagement />
       <AutoAnswerNumberHighlight />
+      <FAQ />
     </>
   );
 }
