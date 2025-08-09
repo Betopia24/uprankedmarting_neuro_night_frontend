@@ -25,7 +25,9 @@ export default async function Page({ searchParams }) {
         <DataTable searchParams={searchParams} />
       </Suspense>
 
-      <Pagination pageCount={pageCount} />
+      <div className="flex justify-end">
+        <Pagination pageCount={pageCount} />
+      </div>
     </div>
   );
 }
