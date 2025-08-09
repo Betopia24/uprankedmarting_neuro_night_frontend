@@ -12,11 +12,11 @@ export default function Hero() {
       <Container>
         <div className="text-center py-12 relative flex flex-col gap-6 items-center">
           <div className="max-w-7xl mx-auto text-center">
-            <ParallaxText>
-              <Heading size="6.5xl" weight="bold" className="leading-tight">
-                Your Dynamic AI-Driven Virtual Receptionist & With Human.
-              </Heading>
-            </ParallaxText>
+            {/* <ParallaxText> */}
+            <Heading size="6.5xl" weight="bold" className="leading-tight">
+              Your Dynamic AI-Driven Virtual Receptionist & With Human.
+            </Heading>
+            {/* </ParallaxText> */}
           </div>
           <div className="flex">
             <div className="shrink-0 relative hidden lg:block">
@@ -35,21 +35,20 @@ export default function Hero() {
                 />
               </IntroAnimation>
             </div>
-            <ParallaxText>
-              {" "}
-              <div className="flex-1 text-center space-y-4">
-                <p>Get the #1 rated receptionist service for small business.</p>
-                <p>
-                  Never miss a call. Our AI and live receptionists answer 24/7,
-                  schedule appointments, and grow your business—all at a
-                  fraction of the cost.
-                </p>
-                <div className="space-y-2">
-                  <Button>Get Started For Free</Button>
-                  <div className="block text-xs">No credit card required*</div>
-                </div>
+            {/* <ParallaxText> */}{" "}
+            <div className="flex-1 text-center space-y-4">
+              <p>Get the #1 rated receptionist service for small business.</p>
+              <p>
+                Never miss a call. Our AI and live receptionists answer 24/7,
+                schedule appointments, and grow your business—all at a fraction
+                of the cost.
+              </p>
+              <div className="space-y-2">
+                <Button>Get Started For Free</Button>
+                <div className="block text-xs">No credit card required*</div>
               </div>
-            </ParallaxText>
+            </div>
+            {/* </ParallaxText> */}
             <div className="shrink-0 relative hidden lg:block">
               <IntroAnimation variant="step1">
                 <Image

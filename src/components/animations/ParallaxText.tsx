@@ -18,7 +18,7 @@ const ParallaxText: React.FC<ParallaxTextProps> = ({
 
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ["start end", "end start"],
+    offset: ["start end", "end end"],
   });
 
   const y = useTransform(
@@ -27,16 +27,13 @@ const ParallaxText: React.FC<ParallaxTextProps> = ({
     [parallaxAmount, -parallaxAmount]
   );
 
+  const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
+
   return (
     <motion.div
       ref={ref}
       initial={{ opacity: 0, y: 20 }}
-      animate={{
-        opacity: 1,
-        y: 0,
-        transition: { duration: 0.8, ease: "easeOut" },
-      }}
-      style={{ y }}
+      style={{ y, opacity }}
       className={className}
     >
       {children}
