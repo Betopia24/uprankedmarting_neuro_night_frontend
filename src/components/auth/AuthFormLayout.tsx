@@ -13,6 +13,7 @@ interface AuthFormLayoutProps {
   footerText: string;
   footerLink: string;
   footerLinkText: string;
+  showSocialLogins?: boolean;
 }
 
 export default function AuthFormLayout({
@@ -22,6 +23,7 @@ export default function AuthFormLayout({
   footerText,
   footerLink,
   footerLinkText,
+  showSocialLogins = true,
 }: AuthFormLayoutProps) {
   return (
     <div className="flex gap-20 items-center justify-center h-screen">
@@ -35,18 +37,22 @@ export default function AuthFormLayout({
             <p className="mt-2 text-sm text-gray-600">{description}</p>
           </div>
           {children}
-          <div className="relative flex items-center py-2">
-            <div className="flex-grow border-t border-gray-300"></div>
-            <span className="flex-shrink mx-4 text-sm text-gray-500">
-              Or continue with
-            </span>
-            <div className="flex-grow border-t border-gray-300"></div>
-          </div>
 
           <div>
-            <SocialLogins />
+            {showSocialLogins && (
+              <div className="space-y-4">
+                <div className="relative flex items-center py-2">
+                  <div className="flex-grow border-t border-gray-300"></div>
+                  <span className="flex-shrink mx-4 text-sm text-gray-500">
+                    Or continue with
+                  </span>
+                  <div className="flex-grow border-t border-gray-300"></div>
+                </div>
+                <SocialLogins />
+              </div>
+            )}
             <p className="mt-6 text-sm text-center text-gray-600">
-              {footerText}{" "}
+              {footerText}
               <Link
                 href={footerLink}
                 className="font-medium text-primary hover:text-primary"

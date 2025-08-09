@@ -30,8 +30,9 @@ export default function OtpVerificationPage() {
       title="Verification"
       description="Please enter the 4-digit code sent to your email."
       footerText="Didn't receive the code?"
-      footerLink="#" // Placeholder for resend logic
+      footerLink="#"
       footerLinkText="Resend Code"
+      showSocialLogins={false}
     >
       <form action={dispatch} className="space-y-6">
         <div className="flex justify-center space-x-2">

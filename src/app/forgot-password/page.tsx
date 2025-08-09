@@ -16,6 +16,7 @@ export default function ForgotPasswordPage() {
       footerText="Remember your password?"
       footerLink="/login"
       footerLinkText="Log in"
+      showSocialLogins={false}
     >
       <form action={dispatch} className="space-y-6">
         <FormField
@@ -28,7 +29,7 @@ export default function ForgotPasswordPage() {
         />
 
         {state?.message && (
-           <p
+          <p
             className={`mt-2 text-sm ${
               state.errors ? "text-red-500" : "text-green-500"
             }`}
