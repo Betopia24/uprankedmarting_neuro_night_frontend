@@ -38,6 +38,14 @@ const testimonialsData = [
     image: "",
     rating: 4,
   },
+  {
+    id: 4,
+    author: "Owner",
+    content:
+      "Autoawnser.ai helped automate our initial screening process and drastically reduced the time-to-hire. Candidates love the AI’s smooth voice and interaction flow.",
+    image: "",
+    rating: 4,
+  },
 ];
 
 export default function Testimonial() {
@@ -86,7 +94,7 @@ function TestimonialCard({ data }: { data: TestimonialData }) {
 function Carousel() {
   const { data } = useEmblaContext();
   return data.map((item, index) => (
-    <Embla.Slide key={index}>
+    <Embla.Slide key={index} index={index}>
       <TestimonialCard key={index} data={item as TestimonialData} />
     </Embla.Slide>
   ));

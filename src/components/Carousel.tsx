@@ -140,8 +140,15 @@ function EmblaContainer({
 }
 
 // Individual Slide
-function EmblaSlide({ children }: { children: ReactNode }) {
-  const { slidesPerView } = useEmblaContext();
+function EmblaSlide({
+  children,
+  index,
+}: {
+  children: ReactNode;
+  index: number;
+}) {
+  const { slidesPerView, selectedSlide } = useEmblaContext();
+  const isActive = selectedSlide === index;
 
   return (
     <div
@@ -152,7 +159,14 @@ function EmblaSlide({ children }: { children: ReactNode }) {
         "basis-2/4 sm:basis-1/2 md:basis-1/3 lg:basis-1/4": slidesPerView === 4,
       })}
     >
-      {children}
+      <div
+        className={cn(
+          "transition-transform duration-300",
+          isActive ? "scale-100" : "scale-85"
+        )}
+      >
+        {children}
+      </div>
     </div>
   );
 }
