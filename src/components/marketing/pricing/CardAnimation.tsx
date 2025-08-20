@@ -27,6 +27,8 @@ export default function CardAnimation({
         : setAnimatedBreakpoint(false);
     };
 
+    handleChange();
+
     window.addEventListener("resize", handleChange);
 
     return () => {
