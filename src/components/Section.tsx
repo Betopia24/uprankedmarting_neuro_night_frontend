@@ -24,12 +24,7 @@ export default function Section({
 }: SectionProps) {
   return (
     <section
-      className={cn(
-        "relative overflow-x-hidden",
-        paddingVariants[size],
-        bg,
-        className
-      )}
+      className={cn("relative", paddingVariants[size], bg, className)}
       {...props}
     >
       {children}
