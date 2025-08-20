@@ -26,20 +26,22 @@ export default function BusinessTools() {
       </Section.Header>
       <Container className="text-center">
         <Marquee>
-          <div className="flex justify-center gap-10 py-12">
-            {[...tools, ...tools].map((tool, index) => (
-              <div
-                key={index}
-                className="flex-1 shrink-0 flex-col px-6 flex items-center whitespace-nowrap"
-              >
-                <Image
-                  className="size-20 object-contain"
-                  src={tool.icon}
-                  alt={tool.name}
-                />
-                <p className="mt-2 font-light text-sm">{tool.name}</p>
-              </div>
-            ))}
+          <div className="overflow-hidden relative w-full mt-14">
+            <div className="flex w-max animate-marquee">
+              {[...tools, ...tools].map((tool, index) => (
+                <div
+                  key={index}
+                  className="flex flex-col items-center min-w-[120px] shrink-0 px-6 whitespace-nowrap"
+                >
+                  <Image
+                    className="w-20 h-20 object-contain"
+                    src={tool.icon}
+                    alt={tool.name}
+                  />
+                  <p className="mt-2 font-light text-sm">{tool.name}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </Marquee>
       </Container>

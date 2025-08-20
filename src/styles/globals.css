@@ -269,7 +269,7 @@
 
 .animate-marquee {
   display: flex;
-  gap: 2.5rem; /* adjust spacing */
+  gap: 2.5rem;
   animation: marquee 20s linear infinite;
 }
 
