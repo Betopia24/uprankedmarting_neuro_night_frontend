@@ -258,6 +258,21 @@
   }
 }
 
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  gap: 2.5rem; /* adjust spacing */
+  animation: marquee 20s linear infinite;
+}
+
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
