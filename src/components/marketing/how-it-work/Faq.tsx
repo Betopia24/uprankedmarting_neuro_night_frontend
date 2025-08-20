@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { Container, Section } from "@/components";
-import { LucideChevronDown } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Accordion } from "@/components";
 
 const accordionData = [
   {
@@ -27,38 +26,13 @@ const accordionData = [
 ];
 
 export default function FAQ() {
-  const [activeIndex, setActiveIndex] = useState(1);
-  const isActive = (index: number) => activeIndex === index;
-
   return (
     <Section>
       <Section.Header>
         <Section.Heading>FAQ</Section.Heading>
       </Section.Header>
       <Container>
-        <div className="mt-16 space-y-4">
-          {accordionData.map((item) => (
-            <div
-              className="space-y-2.5 border-b border-grey-300 pb-2"
-              key={item.id}
-            >
-              <div
-                onClick={() => setActiveIndex(item.id)}
-                className="text-fluid-22 cursor-pointer font-medium flex justify-between items-start gap-2"
-              >
-                {item.title}
-                <button>
-                  <LucideChevronDown
-                    className={cn("rotate-180", {
-                      "rotate-0": !isActive(item.id),
-                    })}
-                  />
-                </button>
-              </div>
-              {isActive(item.id) && <p>{item.content}</p>}
-            </div>
-          ))}
-        </div>
+        <Accordion accordionData={accordionData} />
       </Container>
     </Section>
   );
