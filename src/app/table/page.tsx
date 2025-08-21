@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import Pagination from "./_components/Pagination";
 import SearchField from "./_components/SearchField";
+import Filter, { FilterField } from "./_components/Filter";
 import {
   LucideArrowUpDown,
   LucideArrowUpNarrowWide,
@@ -199,6 +200,9 @@ interface TableSearchParams {
   limit?: number;
   sort?: string;
   query?: string;
+  status?: string | string[];
+  role?: string | string[];
+  earning_range?: string;
   [key: string]: any;
 }
 
@@ -210,6 +214,38 @@ interface TableProps {
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 5;
 const DEFAULT_SORT = "";
+
+// ---------- FILTER CONFIGURATION ----------
+const filterFields: FilterField[] = [
+  {
+    key: "status",
+    label: "Status",
+    type: "multi-select",
+    options: [
+      { label: "Active", value: "active" },
+      { label: "Inactive", value: "inactive" },
+    ],
+  },
+  {
+    key: "role",
+    label: "Role",
+    type: "multi-select",
+    options: [
+      { label: "User", value: "user" },
+      { label: "Admin", value: "admin" },
+    ],
+  },
+  {
+    key: "earning_range",
+    label: "Earning Range",
+    type: "select",
+    options: [
+      { label: "Under $3,000", value: "under_3000" },
+      { label: "$3,000 - $5,000", value: "3000_5000" },
+      { label: "Above $5,000", value: "above_5000" },
+    ],
+  },
+];
 
 // ---------- HELPERS ----------
 function sortData<T extends Record<string, unknown>>(
@@ -251,6 +287,75 @@ function filterData<T extends Record<string, unknown>>(
   );
 }
 
+function applyFilters<T extends Record<string, unknown>>(
+  data: T[],
+  filters: Record<string, string | string[]>
+): T[] {
+  return data.filter((item) => {
+    // Status filter
+    if (filters.status) {
+      const statusValues = Array.isArray(filters.status)
+        ? filters.status
+        : [filters.status];
+      if (
+        statusValues.length > 0 &&
+        !statusValues.includes(String(item.status))
+      ) {
+        return false;
+      }
+    }
+
+    // Role filter
+    if (filters.role) {
+      const roleValues = Array.isArray(filters.role)
+        ? filters.role
+        : [filters.role];
+      if (roleValues.length > 0 && !roleValues.includes(String(item.role))) {
+        return false;
+      }
+    }
+
+    // Earning range filter
+    if (filters.earning_range && typeof item.earning === "number") {
+      const earning = item.earning;
+      switch (filters.earning_range) {
+        case "under_3000":
+          if (earning >= 3000) return false;
+          break;
+        case "3000_5000":
+          if (earning < 3000 || earning > 5000) return false;
+          break;
+        case "above_5000":
+          if (earning <= 5000) return false;
+          break;
+      }
+    }
+
+    return true;
+  });
+}
+
+// Parse URL filters
+function parseFilters(
+  searchParams: TableSearchParams
+): Record<string, string | string[]> {
+  const filters: Record<string, string | string[]> = {};
+
+  // Handle comma-separated multi-values
+  Object.entries(searchParams).forEach(([key, value]) => {
+    if (key === "page" || key === "limit" || key === "sort" || key === "query")
+      return;
+
+    if (typeof value === "string" && value.includes(",")) {
+      filters[key] = value.split(",");
+    } else if (value) {
+      filters[key] = value;
+    }
+  });
+
+  return filters;
+}
+
 // ---------- TABLE PAGE ----------
 export default async function TablePage({ searchParams }: TableProps) {
   const queryParams = await searchParams;
@@ -261,26 +366,49 @@ export default async function TablePage({ searchParams }: TableProps) {
   ).split(":");
   const searchQuery = queryParams.query || "";
 
-  // Filter first
-  let data = [...tableData];
-  data = filterData(data, searchQuery);
+  // Parse filters from URL
+  const currentFilters = parseFilters(queryParams);
 
-  // Paginate filtered data
-  const paginatedData = paginateData(data, page, limit);
+  // Apply filtering (but not sorting or pagination yet)
+  let filteredData = [...tableData];
 
-  // Sort only the paginated data
-  const sortedPaginatedData = sortData(paginatedData, sortField, sortDirection);
+  // Apply search filter
+  filteredData = filterData(filteredData, searchQuery);
 
-  const totalItems = data.length;
+  // Apply field filters
+  filteredData = applyFilters(filteredData, currentFilters);
+
+  // Calculate pagination info based on filtered data
+  const totalItems = filteredData.length;
   const totalPages = Math.ceil(totalItems / limit);
   const hasNextPage = page < totalPages;
   const hasPrevPage = page > 1;
+
+  // Now paginate the filtered data
+  const paginatedData = paginateData(filteredData, page, limit);
+
+  // Finally, sort ONLY the paginated data
+  const sortedPaginatedData = sortData(paginatedData, sortField, sortDirection);
 
   return (
     <div className="p-4">
       <div className="flex justify-between mb-4">
         <SearchField defaultQuery={searchQuery} />
+        <div className="text-sm text-gray-600">
+          Showing {sortedPaginatedData.length} of {totalItems} results
+        </div>
       </div>
+
+      {/* Filter Component */}
+      <Filter
+        filterFields={filterFields}
+        currentFilters={currentFilters}
+        searchQuery={searchQuery}
+        currentPage={page}
+        limit={limit}
+        sortField={sortField}
+        sortDirection={sortDirection}
+      />
 
       <table className="table-auto border-collapse border border-gray-200 w-full text-gray-800">
         <thead>
@@ -294,6 +422,7 @@ export default async function TablePage({ searchParams }: TableProps) {
                 currentPage={page}
                 limit={limit}
                 searchQuery={searchQuery}
+                currentFilters={currentFilters}
               />
             ))}
           </tr>
@@ -308,8 +437,30 @@ export default async function TablePage({ searchParams }: TableProps) {
               <td className="border px-4 py-2">
                 ${item.earning.toLocaleString()}
               </td>
-              <td className="border px-4 py-2">{item.status}</td>
-              <td className="border px-4 py-2">{item.role}</td>
+              <td className="border px-4 py-2">
+                <span
+                  className={cn(
+                    "px-2 py-1 text-xs rounded-full",
+                    item.status === "active"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
+                  )}
+                >
+                  {item.status}
+                </span>
+              </td>
+              <td className="border px-4 py-2">
+                <span
+                  className={cn(
+                    "px-2 py-1 text-xs rounded-full",
+                    item.role === "admin"
+                      ? "bg-purple-100 text-purple-800"
+                      : "bg-blue-100 text-blue-800"
+                  )}
+                >
+                  {item.role}
+                </span>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -336,6 +487,7 @@ interface TableHeaderItemProps {
   currentPage: number;
   limit: number;
   searchQuery: string;
+  currentFilters: Record<string, string | string[]>;
 }
 
 function TableHeaderItem({
@@ -345,6 +497,7 @@ function TableHeaderItem({
   currentPage,
   limit,
   searchQuery,
+  currentFilters,
 }: TableHeaderItemProps) {
   const isActive = currentSort === field;
   const nextDirection =
@@ -355,6 +508,15 @@ function TableHeaderItem({
   urlParams.set("limit", limit.toString());
   if (searchQuery) urlParams.set("query", searchQuery);
   if (nextDirection) urlParams.set("sort", `${field}:${nextDirection}`);
+
+  // Preserve current filters
+  Object.entries(currentFilters).forEach(([key, value]) => {
+    if (Array.isArray(value) && value.length > 0) {
+      urlParams.set(key, value.join(","));
+    } else if (typeof value === "string" && value) {
+      urlParams.set(key, value);
+    }
+  });
 
   const getIcon = () => {
     if (!isActive || !sortDirection) return <LucideArrowUpDown size={12} />;
