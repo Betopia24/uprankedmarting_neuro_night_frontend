@@ -60,6 +60,10 @@ export const signupSchema = z
       .string({ message: "Business address is required" })
       .min(6, {
         message: "Business address must be at least 6 characters long",
+      })
+      .refine((val) => val.split(",").length === 3, {
+        message:
+          "Business address must contain exactly 3 comma-separated values (e.g., Street, City, Country)",
       }),
 
     acceptTerms: z

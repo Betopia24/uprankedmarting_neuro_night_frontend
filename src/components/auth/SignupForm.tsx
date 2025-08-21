@@ -3,22 +3,24 @@ import TextField from "./TextField";
 import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  LucideChevronLeft,
-  LucideChevronRight,
   LucideMail,
   LucideUser2,
+  LucidePhone,
+  LucideBuilding2,
+  LucideGlobe,
+  LucideMapPin,
+  LucideFactory,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { AuthCard } from "./AuthForm";
 import PasswordField from "./PasswordField";
-import { toast } from "sonner";
 import { signupSchema, SignupFormSchema } from "./validation";
 import { signupPath } from "@/paths";
 import { useState } from "react";
-import SignupAnimation from "./SignupAnimation";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import { Button } from "../ui/button";
 import CheckboxField from "./CheckboxField";
+import SelectField from "./SelectField";
 
 const MIN_STEP = 1;
 const MAX_STEP = 2;
@@ -27,18 +29,10 @@ const variants: Variants = {
   initial: (direction: number) => ({
     opacity: 0.2,
     x: direction > 0 ? 100 : -100,
-    transition: {
-      duration: 0.15,
-      ease: "linear",
-    },
   }),
   exit: (direction: number) => ({
     opacity: 0.2,
     x: direction > 0 ? -100 : 100,
-    transition: {
-      duration: 0.15,
-      ease: "linear",
-    },
   }),
   animate: {
     opacity: 1,
@@ -91,6 +85,7 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
     setStep((step) => Math.max(MIN_STEP, step - 1));
   };
 
+  // Validate current step
   const isStep1Valid = () => {
     const { name, email, phoneNumber, password, confirmPassword } =
       form.getValues();
@@ -106,6 +101,23 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
       !errors.phoneNumber &&
       !errors.password &&
       !errors.confirmPassword
+    );
+  };
+
+  const isStep2Valid = () => {
+    const { businessName, industry, website, businessAddress, acceptTerms } =
+      form.getValues();
+    const errors = form.formState.errors;
+    return (
+      businessName &&
+      industry &&
+      website &&
+      businessAddress &&
+      acceptTerms &&
+      !errors.businessName &&
+      !errors.industry &&
+      !errors.website &&
+      !errors.businessAddress
     );
   };
 
@@ -131,6 +143,7 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
                   initial="initial"
                   animate="animate"
                   exit="exit"
+                  transition={{ duration: 0.3 }}
                   custom={direction}
                 >
                   <fieldset className="space-y-6">
@@ -153,7 +166,7 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
                       name="phoneNumber"
                       placeholder="Write your phone number"
                     >
-                      <LucideUser2 className="size-9 p-2.5 absolute right-0 bottom-0" />
+                      <LucidePhone className="size-9 p-2.5 absolute right-0 bottom-0" />
                     </TextField>
                     <PasswordField
                       label="Password"
@@ -178,6 +191,7 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
                   initial="initial"
                   animate="animate"
                   exit="exit"
+                  transition={{ duration: 0.3 }}
                   custom={direction}
                 >
                   <fieldset className="space-y-6">
@@ -186,29 +200,34 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
                       name="businessName"
                       placeholder="Write your business name"
                     >
-                      <LucideUser2 className="size-9 p-2.5 absolute right-0 bottom-0" />
+                      <LucideBuilding2 className="size-9 p-2.5 absolute right-0 bottom-0" />
                     </TextField>
 
-                    <TextField
-                      label="Industry"
+                    <SelectField
+                      className="w-full"
                       name="industry"
-                      placeholder="Write your industry"
-                    >
-                      <LucideUser2 className="size-9 p-2.5 absolute right-0 bottom-0" />
-                    </TextField>
+                      label="Industry"
+                      required
+                      placeholder="Choose your industry"
+                      options={[
+                        { label: "Technology", value: "tech" },
+                        { label: "Healthcare", value: "health" },
+                        { label: "Finance", value: "finance" },
+                      ]}
+                    />
                     <TextField
                       label="Website"
                       name="website"
                       placeholder="Write your website"
                     >
-                      <LucideUser2 className="size-9 p-2.5 absolute right-0 bottom-0" />
+                      <LucideGlobe className="size-9 p-2.5 absolute right-0 bottom-0" />
                     </TextField>
                     <TextField
                       label="Business Address"
                       name="businessAddress"
                       placeholder="Write your business address"
                     >
-                      <LucideUser2 className="size-9 p-2.5 absolute right-0 bottom-0" />
+                      <LucideMapPin className="size-9 p-2.5 absolute right-0 bottom-0" />
                     </TextField>
                     <CheckboxField
                       label="I accept the terms and conditions"

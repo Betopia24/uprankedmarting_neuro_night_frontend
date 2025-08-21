@@ -51,7 +51,7 @@ export default function CheckboxField({
   const id = useId();
   return (
     <div className={cn("space-y-1", className)}>
-      <div className="flex items-centerx space-x-2">
+      <div className="flex items-center space-x-2">
         <CheckboxComponent className="cursor-pointer" id={id} name={name} />
         <Label htmlFor={id}>{label}</Label>
       </div>
