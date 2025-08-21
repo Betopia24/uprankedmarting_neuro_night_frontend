@@ -93,7 +93,7 @@ export const loginSchema = z.object({
     })
     .trim(),
 
-  rememberMe: z.boolean().optional(),
+  rememberMe: z.boolean(),
   callbackUrl: z.string().optional(),
 });
 

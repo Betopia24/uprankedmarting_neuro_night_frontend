@@ -1,6 +1,6 @@
 import { Button, Container, Section, Heading } from "@/components";
 import Image from "next/image";
-import robotImage from "@/images/robot.png";
+import robotImage from "@/images/robot.webp";
 import personImage from "@/images/person.png";
 import roboticEarphone from "@/images/robotic-earphone.png";
 import roboticPhone from "@/images/robotic-phone.png";

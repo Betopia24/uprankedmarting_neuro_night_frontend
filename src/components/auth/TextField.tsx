@@ -53,13 +53,16 @@ export default function TextField({
                   {...field}
                   placeholder={placeholder}
                   type={type}
-                  className={cn("rounded-2xl", children && "pr-9")}
+                  className={cn(
+                    "rounded-2xl placeholder:text-xs",
+                    children && "pr-9"
+                  )}
                 />
                 {children}
               </div>
             ) : (
               <Input
-                className="rounded-2xl"
+                className="rounded-2xl placeholder:text-xs"
                 {...field}
                 placeholder={placeholder}
                 type={type}

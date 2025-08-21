@@ -9,18 +9,18 @@ import {
   LucideBuilding2,
   LucideGlobe,
   LucideMapPin,
-  LucideFactory,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { AuthCard } from "./AuthForm";
 import PasswordField from "./PasswordField";
-import { signupSchema, SignupFormSchema } from "./validation";
-import { signupPath } from "@/paths";
+import { signupSchema, SignupFormSchema } from "./_utils/validation";
+import { loginPath } from "@/paths";
 import { useState } from "react";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import { Button } from "../ui/button";
 import CheckboxField from "./CheckboxField";
 import SelectField from "./SelectField";
+import AuthButton from "./AuthButton";
 
 const MIN_STEP = 1;
 const MAX_STEP = 2;
@@ -70,8 +70,8 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
   const onSubmit = async (formData: SignupFormSchema) => {};
 
   const redirectLoginUrl = callbackUrl
-    ? `${signupPath()}?callbackUrl=${callbackUrl}`
-    : `${signupPath()}`;
+    ? `${loginPath()}?callbackUrl=${callbackUrl}`
+    : `${loginPath()}`;
 
   const acceptTerms = form.watch("acceptTerms");
 
@@ -101,23 +101,6 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
       !errors.phoneNumber &&
       !errors.password &&
       !errors.confirmPassword
-    );
-  };
-
-  const isStep2Valid = () => {
-    const { businessName, industry, website, businessAddress, acceptTerms } =
-      form.getValues();
-    const errors = form.formState.errors;
-    return (
-      businessName &&
-      industry &&
-      website &&
-      businessAddress &&
-      acceptTerms &&
-      !errors.businessName &&
-      !errors.industry &&
-      !errors.website &&
-      !errors.businessAddress
     );
   };
 
@@ -238,13 +221,15 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
                 </motion.div>
               )}
             </AnimatePresence>
-            <div className="flex items-center justify-between gap-4 mt-6">
-              <div className="flex items-center justify-center gap-2">
+            <div className="mt-6">
+              <div className="flex items-center justify-between gap-2">
                 <Button
                   onClick={handlePrevStep}
                   type="button"
                   variant="secondary"
+                  size="sm"
                   disabled={step === MIN_STEP}
+                  className="rounded-full"
                 >
                   Prev
                 </Button>
@@ -252,22 +237,24 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
                   onClick={handleNextStep}
                   type="button"
                   variant="secondary"
+                  size="sm"
                   disabled={
                     step === MAX_STEP || (step === 1 && !isStep1Valid())
                   }
+                  className="rounded-full"
                 >
                   Next
                 </Button>
               </div>
-              <Button
+              <AuthButton
                 disabled={
                   !form.formState.isValid || form.formState.isSubmitting
                 }
-                className="flex-1"
+                className="w-full mt-4"
                 type="submit"
               >
                 Submit
-              </Button>
+              </AuthButton>
             </div>
           </form>
         </Form>

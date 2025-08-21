@@ -6,10 +6,11 @@ import { LucideMail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { AuthCard } from "./AuthForm";
 import PasswordField from "./PasswordField";
-import { loginSchema, LoginFormSchema } from "./validation";
+import { loginSchema, LoginFormSchema } from "./_utils/validation";
 import CheckboxField from "./CheckboxField";
 
-import { loginPath, signupPath } from "@/paths";
+import { signupPath } from "@/paths";
+import AuthButton from "./AuthButton";
 
 export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
   const form = useForm<LoginFormSchema>({
@@ -61,6 +62,19 @@ export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
                 checked={rememberMe}
               />
             </fieldset>
+            <div className="mt-4">
+              <AuthButton
+                disabled={
+                  !form.formState.isValid ||
+                  form.formState.isSubmitting ||
+                  !rememberMe
+                }
+                className="w-full"
+                type="submit"
+              >
+                Submit
+              </AuthButton>
+            </div>
           </form>
         </Form>
       </AuthCard.Content>

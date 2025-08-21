@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 type ContainerProp = {
-  size?: "default" | "xl";
+  size?: "default" | "xl" | "lg";
 } & React.ComponentProps<"div">;
 
 export default function Container({
@@ -17,6 +17,7 @@ export default function Container({
         {
           "max-w-[74.25rem]": size === "default",
           "max-w-[85.75rem]": size === "xl",
+          "max-w-[70rem]": size === "lg",
         },
         className
       )}

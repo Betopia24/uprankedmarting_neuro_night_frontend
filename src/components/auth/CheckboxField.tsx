@@ -53,7 +53,9 @@ export default function CheckboxField({
     <div className={cn("space-y-1", className)}>
       <div className="flex items-center space-x-2">
         <CheckboxComponent className="cursor-pointer" id={id} name={name} />
-        <Label htmlFor={id}>{label}</Label>
+        <Label className="text-gray-600 text-xs" htmlFor={id}>
+          {label}
+        </Label>
       </div>
     </div>
   );

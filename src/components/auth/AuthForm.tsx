@@ -6,7 +6,7 @@ import type { PropsWithChildren } from "react";
 
 // Root Container
 export function AuthCard({ children }: PropsWithChildren) {
-  return <div className="space-y-6 py-6">{children}</div>;
+  return <div className="space-y-6">{children}</div>;
 }
 
 // Header Section
@@ -32,7 +32,7 @@ function AuthCardSubtitle({ children }: PropsWithChildren) {
 function AuthCardContent({ children }: PropsWithChildren) {
   return (
     <Card className="border-0">
-      <CardContent className="pb-6 space-y-8">{children}</CardContent>
+      <CardContent className="space-y-4">{children}</CardContent>
     </Card>
   );
 }
