@@ -203,7 +203,7 @@ interface TableSearchParams {
   status?: string | string[];
   role?: string | string[];
   earning_range?: string;
-  [key: string]: any;
+  [key: string]: string | string[] | undefined | number;
 }
 
 interface TableProps {
@@ -349,7 +349,11 @@ function parseFilters(
     if (typeof value === "string" && value.includes(",")) {
       filters[key] = value.split(",");
     } else if (value) {
-      filters[key] = value;
+      if (typeof value === "number") {
+        filters[key] = value.toString();
+      } else {
+        filters[key] = value;
+      }
     }
   });
 
