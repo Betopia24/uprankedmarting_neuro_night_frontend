@@ -78,6 +78,11 @@
   }
 }
 
+body,
+html {
+  overflow-x: hidden;
+}
+
 @keyframes ping {
   75%,
   100% {

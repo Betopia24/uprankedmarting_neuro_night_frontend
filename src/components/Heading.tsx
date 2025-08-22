@@ -53,7 +53,7 @@ export default function Heading({
   return (
     <Comp
       className={cn(
-        "font-sans text-black leading-none",
+        "font-sans text-gray-950 leading-none",
         fontSizeClasses[size],
         fontWeightClasses[weight],
         tracking,

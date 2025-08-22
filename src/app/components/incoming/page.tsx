@@ -154,7 +154,7 @@ export default function Component() {
               </button>
 
               {/* Tooltip */}
-              <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-sm px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none backdrop-blur-sm whitespace-nowrap">
+              <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-gray-950/80 text-white text-sm px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none backdrop-blur-sm whitespace-nowrap">
                 {label}
               </div>
             </div>
@@ -182,7 +182,7 @@ export default function Component() {
         {/* Recording timer */}
         {isRecording && (
           <div className="animate-fade-in">
-            <div className="bg-black/40 backdrop-blur-md rounded-full px-6 py-3 border border-white/20">
+            <div className="bg-gray-950/40 backdrop-blur-md rounded-full px-6 py-3 border border-white/20">
               <div className="flex items-center space-x-3">
                 <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse-soft"></div>
                 <span className="text-white font-mono text-lg">00:00:00</span>

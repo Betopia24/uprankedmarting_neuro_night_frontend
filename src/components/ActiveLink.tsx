@@ -23,8 +23,8 @@ export default function ActiveLink({
       {...props}
       href={href}
       className={cn(
-        "rounded-md px-4 py-2 hover:bg-gray-300 hover:text-black transition-colors duration-300 inline-flex",
-        isActive && "bg-gray-300 text-black",
+        "rounded-md px-4 py-2 hover:bg-gray-300 hover:text-gray-950 transition-colors duration-300 inline-flex",
+        isActive && "bg-gray-300 text-gray-950",
         className
       )}
     >

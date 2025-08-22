@@ -14,7 +14,7 @@ const Content = forwardRef<HTMLDivElement, DialogPrimitive.DialogContentProps>(
   ({ children, className = "", ...props }, ref) => {
     return (
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" />
+        <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-gray-950/50 backdrop-blur-sm" />
         <DialogPrimitive.Content
           ref={ref}
           className={`fixed z-50 left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6 shadow-xl focus:outline-none ${className}`}

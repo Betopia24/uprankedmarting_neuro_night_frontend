@@ -4,7 +4,7 @@ import robotImage from "@/images/robot.webp";
 import personImage from "@/images/person.png";
 import roboticEarphone from "@/images/robotic-earphone.png";
 import roboticPhone from "@/images/robotic-phone.png";
-import { IntroAnimation } from "@/components/animations";
+import { IntroAnimation, Typewriter } from "@/components/animations";
 
 export default function Hero() {
   return (
@@ -13,7 +13,11 @@ export default function Hero() {
         <div className="text-center md:py-6 lg:py-12 relative flex flex-col gap-6 items-center">
           <div className="max-w-7xl mx-auto text-center">
             <Heading size="display-1" weight="bold" className="leading-tight">
-              Your Dynamic AI-Driven Virtual Receptionist & With Human.
+              <Typewriter
+                texts={[
+                  "Your Dynamic AI-Driven Virtual Receptionist & With Human.",
+                ]}
+              />
             </Heading>
           </div>
           <div className="flex">
