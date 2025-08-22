@@ -2,7 +2,16 @@ import { cn } from "@/lib/utils";
 
 type Variant = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 type FontWeight = "semibold" | "bold" | "regular" | "medium" | "light";
-type FontSize = "6.5xl" | 48 | 40 | 30 | 22 | 18 | 16 | 12;
+type FontSize =
+  | "display-1"
+  | "h1"
+  | "h2"
+  | "h3"
+  | "h4"
+  | "h5"
+  | "h6"
+  | "base"
+  | "sm";
 
 export type HeadingProps = React.HTMLAttributes<HTMLHeadingElement> & {
   as?: Variant;
@@ -12,14 +21,15 @@ export type HeadingProps = React.HTMLAttributes<HTMLHeadingElement> & {
 };
 
 const fontSizeClasses: Record<FontSize, string> = {
-  "6.5xl": "text-fluid-6.5xl",
-  48: "text-fluid-48",
-  40: "text-fluid-40",
-  30: "text-fluid-30",
-  22: "text-fluid-22",
-  18: "text-fluid-18",
-  16: "text-fluid-16",
-  12: "text-fluid-12",
+  "display-1": "text-4xl lg:text-6xl xl:text-7xl",
+  h1: "text-3xl sm:text-4xl md:text-5xl",
+  h2: "text-2xl sm:text-3xl md:text-4xl",
+  h3: "text-xl sm:text-2xl md:text-3xl",
+  h4: "text-xl md:text-2xl",
+  h5: "text-lg md:text-xl",
+  h6: "text-lg",
+  base: "text-base",
+  sm: "text-sm",
 };
 
 const fontWeightClasses: Record<FontWeight, string> = {
@@ -32,7 +42,7 @@ const fontWeightClasses: Record<FontWeight, string> = {
 
 export default function Heading({
   as = "h2",
-  size = 22,
+  size = "h2",
   weight = "semibold",
   tracking,
   className,

@@ -1,4 +1,4 @@
-import { Heading, Logo } from "@/components";
+import { Heading } from "@/components";
 import { Card, CardContent } from "@/components/ui/card";
 import Link, { type LinkProps } from "next/link";
 import { cn } from "@/lib/utils";
@@ -17,7 +17,7 @@ function AuthCardHeader({ children }: PropsWithChildren) {
 // Main Title
 function AuthCardTitle({ children }: PropsWithChildren) {
   return (
-    <Heading as="h1" weight="bold">
+    <Heading as="h1" size="h2" weight="bold">
       {children}
     </Heading>
   );
@@ -25,7 +25,16 @@ function AuthCardTitle({ children }: PropsWithChildren) {
 
 // Subtitle (small heading under title)
 function AuthCardSubtitle({ children }: PropsWithChildren) {
-  return <Heading as="h2">{children}</Heading>;
+  return (
+    <Heading
+      as="h2"
+      size="base"
+      weight="medium"
+      className="text-muted-foreground"
+    >
+      {children}
+    </Heading>
+  );
 }
 
 // Card Body

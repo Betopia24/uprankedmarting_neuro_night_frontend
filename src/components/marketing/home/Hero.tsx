@@ -4,19 +4,17 @@ import robotImage from "@/images/robot.webp";
 import personImage from "@/images/person.png";
 import roboticEarphone from "@/images/robotic-earphone.png";
 import roboticPhone from "@/images/robotic-phone.png";
-import { IntroAnimation, ParallaxText } from "@/components/animations";
+import { IntroAnimation } from "@/components/animations";
 
 export default function Hero() {
   return (
     <Section className="hero-gradient overflow-x-hidden">
       <Container>
-        <div className="text-center py-12 relative flex flex-col gap-6 items-center">
+        <div className="text-center md:py-6 lg:py-12 relative flex flex-col gap-6 items-center">
           <div className="max-w-7xl mx-auto text-center">
-            {/* <ParallaxText> */}
-            <Heading size="6.5xl" weight="bold" className="leading-tight">
+            <Heading size="display-1" weight="bold" className="leading-tight">
               Your Dynamic AI-Driven Virtual Receptionist & With Human.
             </Heading>
-            {/* </ParallaxText> */}
           </div>
           <div className="flex">
             <div className="shrink-0 relative hidden lg:block">
@@ -35,7 +33,7 @@ export default function Hero() {
                 />
               </IntroAnimation>
             </div>
-            {/* <ParallaxText> */}{" "}
+
             <div className="flex-1 text-center space-y-4">
               <p>Get the #1 rated receptionist service for small business.</p>
               <p>
@@ -48,7 +46,7 @@ export default function Hero() {
                 <div className="block text-xs">No credit card required*</div>
               </div>
             </div>
-            {/* </ParallaxText> */}
+
             <div className="shrink-0 relative hidden lg:block">
               <IntroAnimation variant="step1">
                 <Image

@@ -42,7 +42,7 @@ function SectionHeader({ children }: React.PropsWithChildren) {
 
 function SectionHeading({ children, className }: React.ComponentProps<"h2">) {
   return (
-    <Heading className={className} size={30}>
+    <Heading className={className} as="h2" size="h3">
       {children}
     </Heading>
   );

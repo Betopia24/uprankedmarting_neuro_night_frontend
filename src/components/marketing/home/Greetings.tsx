@@ -1,13 +1,15 @@
-import { Section, Container, Button } from "@/components";
+import { Section, Container, Button, Heading } from "@/components";
 
 export default function Greetings() {
   return (
     <Section>
-      <Container className="space-y-6">
-        <div className="bg-success-500 p-10 space-y-4 rounded">
+      <Container>
+        <div className="bg-success-500 p-10 rounded">
           <Section.Heading>Welcome to Autoawnser.ai</Section.Heading>
-          <div className="space-y-2">
-            <p className="text-lg">Where smart technology meets human touch.</p>
+          <Heading as="h3" size="base" className="text-gray-950 mt-2">
+            Where smart technology meets human touch.
+          </Heading>
+          <div className="space-y-2 mt-4">
             <p>
               Our AI-powered phone agents handle calls, qualify leads, and book
               appointments around the clock, while our live receptionists step
@@ -16,8 +18,10 @@ export default function Greetings() {
               law firms, and enterprises save time and delight customers.
             </p>
           </div>
+          <div className="mt-4">
+            <Button size="sm">Start You 14-Day Free Trial</Button>
+          </div>
         </div>
-        <Button size="sm">Start You 14-Day Free Trial</Button>
       </Container>
     </Section>
   );

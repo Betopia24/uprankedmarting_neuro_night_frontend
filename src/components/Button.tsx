@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 type Variant = "primary" | "secondary";
 type Tone = "default" | "outline";
 type Weight = "bold" | "medium";
-type Size = "sm" | "lg" | "icon";
+type Size = "sm" | "md" | "lg" | "icon";
 type Shape = "default" | "pill";
 
 const buttonVariantClasses: Record<Variant, Record<Partial<Tone>, string>> = {
@@ -14,15 +14,16 @@ const buttonVariantClasses: Record<Variant, Record<Partial<Tone>, string>> = {
       "border border-primary text-primary hover:bg-primary hover:text-white",
   },
   secondary: {
-    default: "bg-white text-black hover:opacity-90",
-    outline: "border border-grey-300 text-black",
+    default: "bg-white text-gray-950 hover:opacity-90",
+    outline: "border border-grey-300 text-gray-950",
   },
 };
 
 const buttonSizeClasses: Record<Size, string> = {
-  sm: "px-6 py-2 text-sm rounded-md h-10",
-  lg: "px-10 py-3 text-base rounded-lg h-12",
-  icon: "size-8",
+  sm: "h-9 px-4 text-sm",
+  md: "h-10 px-6 text-sm",
+  lg: "h-12 px-8 text-base",
+  icon: "h-9 w-9",
 };
 
 const buttonWeightClasses: Record<Weight, string> = {
@@ -61,7 +62,7 @@ export default function Button({
   return (
     <Comp
       className={cn(
-        "font-sans inline-flex items-center justify-center transition-[transform_opacity] focus:outline-none focus:ring focus:ring-offset-px ring-grey-300 tracking-custom cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none disabled:hover:bg-transparent disabled:hover:text-inherit duration-300 hover:-translate-y-px gap-2.5 [&>svg]:size-5 whitespace-nowrap",
+        "font-sans inline-flex items-center justify-center transition-[transform_opacity] focus:outline-none focus:ring focus:ring-offset-px ring-primary tracking-custom cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none disabled:hover:bg-transparent disabled:hover:text-inherit duration-300 hover:-translate-y-px gap-2.5 [&>svg]:size-4 whitespace-nowrap rounded text-sm",
         buttonVariantClasses[variant]?.[tone],
         buttonSizeClasses[size],
         buttonWeightClasses[weight],

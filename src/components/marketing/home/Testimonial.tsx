@@ -54,9 +54,7 @@ export default function Testimonial() {
       <Section bg="bg-warning">
         <Container size="xl">
           <div className="text-center">
-            <Section.Name className="text-warning-500">
-              Testimonial
-            </Section.Name>
+            <Section.Name className="text-orange-500">Testimonial</Section.Name>
             <Section.Heading>
               <div className="text-violet-950">
                 What our clients say about us.
@@ -84,7 +82,7 @@ function TestimonialCard({ data }: { data: TestimonialData }) {
   return (
     <blockquote className="border border-warning-500 rounded-3xl p-2 md:p-6 lg:p-10 h-full space-y-2 text-center">
       <div className="size-32 rounded-full mx-auto border"></div>
-      <Heading size={22}>{data.author}</Heading>
+      <Heading size="h4">{data.author}</Heading>
       <StarRating />
       <p>{data.content}</p>
     </blockquote>
