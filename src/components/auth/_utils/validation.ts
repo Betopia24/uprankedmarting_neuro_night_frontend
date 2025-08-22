@@ -97,6 +97,37 @@ export const loginSchema = z.object({
   callbackUrl: z.string().optional(),
 });
 
+export const forgotPassword = z.object({
+  email: z.email("Invalid email address"),
+});
+
+export const resetPassword = z.object({
+  password: z
+    .string({ message: "Password is required" })
+    .min(MIN_PASSWORD_LENGTH, {
+      message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters long`,
+    })
+    .max(MAX_PASSWORD_LENGTH, {
+      message: `Password must not exceed ${MAX_PASSWORD_LENGTH} characters`,
+    })
+    .regex(PASSWORD_REGEX, {
+      message:
+        "Password must include uppercase, lowercase, number, and special character (!@#$%^&* etc.)",
+    })
+    .trim(),
+
+  confirmPassword: z
+    .string({ message: "Please confirm your password" })
+    .min(MIN_PASSWORD_LENGTH, {
+      message: "Confirm password must be at least 8 characters long",
+    })
+    .max(MAX_PASSWORD_LENGTH, {
+      message: "Confirm password must not exceed 64 characters",
+    }),
+});
+
 // -------------------- Types --------------------
 export type SignupFormSchema = z.infer<typeof signupSchema>;
 export type LoginFormSchema = z.infer<typeof loginSchema>;
+export type ForgotPasswordFormSchema = z.infer<typeof forgotPassword>;
+export type ResetPasswordFormSchema = z.infer<typeof resetPasswordSchema>;

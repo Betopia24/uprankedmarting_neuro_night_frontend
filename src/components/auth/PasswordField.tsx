@@ -6,6 +6,7 @@ import { useState } from "react";
 
 type PasswordFieldProps = {
   label: string;
+  redirectLink?: React.ReactNode;
 } & React.ComponentProps<"input">;
 
 export default function PasswordField({
@@ -13,6 +14,7 @@ export default function PasswordField({
   name,
   type,
   placeholder,
+  redirectLink,
 }: PasswordFieldProps) {
   const [toggleInputType, setToggleInputType] = useState(false);
   return (
@@ -21,6 +23,7 @@ export default function PasswordField({
       name={name as string}
       type={toggleInputType ? "text" : type}
       placeholder={placeholder}
+      redirectLink={redirectLink}
     >
       <Button
         type="button"

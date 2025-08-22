@@ -9,8 +9,9 @@ import PasswordField from "./PasswordField";
 import { loginSchema, LoginFormSchema } from "./_utils/validation";
 import CheckboxField from "./CheckboxField";
 
-import { signupPath } from "@/paths";
+import { forgotPasswordPath, signupPath } from "@/paths";
 import AuthButton from "./AuthButton";
+import Link from "next/link";
 
 export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
   const form = useForm<LoginFormSchema>({
@@ -55,6 +56,14 @@ export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
                 name="password"
                 type="password"
                 placeholder="Enter your password"
+                redirectLink={
+                  <Link
+                    className="text-xs text-blue-500 hover:underline-offset-1 underline"
+                    href={forgotPasswordPath()}
+                  >
+                    forgot password
+                  </Link>
+                }
               />
               <CheckboxField
                 label="Remember me for 30 days"

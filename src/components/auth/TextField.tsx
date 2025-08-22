@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { resetPassword } from "@/actions/auth";
 
 type TextFieldProps = {
   label?: string;
@@ -16,6 +17,7 @@ type TextFieldProps = {
   placeholder?: string;
   type?: string;
   required?: boolean;
+  redirectLink?: React.ReactNode;
 } & React.ComponentProps<"input">;
 
 export default function TextField({
@@ -26,6 +28,7 @@ export default function TextField({
   className,
   required,
   children,
+  redirectLink,
 }: TextFieldProps) {
   const form = useFormContext();
   return (
@@ -34,16 +37,21 @@ export default function TextField({
       name={name}
       render={({ field }) => (
         <FormItem className={cn("space-y-0.5", className)}>
-          <FormLabel>
+          <FormLabel className="flex justify-between items-center">
             {required ? (
-              <span className="inline-flex items-center gap-1">
-                {label}
-                <span className="text-destructive font-bold text-base leading-0">
-                  *
+              <div className="flex items-center gap-2 justify-between">
+                <span className="inline-flex items-center gap-1">
+                  {label}
+                  <span className="text-destructive font-bold text-base leading-0">
+                    *
+                  </span>
                 </span>
-              </span>
+                {redirectLink}
+              </div>
             ) : (
-              label
+              <>
+                {label} {redirectLink}
+              </>
             )}
           </FormLabel>
           <FormControl>
