@@ -8,10 +8,10 @@ export default function MarketingLayout({
   children: React.ReactNode;
 }) {
   return (
-    // <LenisProvider>
-    <>
-      <Navbar /> <main>{children}</main> <Footer />
-    </>
-    //  </LenisProvider>
+    <LenisProvider>
+      <>
+        <Navbar /> <main>{children}</main> <Footer />
+      </>
+    </LenisProvider>
   );
 }

@@ -2,6 +2,7 @@
 
 import { Container, Section } from "@/components";
 import { Accordion } from "@/components";
+import { ParallaxEffect } from "@/components/animations";
 
 const accordionData = [
   {
@@ -27,12 +28,14 @@ const accordionData = [
 export default function FAQ() {
   return (
     <Section>
-      <Section.Header>
-        <Section.Heading>FAQ</Section.Heading>
-      </Section.Header>
-      <Container>
-        <Accordion accordionData={accordionData} />
-      </Container>
+      <ParallaxEffect>
+        <Section.Header>
+          <Section.Heading className="mb-8">FAQ</Section.Heading>
+        </Section.Header>
+        <Container>
+          <Accordion accordionData={accordionData} />
+        </Container>
+      </ParallaxEffect>
     </Section>
   );
 }

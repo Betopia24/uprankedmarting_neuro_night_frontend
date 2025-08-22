@@ -4,6 +4,7 @@ import React from "react";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import { Container } from "@/components";
 import Section from "@/components/Section";
+import { ParallaxEffect } from "@/components/animations";
 
 const statsData = [
   { value: 1500, suffix: "+", label: "Organization" },
@@ -49,25 +50,28 @@ export default function Stats() {
   return (
     <Section>
       <Container>
-        <div className="flex flex-wrap gap-6 lg:gap-10 max-w-4xl mx-auto py-12">
-          {statsData.map((stat, index) => (
-            <motion.div
-              key={index}
-              className="bg-white flex-1 p-10 rounded-xl shadow text-center"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: index * 0.15 }}
-            >
-              <p className="text-4xl lg:text-[32px] font-bold">
-                <Counter value={stat.value} suffix={stat.suffix} />
-              </p>
-              <p className="text-gray-600 mt-2 font-light text-sm">
-                {stat.label}
-              </p>
-            </motion.div>
-          ))}
-        </div>
+        <ParallaxEffect>
+          {" "}
+          <div className="flex flex-wrap gap-6 lg:gap-10 max-w-4xl mx-auto py-12">
+            {statsData.map((stat, index) => (
+              <motion.div
+                key={index}
+                className="bg-white flex-1 p-10 rounded-xl shadow text-center"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: 0.5, delay: index * 0.15 }}
+              >
+                <p className="text-4xl lg:text-[32px] font-bold">
+                  <Counter value={stat.value} suffix={stat.suffix} />
+                </p>
+                <p className="text-gray-600 mt-2 font-light text-sm">
+                  {stat.label}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </ParallaxEffect>
       </Container>
     </Section>
   );
