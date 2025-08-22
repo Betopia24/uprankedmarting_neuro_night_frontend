@@ -1,20 +1,27 @@
 "use client";
 
 import { useSidebar } from "./SidebarProvider";
-import React, { cloneElement } from "react";
 import { motion } from "framer-motion";
 import DashboardActiveLink from "./DashboardActiveLink";
 import { cn } from "@/lib/utils";
 
+import { LucideUsers, LucideLayoutDashboard } from "lucide-react";
+
 export type SidebarItemType = {
   name: string;
   href: string;
-  icon: React.ReactElement<{ className?: string }>; // Specify that icon accepts className
+  icon: string;
+  children?: SidebarItemType[];
 };
 
 type SidebarContentType = {
   mainItems: SidebarItemType[];
   subItems?: SidebarItemType[];
+};
+
+const icons = {
+  dashboard: LucideLayoutDashboard,
+  agent: LucideUsers,
 };
 
 export default function SidebarContent({
@@ -23,24 +30,24 @@ export default function SidebarContent({
 }: SidebarContentType) {
   const { isCollapsedSidebar, isExpanded } = useSidebar();
   return (
-    <div className="h-full flex flex-col justify-between gap-6 px-6">
-      <ul className={cn("space-y-2", isCollapsedSidebar && "space-y-4")}>
-        {mainItems.map((item) => (
-          <li key={item.name}>
-            <DashboardActiveLink
-              className={cn(
-                "flex items-center gap-2 whitespace-nowrap",
-                isExpanded && "py-2 px-6"
-              )}
-              href={item.href}
-            >
-              {cloneElement(item.icon as React.ReactElement<any>, {
-                className: "size-5 text-gray-500 shrink-0",
-              })}
-              <AnimatedLabel>{item.name}</AnimatedLabel>
-            </DashboardActiveLink>
-          </li>
-        ))}
+    <div className="h-full flex flex-col justify-between gap-6 px-2">
+      <ul className={cn("space-y-2")}>
+        {mainItems.map((item) => {
+          const Icon = icons[item.icon as keyof typeof icons];
+          return (
+            <li key={item.name}>
+              <DashboardActiveLink
+                className={cn("flex items-center whitespace-nowrap h-10")}
+                href={item.href}
+              >
+                <span className="flex h-10 w-12 shrink-0 items-center justify-center">
+                  <Icon className="size-4" />
+                </span>
+                <AnimatedLabel>{item.name}</AnimatedLabel>
+              </DashboardActiveLink>
+            </li>
+          );
+        })}
       </ul>
       <ul className={cn("space-y-2", isCollapsedSidebar && "space-y-4")}>
         {subItems &&
@@ -53,9 +60,6 @@ export default function SidebarContent({
                 )}
                 href={item.href}
               >
-                {cloneElement(item.icon as React.ReactElement<any>, {
-                  className: "size-5 text-gray-500 shrink-0",
-                })}
                 <AnimatedLabel>{item.name}</AnimatedLabel>
               </DashboardActiveLink>
             </li>

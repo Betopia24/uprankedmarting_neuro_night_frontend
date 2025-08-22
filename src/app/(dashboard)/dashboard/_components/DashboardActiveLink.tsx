@@ -10,19 +10,18 @@ type ActiveLinkProps = {
 
 export default function DashboardActiveLink({
   href = "",
-  exact = false,
   className,
   children,
 }: ActiveLinkProps) {
   const pathname = usePathname();
-  const isActive = exact ? pathname === href : pathname.startsWith(href);
+  const isActive = pathname === href;
 
   return (
     <Link
       href={href}
       className={cn(
-        "block w-full hover:bg-gray-400",
-        isActive && "is-active-link bg-gray-400",
+        "block w-full hover:bg-blue-300 rounded",
+        isActive && "is-active-link bg-blue-300",
         className
       )}
     >

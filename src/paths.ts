@@ -12,3 +12,9 @@ export const privacyPolicyPath = () => "/privacy-policy";
 export const termsAndConditionsPath = () => "/terms-of-use";
 export const supportPath = () => "/support";
 export const contactPath = () => "/contact-us";
+
+const DASHBOARD_PREFIX = "/dashboard";
+// admin dashboard paths
+export const adminDashboardPath = () => `${DASHBOARD_PREFIX}/admin`;
+export const adminAgentManagementPath = () =>
+  `${adminDashboardPath()}/agent-management`;

@@ -1,2 +1,2 @@
-import { GET, POST } from "@/auth";
-export { GET, POST };
+// import { GET, POST } from "@/auth";
+// export { GET, POST };

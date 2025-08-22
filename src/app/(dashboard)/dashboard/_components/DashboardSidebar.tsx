@@ -14,7 +14,7 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
   return (
     <motion.nav
       className={cn(
-        "h-screen flex flex-col bg-[#ECF1F8] gap-4 z-50 sticky top-0 text-sm whitespace-nowrap relative"
+        "h-screen flex flex-col bg-blue-50 gap-4 z-50 sticky top-0 text-sm whitespace-nowrap"
       )}
       style={{
         width: isCollapsedSidebar
