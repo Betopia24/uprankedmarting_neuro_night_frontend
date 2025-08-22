@@ -10,20 +10,20 @@ type Props = {
 
 export default function CircleGraph({ value, max, color }: Props) {
   return (
-    <div className="relative inline-flex">
+    <div className="relative inline-flex max-w-32">
       <svg
         className="block size-full relative rotate-[-90deg]" // rotate so it starts from top
-        viewBox="0 0 100 100"
+        viewBox="0 0 50 50"
         xmlns="http://www.w3.org/2000/svg"
       >
         {/* Background circle */}
         <circle
-          cx="50"
-          cy="50"
-          r="32" // 👈 smaller radius
+          cx="25"
+          cy="25"
+          r="22"
           fill="none"
           stroke="#e5e7eb"
-          strokeWidth="5"
+          strokeWidth="4"
         />
         <Circle value={value} max={max} color={color} />
       </svg>
@@ -58,12 +58,12 @@ function Circle({ value, max, color }: Props) {
   return (
     <circle
       ref={ref}
-      cx="50"
-      cy="50"
-      r="32"
+      cx="25"
+      cy="25"
+      r="22"
       fill="none"
       stroke="currentColor"
-      strokeWidth="5"
+      strokeWidth="4"
       strokeDashoffset={offset}
       strokeLinecap="round"
       className="transition-all duration-1000 ease-out rotate-90 origin-center"

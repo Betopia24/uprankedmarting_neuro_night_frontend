@@ -235,16 +235,16 @@ const filterFields: FilterField[] = [
       { label: "Admin", value: "admin" },
     ],
   },
-  {
-    key: "earning_range",
-    label: "Earning Range",
-    type: "select",
-    options: [
-      { label: "Under $3,000", value: "under_3000" },
-      { label: "$3,000 - $5,000", value: "3000_5000" },
-      { label: "Above $5,000", value: "above_5000" },
-    ],
-  },
+  // {
+  //   key: "earning_range",
+  //   label: "Earning Range",
+  //   type: "select",
+  //   options: [
+  //     { label: "Under $3,000", value: "under_3000" },
+  //     { label: "$3,000 - $5,000", value: "3000_5000" },
+  //     { label: "Above $5,000", value: "above_5000" },
+  //   ],
+  // },
 ];
 
 // ---------- HELPERS ----------
