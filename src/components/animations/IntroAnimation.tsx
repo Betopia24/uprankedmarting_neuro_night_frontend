@@ -4,25 +4,25 @@ import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 const step1 = {
-  hidden: { opacity: [1, 1, 0, 0, 0, 0] },
+  hidden: { opacity: [1, 1, 0, 0, 0], y: [-20, -20, 0, 0, 0] },
 };
 
 const step2 = {
   hidden: (custom: "top" | "bottom" | "left" | "right" | "none") => {
     const baseStyles = {
-      opacity: [0, 0, 1, 1, 0, 0],
+      opacity: [0, 0, 1, 1, 0],
       y:
         custom === "top"
-          ? [20, 20, 0, 0, 20, 20]
+          ? [20, 20, 0, 0, 0]
           : custom === "bottom"
-          ? [20, 20, 0, 0, 20, 20]
-          : [0, 0, 0, 0, 0, 0],
+          ? [20, 20, 0, 0]
+          : [0, 0, -20, -20, 0],
       x:
         custom === "left"
-          ? [-20, -20, 0, 0, -20, -20]
+          ? [-20, -20, -20, 0, 0]
           : custom === "right"
-          ? [20, 20, 0, 0, 20, 20]
-          : [0, 0, 0, 0, 0, 0],
+          ? [20, 20, 20, 0, 0]
+          : [0, 0, 0, 0, 0],
     };
     return custom === "none" ? { ...baseStyles, y: 0, x: 0 } : baseStyles;
   },
@@ -43,7 +43,7 @@ type IntroAnimationProps = {
 export default function IntroAnimation({
   variant,
   children,
-  duration = 5,
+  duration = 4,
   followUp = false,
   custom = "none",
 }: IntroAnimationProps) {
