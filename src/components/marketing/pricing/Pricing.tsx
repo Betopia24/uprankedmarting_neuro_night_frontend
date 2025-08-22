@@ -137,7 +137,7 @@ export default function Pricing() {
 
                 {/* Card Content */}
                 <div className="px-6 pb-6 space-y-6 flex flex-col justify-stretch flex-1">
-                  <div className="border-t border-b border-grey-300 pt-8 pb-2">
+                  <div className="border-t border-b border-gray-300 pt-8 pb-2">
                     <div className="flex items-baseline gap-1">
                       <span className="text-4xl font-bold text-gray-900 ">
                         ${plan.price}

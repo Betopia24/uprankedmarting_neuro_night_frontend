@@ -15,7 +15,7 @@ const buttonVariantClasses: Record<Variant, Record<Partial<Tone>, string>> = {
   },
   secondary: {
     default: "bg-white text-gray-950 hover:opacity-90",
-    outline: "border border-grey-300 text-gray-950",
+    outline: "border border-gray-300 text-gray-950",
   },
 };
 

@@ -8,10 +8,9 @@ export default function OurFeatures() {
     <Section>
       <Container>
         <ParallaxEffect>
-          {" "}
           <StaggerFadeUp>
-            <div className="flex flex-col gap-10 lg:gap-0 lg:flex-row text-fluid-20 overflow-hidden">
-              <div className="bg-warning space-y-4 flex-1 p-6 text-fluid-2 order-2 lg:order-1 rounded">
+            <div className="flex flex-col gap-10 lg:gap-0 lg:flex-row text-xl overflow-hidden">
+              <div className="bg-warning space-y-4 flex-1 p-6 text-lg order-2 lg:order-1 rounded">
                 <Section.Heading className="italic">
                   AI Phone Agent & Virtual Receptionist for Smarter CX
                 </Section.Heading>

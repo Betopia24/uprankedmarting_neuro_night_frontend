@@ -7,7 +7,7 @@ import Logo from "../Logo";
 
 export default function Navbar() {
   return (
-    <header className="bg-grey-100 px-6">
+    <header className="bg-gray-100 px-6">
       <nav className="flex items-center justify-between relative w-full xl:max-w-[95%] mx-auto">
         <div className="lg:flex-1">
           <Logo />

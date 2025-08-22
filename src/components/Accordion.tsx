@@ -35,12 +35,12 @@ export default function Accordion<T extends AccordionItem>({
         const isActive = activeIndex === item.id;
         return (
           <div
-            className="space-y-2.5 border-b border-grey-300 pb-2"
+            className="space-y-2.5 border-b border-gray-300 pb-2"
             key={item.id}
           >
             <div
               onClick={() => toggle(item.id)}
-              className="text-fluid-22 cursor-pointer font-medium flex justify-between items-start gap-2 select-none"
+              className="text-xl cursor-pointer font-medium flex justify-between items-start gap-2 select-none"
             >
               {item.title}
               <motion.span

@@ -194,7 +194,7 @@ function NavigationControls({
     >
       <button
         className={cn(
-          "transition-transform bg-grey-300 rounded-full p-1 cursor-pointer"
+          "transition-transform bg-gray-300 rounded-full p-1 cursor-pointer"
         )}
         onClick={scrollPrev}
       >
@@ -202,7 +202,7 @@ function NavigationControls({
       </button>
       <button
         className={cn(
-          "transition-transform bg-grey-300 rounded-full p-1 cursor-pointer"
+          "transition-transform bg-gray-300 rounded-full p-1 cursor-pointer"
         )}
         onClick={scrollNext}
       >
