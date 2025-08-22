@@ -16,16 +16,26 @@ export default function SearchField({
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(defaultQuery);
 
+  // Sync input with URL on mount
+  useEffect(() => {
+    const initialQuery = searchParams.get("query") || defaultQuery;
+    setQuery(initialQuery);
+  }, [searchParams, defaultQuery]);
+
   useEffect(() => {
     const handler = setTimeout(() => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (query) params.set("query", query);
-      else params.delete("query");
+      const params = new URLSearchParams();
+
+      if (query.trim()) {
+        params.set("query", query);
+      }
+      // Do NOT copy any pagination params; this resets pagination
+
       router.push(`/table?${params.toString()}`);
     }, debounceTime);
 
     return () => clearTimeout(handler);
-  }, [query]);
+  }, [query, debounceTime, router]);
 
   return (
     <input
