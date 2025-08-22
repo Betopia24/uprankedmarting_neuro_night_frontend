@@ -34,7 +34,7 @@ export default function DashboardLayout({
       className={cn(`grid transition-[grid] duration-300`)}
     >
       <div className="[grid-area:sidebar]">{sidebar}</div>
-      <div className="[grid-area:main] px-10">
+      <div className="[grid-area:main]">
         {header}
         {children}
       </div>
