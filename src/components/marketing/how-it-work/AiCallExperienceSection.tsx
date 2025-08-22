@@ -1,4 +1,4 @@
-import { Section, Container, Button } from "@/components";
+import { Section, Container, Button, ButtonWithIcon } from "@/components";
 import { ParallaxEffect, StaggerFadeUp } from "@/components/animations";
 import recordingImage from "@/images/how-it-work/recording.png";
 import Image from "next/image";
@@ -41,9 +41,11 @@ export default function AiCallExperienceSection() {
                 alt="recording"
               />
             </div>
-            <div className="text-center mt-10">
-              <Button size="sm">Get Started For Free</Button>
-              <span className="block text-sm">No credit card required*</span>
+            <div className="text-center mt-10 space-y-0.5">
+              <ButtonWithIcon size="sm">Get Started</ButtonWithIcon>
+              <span className="block text-xs text-gray-600">
+                No credit card required*
+              </span>
             </div>
           </StaggerFadeUp>
         </ParallaxEffect>

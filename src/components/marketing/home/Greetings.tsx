@@ -1,4 +1,10 @@
-import { Section, Container, Button, Heading } from "@/components";
+import {
+  Section,
+  Container,
+  Button,
+  Heading,
+  ButtonWithIcon,
+} from "@/components";
 import { ParallaxEffect, StaggerFadeUp } from "@/components/animations";
 
 export default function Greetings() {
@@ -23,7 +29,7 @@ export default function Greetings() {
                 </p>
               </div>
               <div className="mt-4">
-                <Button size="sm">Start You 14-Day Free Trial</Button>
+                <ButtonWithIcon size="sm">Get started</ButtonWithIcon>
               </div>
             </div>
           </StaggerFadeUp>

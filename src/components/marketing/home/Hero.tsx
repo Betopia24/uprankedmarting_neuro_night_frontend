@@ -1,4 +1,4 @@
-import { Button, Container, Section, Heading } from "@/components";
+import { ButtonWithIcon, Container, Section, Heading } from "@/components";
 import Image from "next/image";
 import robotImage from "@/images/robot.webp";
 import personImage from "@/images/person.png";
@@ -46,7 +46,7 @@ export default function Hero() {
                 of the cost.
               </p>
               <div className="space-y-2">
-                <Button>Get Started For Free</Button>
+                <ButtonWithIcon>Get Started For Free</ButtonWithIcon>
                 <div className="block text-xs">No credit card required*</div>
               </div>
             </div>
