@@ -1,7 +1,10 @@
-"use client";
-
+import AuthLayout from "@/components/auth/AuthLayout";
 import LoginForm from "@/components/auth/LoginForm";
 
-export default function LoginPage() {
-  return <LoginForm callbackUrl="" />;
+export default async function LoginPage() {
+  return (
+    <AuthLayout>
+      <LoginForm callbackUrl="" />
+    </AuthLayout>
+  );
 }

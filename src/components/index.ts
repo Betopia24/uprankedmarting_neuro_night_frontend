@@ -6,3 +6,4 @@ export { default as Button } from "./Button";
 export { default as ActiveLink } from "./ActiveLink";
 export { default as Accordion } from "./Accordion";
 export { default as Marquee } from "./Marquee";
+export { default as Loading } from "./Loading";
