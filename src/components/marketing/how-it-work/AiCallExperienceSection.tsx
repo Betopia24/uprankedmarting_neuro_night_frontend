@@ -1,6 +1,6 @@
 import { Section, Container, Button, ButtonWithIcon } from "@/components";
 import { ParallaxEffect, StaggerFadeUp } from "@/components/animations";
-import recordingImage from "@/images/how-it-work/recording.png";
+import recordingImage from "@/images/how-it-work/recording.webp";
 import Image from "next/image";
 
 export default function AiCallExperienceSection() {
