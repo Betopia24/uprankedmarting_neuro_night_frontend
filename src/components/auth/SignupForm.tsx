@@ -19,7 +19,7 @@ import { useState } from "react";
 import { AnimatePresence, motion, Variants } from "framer-motion";
 import { Button } from "../ui/button";
 import CheckboxField from "./CheckboxField";
-import SelectField from "./SelectField";
+import SelectField from "../SelectField";
 import AuthButton from "./AuthButton";
 
 const MIN_STEP = 1;

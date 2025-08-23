@@ -32,10 +32,10 @@ export default function InputField({
       control={form.control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn("space-y-0.5", className)}>
-          <FormLabel className="flex justify-between items-center">
+        <FormItem className={cn("border border-gray-300 gap-0", className)}>
+          <FormLabel className="flex justify-between items-center border-b text-sm">
             <div className="flex items-center gap-2 justify-between">
-              <span className="inline-flex items-center gap-1">
+              <span className="inline-flex items-center gap-1 p-1 font-medium text-base">
                 {label}
                 {required && (
                   <span className="text-destructive font-bold text-base leading-0">
@@ -45,9 +45,9 @@ export default function InputField({
               </span>
             </div>
           </FormLabel>
-          <FormControl>
+          <FormControl className="p-0">
             <Input
-              className="rounded-2xl placeholder:text-xs"
+              className="placeholder:text-xs border-transparent p-1 h-auto rounded-none"
               {...field}
               placeholder={placeholder}
               type={type}
