@@ -55,7 +55,7 @@ export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
       redirect: false,
       email: data.email,
       password: data.password,
-      url: "auth/superadmin/login",
+      url: "auth/organization/login",
     });
     console.log({ result });
 

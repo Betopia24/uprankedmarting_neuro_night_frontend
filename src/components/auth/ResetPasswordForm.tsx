@@ -15,6 +15,7 @@ import {
 
 import AuthButton from "./AuthButton";
 import { forgotPasswordPath, loginPath } from "@/paths";
+import { forgotPasswordOrganization } from "@/actions/forgot-password.action";
 
 export function ForgotPasswordForm() {
   const form = useForm<ForgotPasswordFormSchema>({
@@ -24,7 +25,11 @@ export function ForgotPasswordForm() {
       email: "",
     },
   });
-  const onSubmit = async (formData: ForgotPasswordFormSchema) => {};
+  const onSubmit = async (formData: ForgotPasswordFormSchema) => {
+    try {
+      await forgotPasswordOrganization(formData);
+    } catch {}
+  };
 
   return (
     <AuthCard>
