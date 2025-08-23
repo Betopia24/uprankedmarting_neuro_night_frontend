@@ -8,10 +8,10 @@ import {
 // -------------------- Signup Schema --------------------
 export const signupSchema = z
   .object({
-    name: z
-      .string({ message: "Name is required" })
-      .min(6, { message: "Name must be at least 6 characters long" })
-      .max(25, { message: "Name must be at most 25 characters long" })
+    full_name: z
+      .string({ message: "Fullname is required" })
+      .min(6, { message: "Fullname must be at least 6 characters long" })
+      .max(25, { message: "Fullname must be at most 25 characters long" })
       .trim(),
 
     email: z.email("Invalid email address"),
@@ -30,8 +30,8 @@ export const signupSchema = z
       })
       .trim(),
 
-    confirmPassword: z
-      .string({ message: "Please confirm your password" })
+    retype_password: z
+      .string({ message: "Please retype your password" })
       .min(MIN_PASSWORD_LENGTH, {
         message: "Confirm password must be at least 8 characters long",
       })
@@ -39,14 +39,14 @@ export const signupSchema = z
         message: "Confirm password must not exceed 64 characters",
       }),
 
-    businessName: z
+    business_name: z
       .string({ message: "Business name is required" })
       .min(6, { message: "Business name must be at least 6 characters long" }),
 
-    phoneNumber: z
-      .string({ message: "Phone number is required" })
+    contact_number: z
+      .string({ message: "Contact number is required" })
       .regex(/^\+[1-9]\d{9,14}$/, {
-        message: "Phone number must include country code",
+        message: "Contact number must include country code",
       }),
 
     industry: z.string({ message: "Industry is required" }),
@@ -56,14 +56,14 @@ export const signupSchema = z
       .url("Invalid URL")
       .optional(),
 
-    businessAddress: z
-      .string({ message: "Business address is required" })
+    address: z
+      .string({ message: "Address is required" })
       .min(6, {
-        message: "Business address must be at least 6 characters long",
+        message: "Address must be at least 6 characters long",
       })
       .refine((val) => val.split(",").length === 3, {
         message:
-          "Business address must contain exactly 3 comma-separated values (e.g., Street, City, Country)",
+          "Address must contain exactly 3 comma-separated values (e.g., Street, City, Country)",
       }),
 
     acceptTerms: z
@@ -74,7 +74,7 @@ export const signupSchema = z
         message: "You must accept the terms and conditions",
       }),
   })
-  .refine((data) => data.password === data.confirmPassword, {
+  .refine((data) => data.password === data.retype_password, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
@@ -130,4 +130,4 @@ export const resetPassword = z.object({
 export type SignupFormSchema = z.infer<typeof signupSchema>;
 export type LoginFormSchema = z.infer<typeof loginSchema>;
 export type ForgotPasswordFormSchema = z.infer<typeof forgotPassword>;
-export type ResetPasswordFormSchema = z.infer<typeof resetPasswordSchema>;
+export type ResetPasswordFormSchema = z.infer<typeof resetPassword>;

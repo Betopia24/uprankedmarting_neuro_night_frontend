@@ -21,6 +21,9 @@ import { Button } from "../ui/button";
 import CheckboxField from "./CheckboxField";
 import SelectField from "../SelectField";
 import AuthButton from "./AuthButton";
+import { createOrganization } from "@/actions/signup.action";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const MIN_STEP = 1;
 const MAX_STEP = 2;
@@ -45,21 +48,22 @@ const variants: Variants = {
 };
 
 const defaultValues = {
-  name: "",
+  full_name: "",
   email: "",
   password: "",
-  confirmPassword: "",
-  businessName: "",
+  retype_password: "",
+  business_name: "",
   industry: "",
   website: "",
-  businessAddress: "",
-  phoneNumber: "",
+  address: "",
+  contact_number: "",
   acceptTerms: false,
 };
 
 export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(0);
+  const router = useRouter();
 
   const form = useForm<SignupFormSchema>({
     mode: "all",
@@ -67,7 +71,21 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
     defaultValues,
   });
 
-  const onSubmit = async (formData: SignupFormSchema) => {};
+  const onSubmit = async (formData: SignupFormSchema) => {
+    try {
+      const result = await createOrganization(formData);
+
+      if (result.success) {
+        toast("Organization created successfully");
+        form.reset();
+        router.push(loginPath());
+      } else {
+        toast.error(result.errors);
+      }
+    } catch (error) {
+      toast.error("Something went wrong");
+    }
+  };
 
   const redirectLoginUrl = callbackUrl
     ? `${loginPath()}?callbackUrl=${callbackUrl}`
@@ -87,20 +105,20 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
 
   // Validate current step
   const isStep1Valid = () => {
-    const { name, email, phoneNumber, password, confirmPassword } =
+    const { full_name, email, contact_number, password, retype_password } =
       form.getValues();
     const errors = form.formState.errors;
     return (
-      name &&
+      full_name &&
       email &&
-      phoneNumber &&
+      contact_number &&
       password &&
-      confirmPassword &&
-      !errors.name &&
+      retype_password &&
+      !errors.full_name &&
       !errors.email &&
-      !errors.phoneNumber &&
+      !errors.contact_number &&
       !errors.password &&
-      !errors.confirmPassword
+      !errors.retype_password
     );
   };
 
@@ -131,8 +149,8 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
                 >
                   <fieldset className="space-y-6">
                     <TextField
-                      label="Name"
-                      name="name"
+                      label="Full Name"
+                      name="full_name"
                       placeholder="Enter your name"
                     >
                       <LucideUser2 className="size-9 p-2.5 absolute right-0 bottom-0" />
@@ -145,9 +163,9 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
                       <LucideMail className="size-9 p-2.5 absolute right-0 bottom-0" />
                     </TextField>
                     <TextField
-                      label="Phone Number"
-                      name="phoneNumber"
-                      placeholder="Write your phone number"
+                      label="Contact Number"
+                      name="contact_number"
+                      placeholder="Write your contact number"
                     >
                       <LucidePhone className="size-9 p-2.5 absolute right-0 bottom-0" />
                     </TextField>
@@ -158,10 +176,10 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
                       placeholder="Enter new password"
                     />
                     <PasswordField
-                      label="Confirm Password"
-                      name="confirmPassword"
+                      label="Retype Password"
+                      name="retype_password"
                       type="password"
-                      placeholder="Enter confirm password"
+                      placeholder="Enter retype password"
                     />
                   </fieldset>
                 </motion.div>
@@ -180,7 +198,7 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
                   <fieldset className="space-y-6">
                     <TextField
                       label="Business Name"
-                      name="businessName"
+                      name="business_name"
                       placeholder="Write your business name"
                     >
                       <LucideBuilding2 className="size-9 p-2.5 absolute right-0 bottom-0" />
@@ -206,9 +224,9 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
                       <LucideGlobe className="size-9 p-2.5 absolute right-0 bottom-0" />
                     </TextField>
                     <TextField
-                      label="Business Address"
-                      name="businessAddress"
-                      placeholder="Write your business address"
+                      label="Address"
+                      name="address"
+                      placeholder="Write your address"
                     >
                       <LucideMapPin className="size-9 p-2.5 absolute right-0 bottom-0" />
                     </TextField>
