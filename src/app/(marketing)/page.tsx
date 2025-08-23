@@ -9,7 +9,11 @@ import {
   Hero,
 } from "@/components/marketing/home";
 
-export default function Home() {
+import { auth } from "@/auth";
+
+export default async function Home() {
+  const aa = await auth();
+  console.log(aa);
   return (
     <>
       <Hero />

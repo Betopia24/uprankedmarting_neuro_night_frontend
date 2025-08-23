@@ -31,13 +31,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       credentials: {
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" },
+        url: {},
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
         try {
           const response = await axios.post(
-            `${API_BASE}/auth/organization/login`,
+            // `${API_BASE}/auth/organization/login`,
+            `${API_BASE}/${credentials?.url}`,
             {
               email: credentials.email,
               password: credentials.password,
@@ -54,10 +56,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return {
             id: data.id || data.sub || String(credentials.email),
             email: String(credentials.email),
-            role: data.role || "organization_admin",
+            role: data.role,
             access_token: data.access_token,
             refresh_token: data.refresh_token,
-            exp: Math.floor(Date.now() / 1000) + 3600, // expires in 1h
+            exp: Math.floor(Date.now() / 1000) + 900, // 15 mins
           };
         } catch (err) {
           console.error("Login error:", err);
