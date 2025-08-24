@@ -16,6 +16,8 @@ import {
 import AuthButton from "./AuthButton";
 import { forgotPasswordPath, loginPath } from "@/paths";
 import { forgotPasswordOrganization } from "@/actions/forgot-password.action";
+import { useSearchParams } from "next/navigation";
+import { newPasswordOrganization } from "@/actions/new-passowrd.action";
 
 export function ForgotPasswordForm() {
   const form = useForm<ForgotPasswordFormSchema>({
@@ -75,14 +77,23 @@ export function ForgotPasswordForm() {
 }
 
 export function NewPasswordForm() {
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token") || "";
   const form = useForm<ResetPasswordFormSchema>({
     mode: "all",
     resolver: zodResolver(resetPassword),
     defaultValues: {
-      email: "",
+      new_password: "",
+      confirm_new_password: "",
+      token,
     },
   });
-  const onSubmit = async (formData: ResetPasswordFormSchema) => {};
+  const onSubmit = async (formData: ResetPasswordFormSchema) => {
+    try {
+      const response = await newPasswordOrganization(formData);
+      console.log(response);
+    } catch {}
+  };
 
   return (
     <AuthCard>
@@ -100,12 +111,12 @@ export function NewPasswordForm() {
             <fieldset className="space-y-6">
               <PasswordField
                 label="Password"
-                name="password"
+                name="new_password"
                 placeholder="Enter your password"
               />
               <PasswordField
                 label="Confirm Password"
-                name="confirmPassword"
+                name="confirm_new_password"
                 placeholder="Confirm your password"
               />
             </fieldset>

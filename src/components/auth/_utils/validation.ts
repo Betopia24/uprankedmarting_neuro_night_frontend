@@ -102,7 +102,7 @@ export const forgotPassword = z.object({
 });
 
 export const resetPassword = z.object({
-  password: z
+  new_password: z
     .string({ message: "Password is required" })
     .min(MIN_PASSWORD_LENGTH, {
       message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters long`,
@@ -116,7 +116,7 @@ export const resetPassword = z.object({
     })
     .trim(),
 
-  confirmPassword: z
+  confirm_new_password: z
     .string({ message: "Please confirm your password" })
     .min(MIN_PASSWORD_LENGTH, {
       message: "Confirm password must be at least 8 characters long",
@@ -124,6 +124,8 @@ export const resetPassword = z.object({
     .max(MAX_PASSWORD_LENGTH, {
       message: "Confirm password must not exceed 64 characters",
     }),
+
+  token: z.string(),
 });
 
 // -------------------- Types --------------------
