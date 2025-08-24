@@ -1,6 +1,6 @@
 import LenisProvider from "@/components/Lenis";
-import Footer from "@/components/marketing/Footer";
-import Navbar from "@/components/marketing/Navbar";
+import Footer from "@/components/landing/Footer";
+import Navbar from "@/components/landing/Navbar";
 
 export default function MarketingLayout({
   children,

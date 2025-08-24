@@ -5,7 +5,7 @@ import {
   AgentManagement,
   AutoAnswerNumberHighlight,
   FAQ,
-} from "@/components/marketing/how-it-work";
+} from "@/components/landing/how-it-work";
 
 export default function HowItWorksPage() {
   return (

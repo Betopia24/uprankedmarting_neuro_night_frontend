@@ -11,13 +11,11 @@ import {
   ResetPasswordFormSchema,
   forgotPassword,
   ForgotPasswordFormSchema,
-} from "./_utils/validation";
+} from "./utils/validation";
 
 import AuthButton from "./AuthButton";
 import { forgotPasswordPath, loginPath } from "@/paths";
-import { forgotPasswordOrganization } from "@/actions/forgot-password.action";
 import { useSearchParams } from "next/navigation";
-import { newPasswordOrganization } from "@/actions/new-passowrd.action";
 
 export function ForgotPasswordForm() {
   const form = useForm<ForgotPasswordFormSchema>({
@@ -27,11 +25,7 @@ export function ForgotPasswordForm() {
       email: "",
     },
   });
-  const onSubmit = async (formData: ForgotPasswordFormSchema) => {
-    try {
-      await forgotPasswordOrganization(formData);
-    } catch {}
-  };
+  const onSubmit = async (formData: ForgotPasswordFormSchema) => {};
 
   return (
     <AuthCard>
@@ -88,12 +82,7 @@ export function NewPasswordForm() {
       token,
     },
   });
-  const onSubmit = async (formData: ResetPasswordFormSchema) => {
-    try {
-      const response = await newPasswordOrganization(formData);
-      console.log(response);
-    } catch {}
-  };
+  const onSubmit = async (formData: ResetPasswordFormSchema) => {};
 
   return (
     <AuthCard>

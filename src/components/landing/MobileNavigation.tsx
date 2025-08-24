@@ -7,6 +7,10 @@ import navbarData from "@/data/navbarData";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import burgerMenu from "@/images/burger-menu.svg";
+import { LucideX } from "lucide-react";
+import Button from "../Button";
+import Link from "next/link";
+import { loginPath, signupPath } from "@/paths";
 
 export default function MobileNavigation() {
   const [open, setOpen] = useState(false);
@@ -19,11 +23,11 @@ export default function MobileNavigation() {
       <motion.div
         transition={{ duration: 0.3, ease: "linear" }}
         animate={{ y: open ? 0 : "-100%" }}
-        className="fixed z-[9999] top-0 inset-x-0 bg-gray-300 text-white pt-8 pb-14 space-y-6 px-6"
+        className="fixed z-[9999] top-0 inset-x-0 bg-blue-50 text-gray-900 pt-8 pb-14 space-y-6 px-6 shadow-2xl rounded"
       >
         <div className="flex justify-end">
           <button onClick={toggle} className="cursor-pointer">
-            <Image src={close} alt="close" />
+            <LucideX />
           </button>
         </div>
         <ul className="flex flex-col gap-4">
@@ -34,6 +38,14 @@ export default function MobileNavigation() {
               </ActiveLink>
             </li>
           ))}
+          <li className="flex gap-4">
+            <Button size="sm" variant="secondary" asChild>
+              <Link href={`${loginPath()}`}>Login</Link>
+            </Button>
+            <Button variant="primary" size="sm" asChild>
+              <Link href={`${signupPath()}`}>Sign Up</Link>
+            </Button>
+          </li>
         </ul>
       </motion.div>
     </>

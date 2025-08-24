@@ -3,15 +3,17 @@ export const howItWork = () => "/how-it-work";
 export const pricingPath = () => "/pricing";
 export const servicePath = () => "/service";
 export const aboutUsPath = () => "/about-us";
-export const loginPath = () => "/login";
-export const signupPath = () => "/signup";
-export const forgotPasswordPath = () => "/forgot-password";
-export const resetPasswordPath = () => "/reset-password";
-
 export const privacyPolicyPath = () => "/privacy-policy";
 export const termsAndConditionsPath = () => "/terms-of-use";
 export const supportPath = () => "/support";
 export const contactPath = () => "/contact-us";
+
+// auth paths
+const AUTH_PREFIX = "/auth";
+export const loginPath = () => `${AUTH_PREFIX}/organization`;
+export const signupPath = () => `${AUTH_PREFIX}/signup`;
+export const forgotPasswordPath = () => `${AUTH_PREFIX}/forgot-password`;
+export const newPasswordPath = () => `${AUTH_PREFIX}/new-password`;
 
 const DASHBOARD_PREFIX = "/dashboard";
 // admin dashboard paths

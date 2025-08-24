@@ -1,5 +1,5 @@
-import AuthLayout from "@/components/auth/AuthLayout";
-import { ForgotPasswordForm } from "@/components/auth/ResetPasswordForm";
+import AuthLayout from "@/features/auth/AuthLayout";
+import { ForgotPasswordForm } from "@/features/auth/ResetPasswordForm";
 
 export default function ForgotPasswordPage() {
   return (

@@ -6,16 +6,11 @@ import { LucideMail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { AuthCard } from "./AuthForm";
 import PasswordField from "./PasswordField";
-import { loginSchema, LoginFormSchema } from "./_utils/validation";
+import { loginSchema, LoginFormSchema } from "./utils/validation";
 import CheckboxField from "./CheckboxField";
-import { signIn } from "next-auth/react";
-
 import { forgotPasswordPath, signupPath } from "@/paths";
 import AuthButton from "./AuthButton";
 import Link from "next/link";
-
-import { loginOrganization } from "@/actions/signin.action";
-
 import { toast } from "sonner";
 
 export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
@@ -30,44 +25,15 @@ export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
     },
   });
   const rememberMe = form.watch("rememberMe");
-  // const onSubmit = async (formData: LoginFormSchema) => {
-  //   console.log(formData);
-  //   try {
-  //     const result = await loginOrganization(formData);
-
-  //     console.log(result);
-
-  //     if (result.success) {
-  //       // toast("Organization created successfully");
-  //       form.reset();
-  //       // router.push(loginPath());
-  //     } else {
-  //       toast.error("==");
-  //     }
-  //   } catch (error) {
-  //     toast.error("Something went wrong");
-  //   }
-  // };
 
   const onSubmit = async (data: LoginFormSchema) => {
-    // Use NextAuth signIn with "credentials"
-    const result = await signIn("credentials", {
-      redirect: false,
-      email: data.email,
-      password: data.password,
-      url: "auth/organization/login",
+    const res = await fetch("/api/organization/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
     });
-    console.log({ result });
 
-    if (result?.error) {
-      console.error("Login failed:", result.error);
-      return;
-    }
-
-    if (result?.ok) {
-      console.log("Login successful, redirecting...");
-      // window.location.href = "/dashboard"; // or use next/navigation router
-    }
+    console.log(res);
   };
 
   const redirectSignupUrl = callbackUrl
@@ -121,6 +87,7 @@ export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
                   form.formState.isSubmitting ||
                   !rememberMe
                 }
+                isLoading={form.formState.isSubmitting}
                 className="w-full"
                 type="submit"
               >

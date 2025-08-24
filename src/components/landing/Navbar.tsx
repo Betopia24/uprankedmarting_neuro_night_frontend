@@ -4,10 +4,11 @@ import Link from "next/link";
 import MobileNavigation from "./MobileNavigation";
 import navbarData from "@/data/navbarData";
 import Logo from "../Logo";
+import { loginPath, signupPath } from "@/paths";
 
 export default function Navbar() {
   return (
-    <header className="bg-gray-100 px-6">
+    <header className="bg-blue-50 px-6">
       <nav className="flex items-center justify-between relative w-full xl:max-w-[95%] mx-auto">
         <div className="lg:flex-1">
           <Logo />
@@ -18,10 +19,10 @@ export default function Navbar() {
         <div className="lg:flex-1 flex justify-end">
           <div className="hidden md:flex gap-4 lg:gap-6">
             <Button size="sm" variant="secondary" asChild>
-              <Link href="/login">Login</Link>
+              <Link href={`${loginPath()}`}>Login</Link>
             </Button>
             <Button variant="primary" size="sm" asChild>
-              <Link href="/signup">Sign Up</Link>
+              <Link href={`${signupPath()}`}>Sign Up</Link>
             </Button>
           </div>
         </div>

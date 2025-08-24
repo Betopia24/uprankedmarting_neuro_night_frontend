@@ -13,15 +13,14 @@ import {
 import { useForm } from "react-hook-form";
 import { AuthCard } from "./AuthForm";
 import PasswordField from "./PasswordField";
-import { signupSchema, SignupFormSchema } from "./_utils/validation";
+import { signupSchema, SignupFormSchema } from "./utils/validation";
 import { loginPath } from "@/paths";
 import { useState } from "react";
 import { AnimatePresence, motion, Variants } from "framer-motion";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import CheckboxField from "./CheckboxField";
-import SelectField from "../SelectField";
+import SelectField from "@/components/SelectField";
 import AuthButton from "./AuthButton";
-import { createOrganization } from "@/actions/signup.action";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -71,21 +70,7 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
     defaultValues,
   });
 
-  const onSubmit = async (formData: SignupFormSchema) => {
-    try {
-      const result = await createOrganization(formData);
-
-      if (result.success) {
-        toast("Organization created successfully");
-        form.reset();
-        router.push(loginPath());
-      } else {
-        toast.error(result.errors);
-      }
-    } catch (error) {
-      toast.error("Something went wrong");
-    }
-  };
+  const onSubmit = async (formData: SignupFormSchema) => {};
 
   const redirectLoginUrl = callbackUrl
     ? `${loginPath()}?callbackUrl=${callbackUrl}`

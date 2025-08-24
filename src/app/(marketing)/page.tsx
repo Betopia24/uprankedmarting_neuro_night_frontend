@@ -7,13 +7,9 @@ import {
   OurOffer,
   FAQ,
   Hero,
-} from "@/components/marketing/home";
-
-import { auth } from "@/auth";
+} from "@/components/landing/home";
 
 export default async function Home() {
-  const aa = await auth();
-  console.log(aa);
   return (
     <>
       <Hero />
