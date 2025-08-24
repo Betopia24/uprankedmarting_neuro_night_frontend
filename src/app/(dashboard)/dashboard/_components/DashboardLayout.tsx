@@ -41,7 +41,7 @@ export default function DashboardLayout({
           </div>
         </div>
         <div className="px-4">
-          <div className="bg-blue-50 min-h-screen border-l border-l-blue-100 shadow-xs">
+          <div className="bg-blue-50 min-h-screen border-l border-l-blue-100 shadow-xs p-4">
             {children}
           </div>
         </div>

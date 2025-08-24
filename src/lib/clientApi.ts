@@ -4,8 +4,15 @@ import accessTokenMemory from "./accessTokenMemory";
 const clientApi = axios.create({ baseURL: "/api" });
 
 clientApi.interceptors.request.use((config) => {
-  const token = accessTokenMemory.get();
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  const tokenRaw = accessTokenMemory.get();
+  let token: { accessToken?: string } = {};
+  try {
+    token = typeof tokenRaw === "string" ? JSON.parse(tokenRaw) : tokenRaw;
+  } catch {
+    token = {};
+  }
+  if (token?.accessToken)
+    config.headers.Authorization = `Bearer ${token.accessToken}`;
   return config;
 });
 
@@ -15,8 +22,9 @@ clientApi.interceptors.response.use(
     if (err.response?.status === 401) {
       const tokenRes = await fetch("/api/token", { method: "POST" });
       if (!tokenRes.ok) throw new Error("Refresh failed");
+
       const data = await tokenRes.json();
-      accessTokenMemory.set(data.accessToken);
+      accessTokenMemory.set(data); // { accessToken, role }
 
       err.config.headers.Authorization = `Bearer ${data.accessToken}`;
       return clientApi(err.config);

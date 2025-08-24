@@ -1,11 +1,13 @@
-import { cookies } from "next/headers";
+// /app/api/token/route.ts
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { env } from "@/env";
 
 export async function POST() {
-  const refreshToken = (await cookies()).get("refreshToken")?.value;
+  const cookieStore = cookies();
+  const refreshToken = (await cookieStore).get("refreshToken")?.value;
   if (!refreshToken)
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "No refresh token" }, { status: 401 });
 
   const res = await fetch(`${env.API_BASE_URL}/auth/refresh`, {
     method: "POST",
@@ -14,8 +16,24 @@ export async function POST() {
   });
 
   if (!res.ok)
-    return NextResponse.json({ error: "Refresh failed" }, { status: 401 });
+    return NextResponse.json(
+      { error: "Refresh failed" },
+      { status: res.status }
+    );
 
-  const { accessToken } = await res.json();
-  return NextResponse.json({ accessToken });
+  const data = await res.json();
+
+  // Update refresh token if backend sends new one
+  if (data.refreshToken) {
+    (await cookies()).set({
+      name: "refreshToken",
+      value: data.refreshToken,
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      path: "/",
+    });
+  }
+
+  return NextResponse.json({ accessToken: data.accessToken, role: data.role });
 }

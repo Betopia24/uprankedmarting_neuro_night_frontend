@@ -7,9 +7,9 @@ export default async function serverAuthFetch(
 ) {
   const cookieStore = cookies();
   const refreshToken = (await cookieStore).get("refreshToken")?.value;
-
   if (!refreshToken) return null;
 
+  // Refresh accessToken from backend
   const tokenRes = await fetch(`${env.API_BASE_URL}/auth/refresh`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -17,7 +17,7 @@ export default async function serverAuthFetch(
   });
 
   if (!tokenRes.ok) return null;
-  const { accessToken } = await tokenRes.json();
+  const { accessToken, role } = await tokenRes.json();
 
   const res = await fetch(`${env.API_BASE_URL}${endpoint}`, {
     ...options,
@@ -30,5 +30,5 @@ export default async function serverAuthFetch(
   });
 
   if (!res.ok) return null;
-  return res.json();
+  return { data: await res.json(), role };
 }
