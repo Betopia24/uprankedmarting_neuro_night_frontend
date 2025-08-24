@@ -14,7 +14,7 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
   return (
     <motion.nav
       className={cn(
-        "h-screen flex flex-col bg-blue-50 gap-4 z-50 sticky top-0 text-sm whitespace-nowrap"
+        "h-screen flex flex-col bg-blue-50 gap-4 z-[60] sticky top-0 whitespace-nowrap border-r border-r-blue-100 shadow-xs"
       )}
       style={{
         width: isCollapsedSidebar
@@ -46,13 +46,13 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
 
 function SidebarHeader() {
   return (
-    <div className="p-[var(--_sidebar-spacing)] flex gap-2 items-center relative h-[var(--_sidebar-header-height)] after:absolute after:bottom-0 after:inset-x-2 after:h-px after:bg-border">
+    <div className="p-[var(--_sidebar-spacing)] flex gap-2 items-center relative min-h-[var(--_sidebar-header-height)] max-h-[var(--_sidebar-header-height)] border-b border-b-blue-100 shadow-xs">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="mt-2 shrink-0 flex w-full justify-center"
+        className="shrink-0 flex w-full justify-center"
       >
-        <Logo />
+        <Logo className="max-h-20" />
       </motion.div>
     </div>
   );
@@ -80,7 +80,7 @@ function SidebarFooter() {
 
 function SidebarIcon({
   icon,
-  size = "sm",
+  size = "lg",
 }: {
   icon: React.ComponentType<{ className: string }>;
   size?: "sm" | "lg";

@@ -23,8 +23,8 @@ export default function DashboardLayout({
           "--_sidebar-collapsed": "4rem",
           "--_sidebar-expanded": "16.25rem",
           "--_sidebar-icon-container": "2rem",
-          "--_sidebar-icon-sm": "1rem",
-          "--_sidebar-icon-lg": "1.5rem",
+          "--_sidebar-icon-sm": "1.5rem",
+          "--_sidebar-icon-lg": "1.7rem",
           "--_sidebar-header-height": "4.5rem",
           "--_sidebar-footer-height": "4.5rem",
           gridTemplateColumns: `var(${sidebarWidth}) 1fr`,
@@ -35,8 +35,16 @@ export default function DashboardLayout({
     >
       <div className="[grid-area:sidebar]">{sidebar}</div>
       <div className="[grid-area:main]">
-        {header}
-        {children}
+        <div className="sticky top-0 z-50 px-4">
+          <div className="bg-blue-50 border-b border-l border-l-blue-100 border-b-blue-100 shadow-xs">
+            {header}
+          </div>
+        </div>
+        <div className="px-4">
+          <div className="bg-blue-50 min-h-screen border-l border-l-blue-100 shadow-xs">
+            {children}
+          </div>
+        </div>
       </div>
     </div>
   );
