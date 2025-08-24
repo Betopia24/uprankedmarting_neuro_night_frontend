@@ -3,7 +3,7 @@ import LoginForm from "@/features/auth/LoginForm";
 
 type RoleBasedLoginParams = {
   params: Promise<{
-    loginRole: string;
+    role: string;
   }>;
 };
 
@@ -14,7 +14,7 @@ const ROLE_BASED_API_ROUTES = {
 } as const;
 
 export default async function LoginPage({ params }: RoleBasedLoginParams) {
-  const { loginRole } = await params;
+  const { role: loginRole } = await params;
   const apiRoute =
     ROLE_BASED_API_ROUTES[loginRole as keyof typeof ROLE_BASED_API_ROUTES] ??
     "";

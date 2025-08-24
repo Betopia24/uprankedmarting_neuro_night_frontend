@@ -8,7 +8,7 @@ type Props = {
   color: string;
 };
 
-export default function CircleGraph({ value, max, color }: Props) {
+export default function CircleStats({ value, max, color }: Props) {
   return (
     <div className="relative inline-flex max-w-32">
       <svg

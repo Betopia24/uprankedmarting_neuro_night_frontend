@@ -10,7 +10,7 @@ export const contactPath = () => "/contact-us";
 
 // auth paths
 const AUTH_PREFIX = "/auth";
-export const loginPath = () => `${AUTH_PREFIX}/organization`;
+export const loginPath = () => `${AUTH_PREFIX}/organization/login`;
 export const signupPath = () => `${AUTH_PREFIX}/signup`;
 export const forgotPasswordPath = () => `${AUTH_PREFIX}/forgot-password`;
 export const newPasswordPath = () => `${AUTH_PREFIX}/new-password`;

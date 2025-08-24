@@ -1,5 +1,5 @@
-import CallGraph from "./_components/CallGraph";
-import CallGraphBarChart from "./_components/CallGraphBarChart";
+import CallGraph from "@/features/dashboard/CallGraph";
+import CallGraphBarChart from "@/features/dashboard/CallGraphBarChart";
 
 export default async function DashboardPage() {
   return (

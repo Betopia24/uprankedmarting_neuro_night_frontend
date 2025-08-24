@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
+  return;
   const url = req.nextUrl.clone();
   const refreshToken = req.cookies.get("refreshToken")?.value;
 

@@ -1,5 +1,5 @@
 import { Heading } from "@/components";
-import { CircleGraph } from "../../_components/charts";
+import CircleGraph from "@/features/dashboard/CircleStats";
 
 const data = [
   { name: "Total Call", value: 50, max: 200, color: "red" },
