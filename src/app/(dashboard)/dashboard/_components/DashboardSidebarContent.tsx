@@ -5,7 +5,19 @@ import { motion } from "framer-motion";
 import DashboardActiveLink from "./DashboardActiveLink";
 import { cn } from "@/lib/utils";
 
-import { LucideUsers, LucideLayoutDashboard } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  UserCog,
+  PhoneCall,
+  FileUp,
+  Mic,
+  Workflow,
+  Settings,
+  BarChart3,
+  MessageSquare,
+  Phone,
+} from "lucide-react";
 
 export type SidebarItemType = {
   name: string;
@@ -20,8 +32,17 @@ type SidebarContentType = {
 };
 
 const icons = {
-  dashboard: LucideLayoutDashboard,
-  agent: LucideUsers,
+  layoutDashboard: LayoutDashboard,
+  users: Users,
+  userCog: UserCog,
+  phoneCall: PhoneCall,
+  fileUp: FileUp,
+  mic: Mic,
+  workflow: Workflow,
+  settings: Settings,
+  barChart3: BarChart3,
+  messageSquare: MessageSquare,
+  phone: Phone,
 };
 
 export default function SidebarContent({

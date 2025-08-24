@@ -7,7 +7,7 @@ import {
 import SidebarContent from "../_components/DashboardSidebarContent";
 import { dashboardNavigation } from "@/data/dashboardNavbar";
 
-export default function AdminDashboardLayout({
+export default function OrganizationDashboardLayout({
   children,
 }: React.PropsWithChildren) {
   return (
@@ -17,7 +17,7 @@ export default function AdminDashboardLayout({
           header={<DashboardHeader />}
           sidebar={
             <DashboardSidebar>
-              <SidebarContent mainItems={dashboardNavigation.admin} />
+              <SidebarContent mainItems={dashboardNavigation.organization} />
             </DashboardSidebar>
           }
         >
