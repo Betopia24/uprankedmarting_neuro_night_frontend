@@ -39,7 +39,7 @@ export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
 
     if (response.ok) {
       const data = await response.json();
-      console.log(data);
+
       toast.success("Successfully logged in");
     }
   };

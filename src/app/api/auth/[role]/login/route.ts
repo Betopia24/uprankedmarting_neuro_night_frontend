@@ -9,8 +9,6 @@ export async function POST(
   const body = await req.json();
   const role = params.role;
 
-  console.log(role);
-
   const response = await fetch(`${env.API_BASE_URL}/${role}/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
