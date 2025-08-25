@@ -115,7 +115,7 @@ export function FileUpload() {
 }
 
 type FileInputProps = {
-  inputRef: React.RefObject<HTMLInputElement>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
   disabled: boolean;
   onFileSelect: (e: ChangeEvent<HTMLInputElement>) => void;
 };
