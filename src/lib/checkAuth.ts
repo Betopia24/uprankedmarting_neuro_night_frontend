@@ -7,7 +7,7 @@ export async function checkAuth(): Promise<boolean> {
   if (!refreshToken) return false;
 
   try {
-    const res = await fetch(`${process.env.API_URL}/auth/refresh-token`, {
+    const res = await fetch(`/api/me`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ refreshToken }),
