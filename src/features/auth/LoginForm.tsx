@@ -8,7 +8,11 @@ import { AuthCard } from "./AuthForm";
 import PasswordField from "./PasswordField";
 import { loginSchema, LoginFormSchema } from "./utils/validation";
 import CheckboxField from "./CheckboxField";
-import { forgotPasswordPath, signupPath } from "@/paths";
+import {
+  forgotPasswordPath,
+  ORGANIZATION_LOGIN_API,
+  signupPath,
+} from "@/paths";
 import AuthButton from "./AuthButton";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -27,13 +31,17 @@ export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
   const rememberMe = form.watch("rememberMe");
 
   const onSubmit = async (data: LoginFormSchema) => {
-    const res = await fetch("/api/organization/login", {
+    const response = await fetch(`${ORGANIZATION_LOGIN_API}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
 
-    console.log(res);
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data);
+      toast.success("Successfully logged in");
+    }
   };
 
   const redirectSignupUrl = callbackUrl

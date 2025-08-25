@@ -1,7 +1,7 @@
 import axios from "axios";
 import accessTokenMemory from "./accessTokenMemory";
 
-const clientApi = axios.create({ baseURL: "/api" });
+const clientApi = axios.create({ baseURL: "/" });
 
 clientApi.interceptors.request.use((config) => {
   const tokenRaw = accessTokenMemory.get();
@@ -24,7 +24,7 @@ clientApi.interceptors.response.use(
       if (!tokenRes.ok) throw new Error("Refresh failed");
 
       const data = await tokenRes.json();
-      accessTokenMemory.set(data); // { accessToken, role }
+      accessTokenMemory.set(data);
 
       err.config.headers.Authorization = `Bearer ${data.accessToken}`;
       return clientApi(err.config);

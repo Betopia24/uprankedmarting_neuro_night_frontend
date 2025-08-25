@@ -253,6 +253,7 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
                 disabled={
                   !form.formState.isValid || form.formState.isSubmitting
                 }
+                isLoading={form.formState.isSubmitting}
                 className="w-full mt-4"
                 type="submit"
               >

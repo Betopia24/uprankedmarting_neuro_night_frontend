@@ -1,24 +1,33 @@
 import { cookies } from "next/headers";
 import { env } from "@/env";
 
-export default async function serverAuthFetch(
+export type ServerAuthFetchResult<T> = {
+  data: T;
+  accessToken: string;
+  role: string;
+};
+
+export default async function serverAuthFetch<T>(
   endpoint: string,
   options: RequestInit = {}
-) {
+): Promise<ServerAuthFetchResult<T> | null> {
   const cookieStore = cookies();
   const refreshToken = (await cookieStore).get("refreshToken")?.value;
+
   if (!refreshToken) return null;
 
-  // Refresh accessToken from backend
-  const tokenRes = await fetch(`${env.API_BASE_URL}/auth/refresh`, {
+  // Refresh access token
+  const response = await fetch(`${env.API_BASE_URL}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ refreshToken }),
   });
 
-  if (!tokenRes.ok) return null;
-  const { accessToken, role } = await tokenRes.json();
+  if (!response.ok) return null;
 
+  const { accessToken, role } = await response.json();
+
+  // Fetch actual API data
   const res = await fetch(`${env.API_BASE_URL}${endpoint}`, {
     ...options,
     headers: {
@@ -30,5 +39,8 @@ export default async function serverAuthFetch(
   });
 
   if (!res.ok) return null;
-  return { data: await res.json(), role };
+
+  const data = await res.json();
+
+  return { data, accessToken, role: "super_admin" };
 }

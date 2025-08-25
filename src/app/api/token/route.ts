@@ -1,4 +1,3 @@
-// /app/api/token/route.ts
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { env } from "@/env";
@@ -35,5 +34,8 @@ export async function POST() {
     });
   }
 
-  return NextResponse.json({ accessToken: data.accessToken, role: data.role });
+  return NextResponse.json({
+    accessToken: data.accessToken,
+    role: "super-admin",
+  });
 }

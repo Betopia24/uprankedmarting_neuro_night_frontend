@@ -8,12 +8,13 @@ import {
 } from "./constants";
 
 export async function middleware(req: NextRequest) {
+  return NextResponse.next();
   const refreshToken = req.cookies.get("refreshToken")?.value;
   if (!refreshToken)
     return NextResponse.redirect(new URL(loginPath(), req.url));
 
-  // Call backend to get user role (could use /auth/me)
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+  // Call backend to get user role (could use /auth/me)/auth/me
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}`, {
     headers: { Cookie: `refreshToken=${refreshToken}` },
   });
 

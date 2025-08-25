@@ -20,3 +20,8 @@ const DASHBOARD_PREFIX = "/dashboard";
 export const adminDashboardPath = () => `${DASHBOARD_PREFIX}/admin`;
 export const adminAgentManagementPath = () =>
   `${adminDashboardPath()}/agent-management`;
+
+// API paths
+export const API_PREFIX = "/api";
+export const ORGANIZATION_LOGIN_API = `${API_PREFIX}/auth/organization/login`;
+export const TOKEN_API = `${API_PREFIX}/token`;

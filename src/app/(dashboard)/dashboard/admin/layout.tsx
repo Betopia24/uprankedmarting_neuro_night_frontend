@@ -7,7 +7,7 @@ import {
 import SidebarContent from "../_components/DashboardSidebarContent";
 import { dashboardNavigation } from "@/data/dashboardNavbar";
 
-export default function AdminDashboardLayout({
+export default async function AdminDashboardLayout({
   children,
 }: React.PropsWithChildren) {
   return (
