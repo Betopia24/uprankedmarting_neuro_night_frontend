@@ -1,5 +1,4 @@
 "use client";
-
 import { loginPath } from "@/paths";
 
 class APIClient {

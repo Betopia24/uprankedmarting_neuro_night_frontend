@@ -22,6 +22,32 @@ export async function getServerAuth(): Promise<{
   }
 
   try {
+    const response = await fetch(`${process.env.BACKEND_URL}/auth/me`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+
+    if (response.ok) {
+      const { user, accessToken: newAccessToken } = await response.json();
+      const cookieStore = cookies();
+      (await cookieStore).set("accessToken", newAccessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 3600000,
+      });
+
+      return { user, accessToken: newAccessToken };
+    }
+  } catch (error) {
+    return { user: null, accessToken: null };
+  }
+
+  return { user: null, accessToken: null };
+
+  /*
+ // will try to verify token
+  try {
     // Verify token with your backend
     const response = await fetch(`${process.env.BACKEND_URL}/auth/verify`, {
       headers: {
@@ -68,6 +94,7 @@ export async function getServerAuth(): Promise<{
   } catch (error) {
     return { user: null, accessToken: null };
   }
+  */
 }
 
 export async function requireAuth(): Promise<{
