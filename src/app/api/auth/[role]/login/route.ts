@@ -1,34 +1,27 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { env } from "@/env";
 
-export async function POST(
-  req: Request,
-  { params }: { params: { role: string } }
-) {
-  const body = await req.json();
-  const role = params.role;
+export async function POST(req: Request) {
+  const { email, password } = await req.json();
 
-  const response = await fetch(`${env.API_BASE_URL}/${role}/login`, {
+  const res = await fetch(`${process.env.API_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
+    body: JSON.stringify({ email, password }),
   });
 
-  const data = await response.json();
-  if (!response.ok) return NextResponse.json(data, { status: response.status });
+  if (!res.ok)
+    return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
 
-  (await cookies()).set({
-    name: "refreshToken",
-    value: data.refreshToken,
+  const { accessToken, refreshToken, user } = await res.json();
+
+  (await cookies()).set("refreshToken", refreshToken, {
     httpOnly: true,
     secure: true,
-    sameSite: "lax",
+    sameSite: "strict",
     path: "/",
+    maxAge: 7 * 24 * 60 * 60, // 7 days
   });
 
-  return NextResponse.json({
-    accessToken: data.accessToken,
-    role: "super_admin",
-  });
+  return NextResponse.json({ accessToken, user });
 }
