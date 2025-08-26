@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 
 export async function POST() {
-  (await cookies()).delete("refreshToken");
-  return NextResponse.json({ success: true });
+  // CLEAR HTTP-ONLY COOKIES ✅
+  const response = NextResponse.json({ success: true });
+
+  response.cookies.delete("accessToken");
+  response.cookies.delete("refreshToken");
+
+  return response;
 }

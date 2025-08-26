@@ -1,6 +1,7 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { loginPath } from "@/paths";
 
 export interface User {
   id: string;
@@ -76,7 +77,7 @@ export async function requireAuth(): Promise<{
   const { user, accessToken } = await getServerAuth();
 
   if (!user || !accessToken) {
-    redirect("/login");
+    redirect(loginPath());
   }
 
   return { user, accessToken };
