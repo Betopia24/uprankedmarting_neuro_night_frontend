@@ -33,7 +33,7 @@ export default function Component() {
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float-delayed"></div>
-        <div className="absolute top-40 left-1/2 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float-slow"></div>
+        <div className="absolute top-40 left-1/2 w-80 h-80 bg-gray-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-float-slow"></div>
       </div>
 
       <div className="flex flex-col items-center space-y-12 relative z-10">
@@ -135,7 +135,7 @@ export default function Component() {
             {
               icon: Keyboard,
               label: "Keyboard",
-              color: "hover:bg-blue-500/20",
+              color: "hover:bg-gray-500/20",
             },
             { icon: Phone, label: "Call", color: "hover:bg-green-500/20" },
           ].map(({ icon: Icon, label, color }, index) => (

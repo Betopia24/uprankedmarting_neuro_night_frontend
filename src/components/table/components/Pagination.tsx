@@ -75,7 +75,7 @@ export default function Pagination({
               className={cn(
                 "px-3 py-2 text-sm font-medium border rounded-lg",
                 currentPage === pageNum
-                  ? "bg-blue-50 border-blue-500 text-blue-600"
+                  ? "bg-gray-50 border-blue-500 text-blue-600"
                   : "bg-white border-gray-300 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
               )}
             >

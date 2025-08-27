@@ -36,12 +36,12 @@ export default function DashboardLayout({
       <div className="[grid-area:sidebar]">{sidebar}</div>
       <div className="[grid-area:main]">
         <div className="sticky top-0 z-50 px-4">
-          <div className="bg-blue-50 border-b border-l border-l-blue-100 border-b-blue-100 shadow-xs">
+          <div className="bg-gray-50 border-b border-l border-l-gray-100 border-b-gray-100 shadow-xs">
             {header}
           </div>
         </div>
         <div className="px-4">
-          <div className="bg-blue-50 min-h-screen border-l border-l-blue-100 shadow-xs p-4">
+          <div className="bg-gray-50 min-h-screen border-l border-l-gray-100 shadow-xs p-4">
             {children}
           </div>
         </div>

@@ -23,7 +23,7 @@ export default function MobileNavigation() {
       <motion.div
         transition={{ duration: 0.3, ease: "linear" }}
         animate={{ y: open ? 0 : "-100%" }}
-        className="fixed z-[9999] top-0 inset-x-0 bg-blue-50 text-gray-900 pt-8 pb-14 space-y-6 px-6 shadow-2xl rounded"
+        className="fixed z-[9999] top-0 inset-x-0 bg-gray-50 text-gray-900 pt-8 pb-14 space-y-6 px-6 shadow-2xl rounded"
       >
         <div className="flex justify-end">
           <button onClick={toggle} className="cursor-pointer">

@@ -44,7 +44,7 @@ export default function FeedbackPanel({
       </div>
 
       {/* Blue rating card */}
-      <div className="mb-6 rounded-2xl bg-blue-500 p-5 text-white">
+      <div className="mb-6 rounded-2xl bg-gray-500 p-5 text-white">
         <div className="text-center">
           <div className="text-4xl font-bold">{rating.toFixed(1)}</div>
           <div className="mt-2 flex items-center justify-center gap-1">

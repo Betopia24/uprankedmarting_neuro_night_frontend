@@ -78,7 +78,7 @@ const PlatformIntegrations = () => {
               </div>
               <span className="font-medium">{platform.name}</span>
             </div>
-            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+            <div className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center">
               <span className="text-white text-sm font-bold">+</span>
             </div>
           </div>
@@ -126,7 +126,7 @@ const AppointmentManagement = () => {
       </div>
 
       <div className="mt-4 text-center">
-        <button className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium">
+        <button className="bg-gray-500 text-white px-4 py-2 rounded-lg text-sm font-medium">
           Get Started for Free →
         </button>
       </div>
@@ -161,7 +161,7 @@ const AnalyticsDashboard = () => {
 
       <div className="flex justify-center space-x-6 text-sm">
         <div className="flex items-center space-x-2">
-          <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+          <div className="w-3 h-3 bg-gray-500 rounded-full"></div>
           <span>Call Volume</span>
         </div>
         <div className="flex items-center space-x-2">

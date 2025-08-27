@@ -14,7 +14,7 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
   return (
     <motion.nav
       className={cn(
-        "h-screen flex flex-col bg-blue-50 gap-4 z-[60] sticky top-0 whitespace-nowrap border-r border-r-blue-100 shadow-xs"
+        "h-screen flex flex-col bg-gray-50 gap-4 z-[60] sticky top-0 whitespace-nowrap border-r border-r-gray-100 shadow-xs"
       )}
       style={{
         width: isCollapsedSidebar
@@ -46,7 +46,7 @@ export default function Sidebar({ children }: React.PropsWithChildren) {
 
 function SidebarHeader() {
   return (
-    <div className="p-[var(--_sidebar-spacing)] flex gap-2 items-center relative min-h-[var(--_sidebar-header-height)] max-h-[var(--_sidebar-header-height)] border-b border-b-blue-100 shadow-xs">
+    <div className="p-[var(--_sidebar-spacing)] flex gap-2 items-center relative min-h-[var(--_sidebar-header-height)] max-h-[var(--_sidebar-header-height)] border-b border-b-gray-100 shadow-xs">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

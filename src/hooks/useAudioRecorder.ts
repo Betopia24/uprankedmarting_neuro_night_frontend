@@ -119,7 +119,7 @@ export default function AudioRecorderComponent() {
           <audio controls src={audioURL} className="w-64" />
           <button
             onClick={uploadAudio}
-            className="p-2 rounded bg-blue-500 text-white"
+            className="p-2 rounded bg-gray-500 text-white"
           >
             Upload to Server
           </button>

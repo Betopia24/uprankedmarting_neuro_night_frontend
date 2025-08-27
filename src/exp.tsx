@@ -71,7 +71,7 @@ export default function FileUpload() {
       <button
         onClick={handleUpload}
         disabled={isUploading || selectedFiles.length === 0}
-        className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
+        className="bg-gray-500 text-white px-4 py-2 rounded disabled:opacity-50"
       >
         {isUploading ? "Uploading..." : "Upload Files"}
       </button>

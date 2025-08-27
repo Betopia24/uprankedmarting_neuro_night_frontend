@@ -268,7 +268,7 @@ function ProgressBar({ progress }: { progress: number }) {
   return (
     <div className="h-2 w-full overflow-hidden rounded-full bg-gray-600">
       <div
-        className="h-full bg-blue-500 transition-all duration-300 ease-out"
+        className="h-full bg-gray-500 transition-all duration-300 ease-out"
         style={{ width: `${progress}%` }}
       />
     </div>

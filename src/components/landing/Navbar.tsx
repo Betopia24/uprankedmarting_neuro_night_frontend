@@ -8,7 +8,7 @@ import { loginPath, signupPath } from "@/paths";
 
 export default function Navbar() {
   return (
-    <header className="bg-blue-50 px-6">
+    <header className="bg-gray-50 px-6">
       <nav className="flex items-center justify-between relative w-full xl:max-w-[95%] mx-auto">
         <div className="lg:flex-1">
           <Logo />

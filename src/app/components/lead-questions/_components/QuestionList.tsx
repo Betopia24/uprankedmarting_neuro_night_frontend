@@ -46,12 +46,14 @@ export default function QuestionList() {
             return (
               <button
                 key={idx}
-                onClick={() => !alreadyAdded && setQuestions([...questions, text])}
+                onClick={() =>
+                  !alreadyAdded && setQuestions([...questions, text])
+                }
                 disabled={alreadyAdded}
                 className={`text-left px-3 py-2 border rounded transition ${
                   alreadyAdded
                     ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                    : "hover:bg-blue-50 border-gray-300"
+                    : "hover:bg-gray-50 border-gray-300"
                 }`}
               >
                 {text}
