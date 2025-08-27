@@ -135,8 +135,8 @@ export default function Dashboard({
 
     const trend = extend(trendDataBase).map((d, i) => ({
       ...d,
-      revenue: (d as any).revenue + (i % 5) * 150,
-      orders: (d as any).orders + (i % 7) * 3,
+      revenue: d.revenue + (i % 5) * 150,
+      orders: d.orders + (i % 7) * 3,
     }));
 
     const cats = categoryBase.map((c, i) => ({
@@ -146,7 +146,7 @@ export default function Dashboard({
 
     const sessions = extend(sessionsBase).map((d, i) => ({
       ...d,
-      sessions: (d as any).sessions + (i % 6) * 120,
+      sessions: d.sessions + (i % 6) * 120,
     }));
 
     // Simulated conversion rate average
@@ -345,9 +345,9 @@ export default function Dashboard({
                 endAngle={-270}
               >
                 <RadialBar
-                  minAngle={15}
+                  // minAngle={15}
                   background
-                  clockWise
+                  // clockWise
                   dataKey="value"
                   cornerRadius={8}
                 />
@@ -452,8 +452,13 @@ export default function Dashboard({
     </div>
   );
 }
+type ComposedTrendData = {
+  day: string;
+  revenue: number;
+  orders: number;
+};
 
-function ComposedTrend({ data }: { data: Array<any> }) {
+function ComposedTrend({ data }: { data: ComposedTrendData[] }) {
   return (
     <LineChart data={data}>
       <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />

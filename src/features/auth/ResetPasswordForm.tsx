@@ -32,8 +32,8 @@ export function ForgotPasswordForm() {
       <AuthCard.Header>
         <AuthCard.Title>Forgot Password?</AuthCard.Title>
         <AuthCard.Subtitle>
-          No worries! Enter your email and we'll send you a link to reset your
-          password.
+          No worries! Enter your email and we&apos;ll send you a link to reset
+          your password.
         </AuthCard.Subtitle>
       </AuthCard.Header>
 

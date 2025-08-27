@@ -36,13 +36,11 @@ export default function CardAnimation({
     };
   }, [animatedBreakpoint]);
 
-  const xNumber =
-    progress &&
-    useTransform(
-      progress,
-      [0, 1],
-      [direction === "left" ? 106 : direction === "right" ? -106 : 0, 0]
-    );
+  const xNumber = useTransform(
+    progress,
+    [0, 1],
+    [direction === "left" ? 106 : direction === "right" ? -106 : 0, 0]
+  );
 
   const x = xNumber && useMotionTemplate`${xNumber}%`;
 

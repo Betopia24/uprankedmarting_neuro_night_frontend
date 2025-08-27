@@ -73,7 +73,7 @@ class APIClient {
     return this.request(url, { method: "GET" });
   }
 
-  async post(url: string, data?: any) {
+  async post(url: string, data: unknown) {
     const headers = new Headers();
     if (data && !(data instanceof FormData)) {
       headers.set("Content-Type", "application/json");
@@ -86,7 +86,7 @@ class APIClient {
     });
   }
 
-  async put(url: string, data?: any) {
+  async put(url: string, data?: unknown) {
     const headers = new Headers();
     if (data && !(data instanceof FormData)) {
       headers.set("Content-Type", "application/json");
@@ -118,7 +118,7 @@ class APIClient {
 
   async uploadWithData(
     url: string,
-    data: Record<string, any>,
+    data: Record<string, unknown>,
     files: File[] = []
   ) {
     const formData = new FormData();
