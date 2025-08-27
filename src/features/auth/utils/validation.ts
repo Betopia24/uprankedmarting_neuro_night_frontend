@@ -8,7 +8,7 @@ import {
 // -------------------- Signup Schema --------------------
 export const signupSchema = z
   .object({
-    full_name: z
+    name: z
       .string({ message: "Fullname is required" })
       .min(6, { message: "Fullname must be at least 6 characters long" })
       .max(25, { message: "Fullname must be at most 25 characters long" })
@@ -30,7 +30,7 @@ export const signupSchema = z
       })
       .trim(),
 
-    retype_password: z
+    confirmPassword: z
       .string({ message: "Please retype your password" })
       .min(MIN_PASSWORD_LENGTH, {
         message: "Confirm password must be at least 8 characters long",
@@ -39,14 +39,14 @@ export const signupSchema = z
         message: "Confirm password must not exceed 64 characters",
       }),
 
-    business_name: z
+    businessName: z
       .string({ message: "Business name is required" })
       .min(6, { message: "Business name must be at least 6 characters long" }),
 
-    contact_number: z
-      .string({ message: "Contact number is required" })
+    phoneNumber: z
+      .string({ message: "Phone number is required" })
       .regex(/^\+[1-9]\d{9,14}$/, {
-        message: "Contact number must include country code",
+        message: "Phone number must include country code",
       }),
 
     industry: z.string({ message: "Industry is required" }),
@@ -74,7 +74,7 @@ export const signupSchema = z
         message: "You must accept the terms and conditions",
       }),
   })
-  .refine((data) => data.password === data.retype_password, {
+  .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });

@@ -23,6 +23,7 @@ import SelectField from "@/components/SelectField";
 import AuthButton from "./AuthButton";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { env } from "@/env";
 
 const MIN_STEP = 1;
 const MAX_STEP = 2;
@@ -47,16 +48,16 @@ const variants: Variants = {
 };
 
 const defaultValues = {
-  full_name: "",
-  email: "",
-  password: "",
-  retype_password: "",
-  business_name: "",
-  industry: "",
-  website: "",
-  address: "",
-  contact_number: "",
-  acceptTerms: false,
+  name: "John Doe",
+  email: "john@doe.com",
+  password: "1234zxcvQ!",
+  confirmPassword: "1234zxcvQ!",
+  businessName: "1234zxcv",
+  industry: "tech",
+  website: "http://example.com",
+  address: "11,11,11",
+  phoneNumber: "+8801670012716",
+  acceptTerms: true,
 };
 
 export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
@@ -70,7 +71,25 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
     defaultValues,
   });
 
-  const onSubmit = async (formData: SignupFormSchema) => {};
+  const onSubmit = async (formData: SignupFormSchema) => {
+    try {
+      const response = await fetch(`/api/auth/signup`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+
+        toast.success("Successfully logged in");
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      }
+    }
+  };
 
   const redirectLoginUrl = callbackUrl
     ? `${loginPath()}?callbackUrl=${callbackUrl}`
@@ -90,20 +109,20 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
 
   // Validate current step
   const isStep1Valid = () => {
-    const { full_name, email, contact_number, password, retype_password } =
+    const { name, email, phoneNumber, password, confirmPassword } =
       form.getValues();
     const errors = form.formState.errors;
     return (
-      full_name &&
+      name &&
       email &&
-      contact_number &&
+      phoneNumber &&
       password &&
-      retype_password &&
-      !errors.full_name &&
+      confirmPassword &&
+      !errors.name &&
       !errors.email &&
-      !errors.contact_number &&
+      !errors.phoneNumber &&
       !errors.password &&
-      !errors.retype_password
+      !errors.confirmPassword
     );
   };
 
@@ -148,8 +167,8 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
                       <LucideMail className="size-9 p-2.5 absolute right-0 bottom-0" />
                     </TextField>
                     <TextField
-                      label="Contact Number"
-                      name="contact_number"
+                      label="Phone Number"
+                      name="phoneNumber"
                       placeholder="Write your contact number"
                     >
                       <LucidePhone className="size-9 p-2.5 absolute right-0 bottom-0" />
@@ -161,8 +180,8 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
                       placeholder="Enter new password"
                     />
                     <PasswordField
-                      label="Retype Password"
-                      name="retype_password"
+                      label="Confirm Password"
+                      name="confirmPassword"
                       type="password"
                       placeholder="Enter retype password"
                     />
@@ -183,7 +202,7 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
                   <fieldset className="space-y-6">
                     <TextField
                       label="Business Name"
-                      name="business_name"
+                      name="businessName"
                       placeholder="Write your business name"
                     >
                       <LucideBuilding2 className="size-9 p-2.5 absolute right-0 bottom-0" />
