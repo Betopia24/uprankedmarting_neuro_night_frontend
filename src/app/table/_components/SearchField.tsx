@@ -6,11 +6,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 interface SearchFieldProps {
   defaultQuery?: string;
   debounceTime?: number;
+  basePath: string;
 }
 
 export default function SearchField({
   defaultQuery = "",
   debounceTime = 500,
+  basePath,
 }: SearchFieldProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -31,7 +33,7 @@ export default function SearchField({
       }
       // Do NOT copy any pagination params; this resets pagination
 
-      router.push(`/table?${params.toString()}`);
+      router.push(`${basePath}?${params.toString()}`);
     }, debounceTime);
 
     return () => clearTimeout(handler);

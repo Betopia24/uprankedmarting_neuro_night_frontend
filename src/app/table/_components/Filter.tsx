@@ -28,18 +28,18 @@ export interface FilterProps {
   limit?: number;
   sortField?: string;
   sortDirection?: string;
-  basePath?: string;
+  basePath: string;
 }
 
 export default function Filter({
   filterFields,
   currentFilters,
   searchQuery = "",
-  currentPage = 1,
+  // currentPage = 1,
   limit = 5,
   sortField = "",
   sortDirection = "",
-  basePath = "/table",
+  basePath,
 }: FilterProps) {
   const buildUrl = (newFilters: Record<string, string | string[]>) => {
     const params = new URLSearchParams();

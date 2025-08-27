@@ -193,6 +193,10 @@ export const tableData = [
   },
 ];
 
+const config = {
+  basePath: "/table",
+};
+
 const tableHeader = Object.keys(tableData[0]);
 
 interface TableSearchParams {
@@ -397,7 +401,7 @@ export default async function TablePage({ searchParams }: TableProps) {
   return (
     <div className="p-4">
       <div className="flex justify-between mb-4">
-        <SearchField defaultQuery={searchQuery} />
+        <SearchField basePath={config.basePath} defaultQuery={searchQuery} />
         <div className="text-sm text-gray-600">
           Showing {sortedPaginatedData.length} of {totalItems} results
         </div>
@@ -412,6 +416,7 @@ export default async function TablePage({ searchParams }: TableProps) {
         limit={limit}
         sortField={sortField}
         sortDirection={sortDirection}
+        basePath={config.basePath}
       />
 
       <table className="table-auto border-collapse border border-gray-200 w-full text-gray-800">
@@ -478,6 +483,7 @@ export default async function TablePage({ searchParams }: TableProps) {
         limit={limit}
         sortField={sortField}
         sortDirection={sortDirection}
+        basePath={config.basePath}
       />
     </div>
   );
@@ -531,7 +537,7 @@ function TableHeaderItem({
   return (
     <th className="border border-gray-300 text-left cursor-pointer">
       <Link
-        href={`/table?${urlParams.toString()}`}
+        href={`${config.basePath}?${urlParams.toString()}`}
         className={cn(
           "flex items-center p-2 rounded",
           isActive ? "bg-gray-200" : "hover:bg-gray-100"
