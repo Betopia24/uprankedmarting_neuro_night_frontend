@@ -21,16 +21,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { user, accessToken } = await getServerAuth();
+  const data = await getServerAuth();
   return (
     <html lang="en">
       <body className={`${inter.className} ${inter.variable} antialiased`}>
-        <AuthProvider
-          initialUser={user}
-          initialToken={accessToken || undefined}
-        >
-          {children}
-        </AuthProvider>
+        <AuthProvider initialUser={data?.data || null}>{children}</AuthProvider>
         <Toaster position="top-right" />
       </body>
     </html>

@@ -1,11 +1,12 @@
+import { env } from "@/env";
+import { UserToken } from "@/types/user";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
     const { email, password } = await request.json();
 
-    // 1. Call YOUR external backend
-    const response = await fetch(`${process.env.BACKEND_URL}/auth/login`, {
+    const response = await fetch(`${env.API_BASE_URL}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -15,31 +16,37 @@ export async function POST(request: Request) {
       return Response.json({ error: "Login failed" }, { status: 401 });
     }
 
-    const { accessToken, refreshToken, user, expiresIn } =
-      await response.json();
+    const loginData = await response.json();
+    const {
+      success,
+      message,
+      data: { accessToken },
+    } = loginData;
 
-    // 2. SET HTTP-ONLY SECURE COOKIES HERE ✅
-    const nextResponse = NextResponse.json({ user });
+    console.log({ loginData });
 
-    // Access Token Cookie (HTTP-only, Secure)
+    console.log({ success, message, accessToken });
+
+    const user: UserToken = JSON.parse(atob(accessToken.split(".")[1]));
+
+    const nextResponse = NextResponse.json({ user, success, message });
+
     nextResponse.cookies.set("accessToken", accessToken, {
-      httpOnly: true, // ✅ Cannot be accessed by JavaScript
-      secure: process.env.NODE_ENV === "production", // ✅ HTTPS only in production
-      sameSite: "lax", // ✅ CSRF protection
-      maxAge: expiresIn || 3600, // 1 hour
-      path: "/", // ✅ Available on all routes
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: user.exp,
+      path: "/",
     });
 
-    // Refresh Token Cookie (HTTP-only, Secure)
-    nextResponse.cookies.set("refreshToken", refreshToken, {
-      httpOnly: true, // ✅ Cannot be accessed by JavaScript
-      secure: process.env.NODE_ENV === "production", // ✅ HTTPS only in production
-      sameSite: "lax", // ✅ CSRF protection
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-      path: "/", // ✅ Available on all routes
-    });
+    // nextResponse.cookies.set("refreshToken", refreshToken, {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === "production",
+    //   sameSite: "lax",
+    //   maxAge: 60 * 60 * 24 * 7,
+    //   path: "/",
+    // });
 
-    // 3. Return response with cookies set
     return nextResponse;
   } catch (error) {
     return Response.json({ error: "Login failed" }, { status: 500 });

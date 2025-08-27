@@ -30,17 +30,24 @@ export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
   });
   const rememberMe = form.watch("rememberMe");
 
-  const onSubmit = async (data: LoginFormSchema) => {
-    const response = await fetch(`${ORGANIZATION_LOGIN_API}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
+  const onSubmit = async (formData: LoginFormSchema) => {
+    try {
+      const response = await fetch(`/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-    if (response.ok) {
-      const data = await response.json();
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
 
-      toast.success("Successfully logged in");
+        toast.success("Successfully logged in");
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      }
     }
   };
 
