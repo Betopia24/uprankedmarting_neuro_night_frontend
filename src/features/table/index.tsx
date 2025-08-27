@@ -1,13 +1,10 @@
-import { cn } from "@/lib/utils";
-import Link from "next/link";
 import Pagination from "./components/Pagination";
 import SearchField from "./components/SearchField";
 import Filter, { FilterField } from "./components/Filter";
-import {
-  LucideArrowUpDown,
-  LucideArrowUpNarrowWide,
-  LucideArrowDownNarrowWide,
-} from "lucide-react";
+import TableHeaderItem from "./components/TableHeaderItem";
+import { sortData } from "./utils/sortData";
+import paginateData from "./utils/paginateData";
+import { applyFilters, filterData, parseFilters } from "./utils/filters";
 
 // Dummy table data
 export const tableData = [
@@ -197,9 +194,7 @@ const config = {
   basePath: "/table",
 };
 
-const tableHeader = Object.keys(tableData[0]);
-
-interface TableSearchParams {
+export interface TableSearchParams {
   page?: number;
   limit?: number;
   sort?: string;
@@ -214,7 +209,6 @@ interface TableProps {
   searchParams: Promise<TableSearchParams>;
 }
 
-// ---------- DEFAULTS ----------
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 5;
 const DEFAULT_SORT = "";
@@ -233,7 +227,7 @@ const filterFields: FilterField[] = [
   {
     key: "role",
     label: "Role",
-    type: "multi-select",
+    type: "select",
     options: [
       { label: "User", value: "user" },
       { label: "Admin", value: "admin" },
@@ -251,121 +245,8 @@ const filterFields: FilterField[] = [
   // },
 ];
 
-// ---------- HELPERS ----------
-function sortData<T extends Record<string, unknown>>(
-  data: T[],
-  field: string,
-  direction: string
-): T[] {
-  if (!field || !direction) return data;
-  return [...data].sort((a, b) => {
-    const aVal = a[field];
-    const bVal = b[field];
-    if (aVal == null && bVal == null) return 0;
-    if (aVal == null) return direction === "asc" ? -1 : 1;
-    if (bVal == null) return direction === "asc" ? 1 : -1;
-    if (typeof aVal === "number" && typeof bVal === "number") {
-      return direction === "asc" ? aVal - bVal : bVal - aVal;
-    }
-    const aStr = String(aVal).toLowerCase();
-    const bStr = String(bVal).toLowerCase();
-    return direction === "asc"
-      ? aStr.localeCompare(bStr)
-      : bStr.localeCompare(aStr);
-  });
-}
-
-function paginateData<T>(data: T[], page: number, limit: number): T[] {
-  const startIndex = (page - 1) * limit;
-  return data.slice(startIndex, startIndex + limit);
-}
-
-function filterData<T extends Record<string, unknown>>(
-  data: T[],
-  query: string
-) {
-  if (!query) return data;
-  const q = query.toLowerCase();
-  return data.filter((item) =>
-    Object.values(item).some((v) => String(v).toLowerCase().includes(q))
-  );
-}
-
-function applyFilters<T extends Record<string, unknown>>(
-  data: T[],
-  filters: Record<string, string | string[]>
-): T[] {
-  return data.filter((item) => {
-    // Status filter
-    if (filters.status) {
-      const statusValues = Array.isArray(filters.status)
-        ? filters.status
-        : [filters.status];
-      if (
-        statusValues.length > 0 &&
-        !statusValues.includes(String(item.status))
-      ) {
-        return false;
-      }
-    }
-
-    // Role filter
-    if (filters.role) {
-      const roleValues = Array.isArray(filters.role)
-        ? filters.role
-        : [filters.role];
-      if (roleValues.length > 0 && !roleValues.includes(String(item.role))) {
-        return false;
-      }
-    }
-
-    // Earning range filter
-    if (filters.earning_range && typeof item.earning === "number") {
-      const earning = item.earning;
-      switch (filters.earning_range) {
-        case "under_3000":
-          if (earning >= 3000) return false;
-          break;
-        case "3000_5000":
-          if (earning < 3000 || earning > 5000) return false;
-          break;
-        case "above_5000":
-          if (earning <= 5000) return false;
-          break;
-      }
-    }
-
-    return true;
-  });
-}
-
-// Parse URL filters
-function parseFilters(
-  searchParams: TableSearchParams
-): Record<string, string | string[]> {
-  const filters: Record<string, string | string[]> = {};
-
-  // Handle comma-separated multi-values
-  Object.entries(searchParams).forEach(([key, value]) => {
-    if (key === "page" || key === "limit" || key === "sort" || key === "query")
-      return;
-
-    if (typeof value === "string" && value.includes(",")) {
-      filters[key] = value.split(",");
-    } else if (value) {
-      if (typeof value === "number") {
-        filters[key] = value.toString();
-      } else {
-        filters[key] = value;
-      }
-    }
-  });
-
-  return filters;
-}
-
-// ---------- TABLE PAGE ----------
 export default async function TablePage({ searchParams }: TableProps) {
+  const data = tableData || [];
   const queryParams = await searchParams;
   const page = Number(queryParams.page) || DEFAULT_PAGE;
   const limit = Number(queryParams.limit) || DEFAULT_LIMIT;
@@ -374,11 +255,13 @@ export default async function TablePage({ searchParams }: TableProps) {
   ).split(":");
   const searchQuery = queryParams.query || "";
 
+  const tableHeader = Object.keys(tableData[0]);
+
   // Parse filters from URL
   const currentFilters = parseFilters(queryParams);
 
   // Apply filtering (but not sorting or pagination yet)
-  let filteredData = [...tableData];
+  let filteredData = [...data];
 
   // Apply search filter
   filteredData = filterData(filteredData, searchQuery);
@@ -400,12 +283,7 @@ export default async function TablePage({ searchParams }: TableProps) {
 
   return (
     <div className="p-4">
-      <div className="flex justify-between mb-4">
-        <SearchField basePath={config.basePath} defaultQuery={searchQuery} />
-        <div className="text-sm text-gray-600">
-          Showing {sortedPaginatedData.length} of {totalItems} results
-        </div>
-      </div>
+      <SearchField basePath={config.basePath} defaultQuery={searchQuery} />
 
       {/* Filter Component */}
       <Filter
@@ -432,46 +310,24 @@ export default async function TablePage({ searchParams }: TableProps) {
                 limit={limit}
                 searchQuery={searchQuery}
                 currentFilters={currentFilters}
+                basePath={config.basePath}
               />
             ))}
           </tr>
         </thead>
         <tbody>
-          {sortedPaginatedData.map((item) => (
-            <tr key={item.id} className="even:bg-gray-50">
-              <td className="border px-4 py-2">{item.id}</td>
-              <td className="border px-4 py-2">{item.name}</td>
-              <td className="border px-4 py-2">{item.email}</td>
-              <td className="border px-4 py-2">{item.createdAt}</td>
-              <td className="border px-4 py-2">
-                ${item.earning.toLocaleString()}
-              </td>
-              <td className="border px-4 py-2">
-                <span
-                  className={cn(
-                    "px-2 py-1 text-xs rounded-full",
-                    item.status === "active"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                  )}
-                >
-                  {item.status}
-                </span>
-              </td>
-              <td className="border px-4 py-2">
-                <span
-                  className={cn(
-                    "px-2 py-1 text-xs rounded-full",
-                    item.role === "admin"
-                      ? "bg-purple-100 text-purple-800"
-                      : "bg-blue-100 text-blue-800"
-                  )}
-                >
-                  {item.role}
-                </span>
-              </td>
-            </tr>
-          ))}
+          {sortedPaginatedData.map((item) => {
+            const fields = Object.values(item);
+            return fields.map((_, index) => (
+              <tr key={index}>
+                {fields.map((field, index) => (
+                  <td key={index} className="border border-gray-200 p-2">
+                    {field}
+                  </td>
+                ))}
+              </tr>
+            ));
+          })}
         </tbody>
       </table>
 
@@ -486,68 +342,5 @@ export default async function TablePage({ searchParams }: TableProps) {
         basePath={config.basePath}
       />
     </div>
-  );
-}
-
-// ---------- TABLE HEADER ITEM ----------
-interface TableHeaderItemProps {
-  field: string;
-  currentSort: string;
-  sortDirection: string;
-  currentPage: number;
-  limit: number;
-  searchQuery: string;
-  currentFilters: Record<string, string | string[]>;
-}
-
-function TableHeaderItem({
-  field,
-  currentSort,
-  sortDirection,
-  currentPage,
-  limit,
-  searchQuery,
-  currentFilters,
-}: TableHeaderItemProps) {
-  const isActive = currentSort === field;
-  const nextDirection =
-    !isActive || !sortDirection ? "asc" : sortDirection === "asc" ? "desc" : "";
-
-  const urlParams = new URLSearchParams();
-  urlParams.set("page", currentPage.toString());
-  urlParams.set("limit", limit.toString());
-  if (searchQuery) urlParams.set("query", searchQuery);
-  if (nextDirection) urlParams.set("sort", `${field}:${nextDirection}`);
-
-  // Preserve current filters
-  Object.entries(currentFilters).forEach(([key, value]) => {
-    if (Array.isArray(value) && value.length > 0) {
-      urlParams.set(key, value.join(","));
-    } else if (typeof value === "string" && value) {
-      urlParams.set(key, value);
-    }
-  });
-
-  const getIcon = () => {
-    if (!isActive || !sortDirection) return <LucideArrowUpDown size={12} />;
-    if (sortDirection === "asc") return <LucideArrowUpNarrowWide size={12} />;
-    return <LucideArrowDownNarrowWide size={12} />;
-  };
-
-  return (
-    <th className="border border-gray-300 text-left cursor-pointer">
-      <Link
-        href={`${config.basePath}?${urlParams.toString()}`}
-        className={cn(
-          "flex items-center p-2 rounded",
-          isActive ? "bg-gray-200" : "hover:bg-gray-100"
-        )}
-      >
-        <span className="inline-flex gap-1 items-center font-semibold relative">
-          {field}
-          <span className="absolute right-0 translate-x-full">{getIcon()}</span>
-        </span>
-      </Link>
-    </th>
   );
 }
