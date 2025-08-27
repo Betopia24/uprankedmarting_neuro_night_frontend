@@ -17,6 +17,8 @@ import {
   BarChart3,
   MessageSquare,
   Phone,
+  CreditCard,
+  Blocks,
 } from "lucide-react";
 
 export type SidebarItemType = {
@@ -43,6 +45,8 @@ const icons = {
   barChart3: BarChart3,
   messageSquare: MessageSquare,
   phone: Phone,
+  creditCard: CreditCard,
+  blocks: Blocks,
 };
 
 export default function SidebarContent({
@@ -70,22 +74,26 @@ export default function SidebarContent({
           );
         })}
       </ul>
-      <ul className={cn("space-y-2", isCollapsedSidebar && "space-y-4")}>
-        {subItems &&
-          subItems.map((item) => (
-            <li key={item.name}>
-              <DashboardActiveLink
-                className={cn(
-                  "flex items-center gap-2 whitespace-nowrap",
-                  isExpanded && "py-2 px-6"
-                )}
-                href={item.href}
-              >
-                <AnimatedLabel>{item.name}</AnimatedLabel>
-              </DashboardActiveLink>
-            </li>
-          ))}
-      </ul>
+      {subItems && (
+        <ul className={cn("space-y-2", isCollapsedSidebar && "space-y-4")}>
+          {subItems.map((item) => {
+            const Icon = icons[item.icon as keyof typeof icons];
+            return (
+              <li key={item.name}>
+                <DashboardActiveLink
+                  className={cn("flex items-center whitespace-nowrap")}
+                  href={item.href}
+                >
+                  <span className="flex h-10 w-12 shrink-0 items-center justify-center">
+                    <Icon className="size-4" />
+                  </span>
+                  <AnimatedLabel>{item.name}</AnimatedLabel>
+                </DashboardActiveLink>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }

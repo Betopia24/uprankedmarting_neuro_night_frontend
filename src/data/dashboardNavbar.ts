@@ -9,62 +9,88 @@ export const dashboardNavigation = {
     },
     {
       name: "Agent Management",
-      icon: "users",
+      icon: "userCog",
       href: paths.adminAgentManagementPath(),
+    },
+    {
+      name: "Organization Management",
+      icon: "users",
+      href: paths.adminOrganizationManagementPath(),
     },
   ],
   organization: [
     {
       name: "Call Logs & Management",
       icon: "phoneCall",
-      href: "#",
+      href: paths.organizationCallLogsPath(),
     },
     {
       name: "Agent Management",
       icon: "userCog",
-      href: "#",
+      href: paths.organizationAgentManagementPath(),
     },
     {
       name: "Document Uploads",
       icon: "fileUp",
-      href: "#",
+      href: paths.organizationDocumentsPath(),
     },
     {
       name: "Voice Uploads",
       icon: "mic",
-      href: "#",
+      href: paths.organizationVoiceUpload(),
     },
     {
       name: "Call Flows & Logic",
       icon: "workflow",
-      href: "#",
+      href: paths.organizationCallFlowsPath(),
     },
     {
       name: "Tools",
       icon: "settings",
-      href: "#",
+      href: paths.organizationToolsPath(),
     },
     {
-      name: "Performance Analytics",
+      name: "Performance",
       icon: "barChart3",
-      href: "#",
+      href: paths.organizationPerformancePath(),
     },
     {
       name: "Feedback & Reports",
       icon: "messageSquare",
-      href: "#",
+      href: paths.organizationFeedbackPath(),
     },
   ],
   agent: [
     {
       name: "Dashboard",
-      icon: "layout-dashboard",
-      href: "#",
+      icon: "blocks",
+      href: paths.agentDashboardPath(),
     },
     {
       name: "Call Management",
       icon: "phone",
-      href: "#",
+      href: paths.agentCallManagementPath(),
     },
   ],
+  subItems: {
+    organization: [
+      {
+        name: "Settings",
+        icon: "settings",
+        href: paths.organizationSettingsPath(),
+      },
+      {
+        name: "Payments",
+        icon: "creditCard",
+        href: paths.organizationPaymentsPath(),
+      },
+    ],
+    agent: [
+      {
+        name: "Settings",
+        icon: "settings",
+        href: paths.agentSettingsPath(),
+      },
+    ],
+  },
 };

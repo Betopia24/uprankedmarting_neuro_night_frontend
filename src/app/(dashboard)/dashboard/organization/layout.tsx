@@ -17,7 +17,10 @@ export default function OrganizationDashboardLayout({
           header={<DashboardHeader />}
           sidebar={
             <DashboardSidebar>
-              <SidebarContent mainItems={dashboardNavigation.organization} />
+              <SidebarContent
+                mainItems={dashboardNavigation.organization}
+                subItems={dashboardNavigation.subItems.organization}
+              />
             </DashboardSidebar>
           }
         >

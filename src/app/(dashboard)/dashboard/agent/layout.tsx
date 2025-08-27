@@ -17,7 +17,10 @@ export default function AgentDashboardLayout({
           header={<DashboardHeader />}
           sidebar={
             <DashboardSidebar>
-              <SidebarContent mainItems={dashboardNavigation.agent} />
+              <SidebarContent
+                mainItems={dashboardNavigation.agent}
+                subItems={dashboardNavigation.subItems.agent}
+              />
             </DashboardSidebar>
           }
         >
