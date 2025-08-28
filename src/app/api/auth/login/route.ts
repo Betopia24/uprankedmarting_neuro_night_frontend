@@ -13,9 +13,10 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
+      console.log(response);
       return Response.json(
         { success: false, message: response.statusText },
-        { status: 401 }
+        { status: response.status }
       );
     }
 
