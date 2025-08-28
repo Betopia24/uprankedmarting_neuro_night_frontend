@@ -12,7 +12,9 @@ export interface User {
   name: string;
 }
 
-export async function getServerAuth(): Promise<AuthMe | null> {
+export async function getServerAuth(): Promise<
+  (AuthMe & { accessToken: string }) | null
+> {
   const cookieStore = cookies();
   const accessToken = (await cookieStore).get("accessToken")?.value;
 
@@ -30,7 +32,7 @@ export async function getServerAuth(): Promise<AuthMe | null> {
     if (response.ok) {
       const responseData: AuthMe = await response.json();
 
-      return responseData;
+      return { ...responseData, accessToken };
     }
   } catch (error) {
     return null;

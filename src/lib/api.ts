@@ -44,6 +44,8 @@ class APIClient {
       headers.set("Authorization", `${this.accessToken}`);
     }
 
+    console.log("accessToken", this.accessToken);
+
     // ✅ DIRECT CALL TO YOUR EXTERNAL BACKEND
     let response = await fetch(`${backendUrl}${url}`, {
       ...options,
