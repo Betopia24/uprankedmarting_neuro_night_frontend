@@ -1,16 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import close from "@/images/close.svg";
 import ActiveLink from "../ActiveLink";
 import navbarData from "@/data/navbarData";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import burgerMenu from "@/images/burger-menu.svg";
 import { LucideX } from "lucide-react";
-import Button from "../Button";
-import Link from "next/link";
-import { loginPath, signupPath } from "@/paths";
+import AuthActions from "./AuthActions";
 
 export default function MobileNavigation() {
   const [open, setOpen] = useState(false);
@@ -39,12 +36,7 @@ export default function MobileNavigation() {
             </li>
           ))}
           <li className="flex gap-4">
-            <Button size="sm" variant="secondary" asChild>
-              <Link href={`${loginPath()}`}>Login</Link>
-            </Button>
-            <Button variant="primary" size="sm" asChild>
-              <Link href={`${signupPath()}`}>Sign Up</Link>
-            </Button>
+            <AuthActions />
           </li>
         </ul>
       </motion.div>
