@@ -1,4 +1,5 @@
 "use client";
+import { env } from "@/env";
 import { loginPath } from "@/paths";
 
 class APIClient {
@@ -10,7 +11,7 @@ class APIClient {
 
   private async refreshToken(): Promise<string | null> {
     try {
-      const response = await fetch("/api/auth/refresh", {
+      const response = await fetch(env.NEXT_PUBLIC_API_URL + "/auth/refresh", {
         method: "POST",
         credentials: "include",
       });
@@ -30,17 +31,17 @@ class APIClient {
   }
 
   async request(url: string, options: RequestInit = {}): Promise<Response> {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    const backendUrl = env.NEXT_PUBLIC_API_URL;
 
     // Create headers without automatically setting Content-Type for FormData
     const headers = new Headers(options.headers);
 
-    // Add Bearer token if available (but not for FormData to let browser set boundary)
+    // Add token if available (but not for FormData to let browser set boundary)
     if (this.accessToken && !(options.body instanceof FormData)) {
-      headers.set("Authorization", `Bearer ${this.accessToken}`);
+      headers.set("Authorization", `${this.accessToken}`);
     } else if (this.accessToken) {
       // For FormData, we still need Authorization but let browser set Content-Type
-      headers.set("Authorization", `Bearer ${this.accessToken}`);
+      headers.set("Authorization", `${this.accessToken}`);
     }
 
     // ✅ DIRECT CALL TO YOUR EXTERNAL BACKEND
@@ -55,7 +56,7 @@ class APIClient {
       const newAccessToken = await this.refreshToken();
 
       if (newAccessToken) {
-        headers.set("Authorization", `Bearer ${newAccessToken}`);
+        headers.set("Authorization", `${newAccessToken}`);
         // ✅ RETRY DIRECT CALL WITH NEW TOKEN
         response = await fetch(`${backendUrl}${url}`, {
           ...options,
