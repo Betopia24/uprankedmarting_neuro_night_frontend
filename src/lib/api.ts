@@ -78,7 +78,7 @@ class APIClient {
    */
   setAccessToken(token: string): void {
     if (!token || typeof token !== "string") {
-      throw new Error("Invalid access token provided");
+      this.accessToken;
     }
     this.accessToken = token;
   }

@@ -1,10 +1,9 @@
 import ActiveLink from "../ActiveLink";
-import Button from "../Button";
-import Link from "next/link";
 import MobileNavigation from "./MobileNavigation";
 import navbarData from "@/data/navbarData";
 import Logo from "../Logo";
-import { loginPath, signupPath } from "@/paths";
+
+import AuthActions from "./AuthActions";
 
 export default function Navbar() {
   return (
@@ -18,12 +17,7 @@ export default function Navbar() {
         </div>
         <div className="lg:flex-1 flex justify-end">
           <div className="hidden md:flex gap-4 lg:gap-6">
-            <Button size="sm" variant="secondary" asChild>
-              <Link href={`${loginPath()}`}>Login</Link>
-            </Button>
-            <Button variant="primary" size="sm" asChild>
-              <Link href={`${signupPath()}`}>Sign Up</Link>
-            </Button>
+            <AuthActions />
           </div>
         </div>
         <div className="flex md:hidden">

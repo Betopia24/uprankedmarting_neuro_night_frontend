@@ -13,7 +13,10 @@ export async function POST(request: Request) {
     });
 
     if (!response.ok) {
-      return Response.json({ error: "Login failed" }, { status: 401 });
+      return Response.json(
+        { success: false, message: response.statusText },
+        { status: 401 }
+      );
     }
 
     const loginData = await response.json();
@@ -47,7 +50,10 @@ export async function POST(request: Request) {
     });
 
     return nextResponse;
-  } catch (error) {
-    return Response.json({ error: "Login failed" }, { status: 500 });
+  } catch (error: unknown) {
+    return Response.json(
+      { ok: false, message: (error as Error).message },
+      { status: 500 }
+    );
   }
 }

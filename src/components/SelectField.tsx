@@ -29,6 +29,7 @@ type SelectFieldProps = {
   required?: boolean;
   options: Option[];
   className?: string;
+  defaultValue?: string;
 };
 
 export default function SelectField({
@@ -38,6 +39,7 @@ export default function SelectField({
   required,
   options,
   className,
+  defaultValue,
 }: SelectFieldProps) {
   const form = useFormContext();
 
@@ -60,7 +62,11 @@ export default function SelectField({
             )}
           </FormLabel>
           <FormControl>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <Select
+              onValueChange={field.onChange}
+              defaultValue={field.value || defaultValue}
+              value={field.value || defaultValue}
+            >
               <SelectTrigger className="rounded-2xl w-full">
                 <SelectValue placeholder={placeholder} />
               </SelectTrigger>

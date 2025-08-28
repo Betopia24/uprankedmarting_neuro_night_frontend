@@ -23,7 +23,6 @@ import SelectField from "@/components/SelectField";
 import AuthButton from "./AuthButton";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { env } from "@/env";
 
 const MIN_STEP = 1;
 const MAX_STEP = 2;
@@ -53,7 +52,7 @@ const defaultValues = {
   password: "1234zxcvQ!",
   confirmPassword: "1234zxcvQ!",
   businessName: "1234zxcv",
-  industry: "tech",
+  industry: "information-technology",
   website: "http://example.com",
   address: "11,11,11",
   phoneNumber: "+8801670012716",
@@ -214,12 +213,39 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
                       label="Industry"
                       required
                       placeholder="Choose your industry"
+                      defaultValue="information-technology"
                       options={[
-                        { label: "Technology", value: "tech" },
-                        { label: "Healthcare", value: "health" },
-                        { label: "Finance", value: "finance" },
+                        {
+                          label: "Information Technology",
+                          value: "information-technology",
+                        },
+                        {
+                          label: "Healthcare & Biotechnology",
+                          value: "healthcare-biotechnology",
+                        },
+                        {
+                          label: "Education & E-Learning",
+                          value: "education-elearning",
+                        },
+                        {
+                          label: "Finance & Banking",
+                          value: "finance-banking",
+                        },
+                        {
+                          label: "E-Commerce & Retail",
+                          value: "ecommerce-retail",
+                        },
+                        {
+                          label: "Manufacturing & Supply Chain",
+                          value: "manufacturing-supply",
+                        },
+                        {
+                          label: "Media & Entertainment",
+                          value: "media-entertainment",
+                        },
                       ]}
                     />
+
                     <TextField
                       label="Website"
                       name="website"

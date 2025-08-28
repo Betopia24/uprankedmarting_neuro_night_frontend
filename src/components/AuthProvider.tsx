@@ -73,6 +73,7 @@ export function AuthProvider({
     } finally {
       setUser(null);
       apiClient.setAccessToken("");
+      window.location.href = "/";
     }
   };
 

@@ -8,14 +8,12 @@ import { AuthCard } from "./AuthForm";
 import PasswordField from "./PasswordField";
 import { loginSchema, LoginFormSchema } from "./utils/validation";
 import CheckboxField from "./CheckboxField";
-import {
-  forgotPasswordPath,
-  ORGANIZATION_LOGIN_API,
-  signupPath,
-} from "@/paths";
+import { forgotPasswordPath, signupPath } from "@/paths";
 import AuthButton from "./AuthButton";
 import Link from "next/link";
 import { toast } from "sonner";
+import { adminPaths } from "@/constants";
+import { AuthMe2 } from "@/types/user";
 
 export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
   const form = useForm<LoginFormSchema>({
@@ -38,12 +36,11 @@ export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
         body: JSON.stringify(formData),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log(data);
-
-        toast.success("Successfully logged in");
-      }
+      if (!response.ok) return toast.error(response.statusText);
+      const data: AuthMe2 = await response.json();
+      window.location.href =
+        adminPaths[data.user?.role as keyof typeof adminPaths];
+      toast.success(data.message);
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message);
