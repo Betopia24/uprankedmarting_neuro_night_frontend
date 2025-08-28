@@ -1,18 +1,32 @@
+import { env } from "@/env";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
   try {
     const formData = await request.json();
 
-    console.log(formData);
+    const payload = {
+      userData: {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        phone: formData.phoneNumber,
+      },
+      organizationData: {
+        name: formData.businessName,
+        websiteLink: formData.website,
+        address: formData.address,
+        industry: formData.industry,
+      },
+    };
 
-    return new NextResponse();
-
-    const response = await fetch(`${process.env.BACKEND_URL}/users/register`, {
+    const response = await fetch(`${env.API_BASE_URL}/users/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify(payload),
     });
+
+    console.log({ response });
 
     if (!response.ok) {
       return Response.json({ error: "Signup failed" }, { status: 401 });
