@@ -20,16 +20,15 @@ export async function POST(request: Request) {
     const {
       success,
       message,
-      data: { accessToken },
+      data: { accessToken, refreshToken },
     } = loginData;
 
-    console.log({ loginData });
-
-    console.log({ success, message, accessToken });
-
     const user: UserToken = JSON.parse(atob(accessToken.split(".")[1]));
-
     const nextResponse = NextResponse.json({ user, success, message });
+
+    const refreshTokenPayload: UserToken = JSON.parse(
+      atob(refreshToken.split(".")[1])
+    );
 
     nextResponse.cookies.set("accessToken", accessToken, {
       httpOnly: true,
@@ -39,13 +38,13 @@ export async function POST(request: Request) {
       path: "/",
     });
 
-    // nextResponse.cookies.set("refreshToken", refreshToken, {
-    //   httpOnly: true,
-    //   secure: process.env.NODE_ENV === "production",
-    //   sameSite: "lax",
-    //   maxAge: 60 * 60 * 24 * 7,
-    //   path: "/",
-    // });
+    nextResponse.cookies.set("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: refreshTokenPayload.exp,
+      path: "/",
+    });
 
     return nextResponse;
   } catch (error) {

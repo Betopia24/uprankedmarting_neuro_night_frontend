@@ -22,6 +22,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const data = await getServerAuth();
+  console.log(data);
   return (
     <html lang="en">
       <body className={`${inter.className} ${inter.variable} antialiased`}>
