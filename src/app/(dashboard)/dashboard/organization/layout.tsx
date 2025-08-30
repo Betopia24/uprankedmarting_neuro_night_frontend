@@ -19,7 +19,6 @@ export default async function OrganizationDashboardLayout({
     <>
       <SidebarProvider>
         <DashboardLayout
-          // header={<DashboardHeader />}
           sidebar={
             <DashboardSidebar>
               <SidebarContent

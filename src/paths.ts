@@ -35,11 +35,11 @@ export const organizationCallLogsPath = () =>
 export const organizationAgentManagementPath = () =>
   `${organizationDashboardPath()}/agent-management`;
 export const organizationVoiceUpload = () =>
-  `${organizationDashboardPath()}/voice-uploads`;
+  `${organizationDashboardPath()}/voice-upload`;
 export const organizationDocumentsPath = () =>
-  `${organizationDashboardPath()}/document-uploads`;
-export const organizationCallFlowsPath = () =>
-  `${organizationDashboardPath()}/call-flows-and-logic`;
+  `${organizationDashboardPath()}/document-upload`;
+export const organizationLeadQuestionsPath = () =>
+  `${organizationDashboardPath()}/lead-questions`;
 export const organizationToolsPath = () =>
   `${organizationDashboardPath()}/tools`;
 export const organizationPerformancePath = () =>

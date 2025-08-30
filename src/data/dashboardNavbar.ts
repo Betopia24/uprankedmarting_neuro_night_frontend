@@ -35,19 +35,19 @@ export const dashboardNavigation = {
       href: paths.organizationAgentManagementPath(),
     },
     {
-      name: "Document Uploads",
+      name: "Document Upload",
       icon: "fileUp",
       href: paths.organizationDocumentsPath(),
     },
     {
-      name: "Voice Uploads",
+      name: "Voice Upload",
       icon: "mic",
       href: paths.organizationVoiceUpload(),
     },
     {
-      name: "Call Flows & Logic",
+      name: "Lead Questions",
       icon: "workflow",
-      href: paths.organizationCallFlowsPath(),
+      href: paths.organizationLeadQuestionsPath(),
     },
     {
       name: "Tools",
