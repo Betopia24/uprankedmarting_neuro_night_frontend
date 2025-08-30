@@ -27,7 +27,10 @@ export default function LogoutButton({
   const handleLogout = () => logout();
   return (
     <Button
-      className={cn("rounded-full", className)}
+      className={cn(
+        "rounded-full bg-rose-500 hover:opacity-80 hover:bg-rose-500",
+        className
+      )}
       variant={variant}
       size={size}
       disabled={isLoading || props.disabled}

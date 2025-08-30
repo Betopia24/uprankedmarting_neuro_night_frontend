@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import {
-  DashboardHeader,
   DashboardLayout,
   DashboardSidebar,
   SidebarProvider,
@@ -20,7 +19,6 @@ export default async function AgentDashboardLayout({
     <>
       <SidebarProvider>
         <DashboardLayout
-          header={<DashboardHeader />}
           sidebar={
             <DashboardSidebar>
               <SidebarContent

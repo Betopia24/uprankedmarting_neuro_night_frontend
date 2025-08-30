@@ -6,6 +6,6 @@ export const AGENT_ROLE = "agent";
 
 export const adminPaths = {
   super_admin: paths.adminDashboardPath(),
-  organization_admin: paths.organizationDashboardPath(),
+  organization_admin: paths.organizationBuyNumbersPath(),
   agent: paths.agentDashboardPrefix(),
 };
