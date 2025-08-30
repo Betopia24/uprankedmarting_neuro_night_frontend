@@ -4,13 +4,7 @@ import TableHeaderItem from "@/components/table/components/TableHeaderItem";
 import { sortData } from "@/components/table/utils/sortData";
 import paginateData from "@/components/table/utils/paginateData";
 
-import { organizationCallLogsPath } from "@/paths";
-import {
-  applyFilters,
-  filterData,
-  parseFilters,
-} from "@/components/table/utils/filters";
-import Filter, { FilterField } from "@/components/table/components/Filter";
+import { organizationBuyNumbersPath } from "@/paths";
 
 // Dummy table data
 export const tableData = [
@@ -197,7 +191,7 @@ export const tableData = [
 ];
 
 const config = {
-  basePath: organizationCallLogsPath(),
+  basePath: organizationBuyNumbersPath(),
 };
 
 export interface TableSearchParams {
@@ -219,40 +213,7 @@ const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 5;
 const DEFAULT_SORT = "";
 
-const filterFields: FilterField[] = [
-  {
-    key: "status",
-    label: "Status",
-    type: "multi-select",
-    options: [
-      { label: "Active", value: "active" },
-      { label: "Inactive", value: "inactive" },
-    ],
-  },
-  {
-    key: "role",
-    label: "Role",
-    type: "select",
-    options: [
-      { label: "User", value: "user" },
-      { label: "Admin", value: "admin" },
-    ],
-  },
-  // {
-  //   key: "earning_range",
-  //   label: "Earning Range",
-  //   type: "select",
-  //   options: [
-  //     { label: "Under $3,000", value: "under_3000" },
-  //     { label: "$3,000 - $5,000", value: "3000_5000" },
-  //     { label: "Above $5,000", value: "above_5000" },
-  //   ],
-  // },
-];
-
-export default async function CallManageAndLogsPage({
-  searchParams,
-}: TableProps) {
+export default async function TablePage({ searchParams }: TableProps) {
   const data = tableData || [];
   const queryParams = await searchParams;
   const page = Number(queryParams.page) || DEFAULT_PAGE;
@@ -264,20 +225,7 @@ export default async function CallManageAndLogsPage({
 
   const tableHeader = Object.keys(tableData[0]);
 
-  // Parse filters from URL
-  const currentFilters = parseFilters(queryParams);
-
-  // Apply filtering (but not sorting or pagination yet)
-  let filteredData = [...data];
-
-  // Apply search filter
-  filteredData = filterData(filteredData, searchQuery);
-
-  // Apply field filters
-  filteredData = applyFilters(filteredData, currentFilters);
-
-  // Calculate pagination info based on filtered data
-  const totalItems = filteredData.length;
+  const totalItems = data.length;
   const totalPages = Math.ceil(totalItems / limit);
   const hasNextPage = page < totalPages;
   const hasPrevPage = page > 1;
@@ -288,20 +236,7 @@ export default async function CallManageAndLogsPage({
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-4 justify-between">
-        <SearchField basePath={config.basePath} defaultQuery={searchQuery} />
-
-        <Filter
-          filterFields={filterFields}
-          currentFilters={currentFilters}
-          searchQuery={searchQuery}
-          currentPage={page}
-          limit={limit}
-          sortField={sortField}
-          sortDirection={sortDirection}
-          basePath={config.basePath}
-        />
-      </div>
+      <SearchField basePath={config.basePath} defaultQuery={searchQuery} />
 
       <table className="table-auto border-collapse border border-gray-200 w-full text-gray-800">
         <thead>
@@ -316,7 +251,6 @@ export default async function CallManageAndLogsPage({
                 limit={limit}
                 searchQuery={searchQuery}
                 basePath={config.basePath}
-                currentFilters={currentFilters}
               />
             ))}
           </tr>

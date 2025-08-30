@@ -28,6 +28,8 @@ export const adminOrganizationManagementPath = () =>
 export const organizationDashboardPath = () =>
   `${DASHBOARD_PREFIX}/organization`;
 //
+export const organizationBuyNumbersPath = () =>
+  `${organizationDashboardPath()}/buy-number`;
 export const organizationCallLogsPath = () =>
   `${organizationDashboardPath()}/call-manage-and-logs`;
 export const organizationAgentManagementPath = () =>

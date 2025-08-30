@@ -53,10 +53,14 @@ export default function Pagination({
 
   return (
     <div className="flex items-center justify-between mt-6">
+      <div className="text-sm text-gray-500">
+        Page {currentPage} of {totalPages}
+      </div>
       <div className="flex items-center space-x-2">
         {/* Previous */}
         <Link
           href={buildUrl(currentPage - 1)}
+          scroll={false}
           className={cn(
             "flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700",
             !hasPrevPage && "opacity-50 cursor-not-allowed pointer-events-none"
@@ -72,6 +76,7 @@ export default function Pagination({
             <Link
               key={pageNum}
               href={buildUrl(pageNum)}
+              scroll={false}
               className={cn(
                 "px-3 py-2 text-sm font-medium border rounded-lg",
                 currentPage === pageNum
@@ -87,6 +92,7 @@ export default function Pagination({
         {/* Next */}
         <Link
           href={buildUrl(currentPage + 1)}
+          scroll={false}
           className={cn(
             "flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700",
             !hasNextPage && "opacity-50 cursor-not-allowed pointer-events-none"
@@ -95,10 +101,6 @@ export default function Pagination({
           Next
           <LucideChevronRight className="w-4 h-4 ml-1" />
         </Link>
-      </div>
-
-      <div className="text-sm text-gray-500">
-        Page {currentPage} of {totalPages}
       </div>
     </div>
   );

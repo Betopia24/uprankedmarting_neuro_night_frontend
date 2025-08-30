@@ -1,4 +1,5 @@
 "use client";
+import DashboardHeader from "./DashboardHeader";
 import { useSidebar } from "./SidebarProvider";
 import { cn } from "@/lib/utils";
 
@@ -8,7 +9,7 @@ export default function DashboardLayout({
   header,
 }: {
   sidebar: React.ReactNode;
-  header: React.ReactNode;
+  header?: React.ReactNode;
   children: React.ReactNode;
 } & React.PropsWithChildren) {
   const { isCollapsedSidebar } = useSidebar();
@@ -36,12 +37,10 @@ export default function DashboardLayout({
       <div className="[grid-area:sidebar]">{sidebar}</div>
       <div className="[grid-area:main]">
         <div className="sticky top-0 z-50 px-4">
-          <div className="bg-gray-50 border-b border-l border-l-gray-100 border-b-gray-100 shadow-xs">
-            {header}
-          </div>
+          {header && <DashboardHeader>{header}</DashboardHeader>}
         </div>
         <div className="px-4">
-          <div className="bg-gray-50 min-h-screen border-l border-l-gray-100 shadow-xs p-4">
+          <div className="bg-gray-50 min-h-screen border-l border-l-gray-100 shadow-xs px-4">
             {children}
           </div>
         </div>

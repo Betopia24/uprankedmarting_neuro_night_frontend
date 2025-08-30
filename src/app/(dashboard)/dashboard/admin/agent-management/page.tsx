@@ -21,7 +21,6 @@ export default function MembersPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 🔹 Replace with your real backend API
     async function fetchData() {
       try {
         const res = await fetch("/api/members");

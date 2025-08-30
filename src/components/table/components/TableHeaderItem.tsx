@@ -1,10 +1,10 @@
 import { cn } from "@/lib/utils";
 import {
-  Link,
   LucideArrowDownNarrowWide,
   LucideArrowUpDown,
   LucideArrowUpNarrowWide,
 } from "lucide-react";
+import Link from "next/link";
 
 // ---------- TABLE HEADER ITEM ----------
 interface TableHeaderItemProps {
@@ -14,7 +14,7 @@ interface TableHeaderItemProps {
   currentPage: number;
   limit: number;
   searchQuery: string;
-  currentFilters: Record<string, string | string[]>;
+  currentFilters?: Record<string, string | string[]>;
   basePath: string;
 }
 
@@ -39,7 +39,7 @@ export default function TableHeaderItem({
   if (nextDirection) urlParams.set("sort", `${field}:${nextDirection}`);
 
   // Preserve current filters
-  Object.entries(currentFilters).forEach(([key, value]) => {
+  Object.entries(currentFilters || {}).forEach(([key, value]) => {
     if (Array.isArray(value) && value.length > 0) {
       urlParams.set(key, value.join(","));
     } else if (typeof value === "string" && value) {

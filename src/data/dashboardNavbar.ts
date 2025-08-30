@@ -20,6 +20,11 @@ export const dashboardNavigation = {
   ],
   organization: [
     {
+      name: "Buy A Number",
+      icon: "phone",
+      href: paths.organizationBuyNumbersPath(),
+    },
+    {
       name: "Call Logs & Management",
       icon: "phoneCall",
       href: paths.organizationCallLogsPath(),

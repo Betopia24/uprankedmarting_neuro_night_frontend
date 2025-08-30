@@ -3,7 +3,7 @@
 import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Button, InputField, SelectDropdown, SelectField } from "@/components";
+import { Button, InputField, SelectDropdown } from "@/components";
 import { AgentFormInput, agentSchema } from "./utils/validation";
 
 export const defaultValues: AgentFormInput = {

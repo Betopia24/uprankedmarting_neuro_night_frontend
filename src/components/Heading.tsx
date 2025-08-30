@@ -27,7 +27,7 @@ const fontSizeClasses: Record<FontSize, string> = {
   h3: "text-xl sm:text-2xl md:text-3xl",
   h4: "text-xl md:text-2xl",
   h5: "text-lg md:text-xl",
-  h6: "text-lg",
+  h6: "text-base",
   base: "text-base",
   sm: "text-sm",
 };
