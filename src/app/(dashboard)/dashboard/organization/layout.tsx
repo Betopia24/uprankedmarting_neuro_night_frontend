@@ -1,5 +1,6 @@
 import { requireAuth } from "@/lib/auth";
 import {
+  DashboardHeader,
   DashboardLayout,
   DashboardSidebar,
   SidebarProvider,
@@ -19,6 +20,7 @@ export default async function OrganizationDashboardLayout({
     <>
       <SidebarProvider>
         <DashboardLayout
+          header={<DashboardHeader />}
           sidebar={
             <DashboardSidebar>
               <SidebarContent
@@ -28,7 +30,7 @@ export default async function OrganizationDashboardLayout({
             </DashboardSidebar>
           }
         >
-          {children}
+          <div className="pt-4">{children}</div>
         </DashboardLayout>
       </SidebarProvider>
     </>
