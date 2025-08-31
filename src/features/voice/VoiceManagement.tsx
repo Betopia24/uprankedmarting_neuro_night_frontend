@@ -223,7 +223,7 @@ export default function VoiceManagement() {
       <div className="flex items-center justify-center space-x-3 mb-8">
         <Button
           size="lg"
-          className="border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 transition-all duration-200 px-6"
+          className="border-red-200 hover:border-red-300 transition-all duration-200 px-6"
           onClick={resetRecording}
         >
           <Trash2 className="w-4 h-4 mr-2" />
