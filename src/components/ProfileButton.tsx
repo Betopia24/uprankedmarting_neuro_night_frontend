@@ -9,6 +9,8 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import LogoutButton from "@/features/auth/LogoutButton";
+import { LucideLogOut, LucideSettings } from "lucide-react";
+import Link from "next/link";
 
 export default function ProfileButton() {
   const { user, logout } = useAuth();
@@ -25,7 +27,7 @@ export default function ProfileButton() {
           <span className="text-sm font-medium capitalize">{user.name}</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-56 p-2 border-gray-200">
+      <PopoverContent className="w-56 p-2 border-gray-200 z-40">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 border-b border-b-gray-200 pb-2">
             <UserImage image={user.image} username={user.name} />
@@ -34,7 +36,16 @@ export default function ProfileButton() {
               <p className="text-xs text-gray-500">{user.email}</p>
             </div>
           </div>
-          <LogoutButton />
+          <div className="flex items-center justify-center gap-2">
+            <Button asChild className="rounded-full" size="sm">
+              <Link href="settings">
+                <LucideSettings /> Settings
+              </Link>
+            </Button>
+            <LogoutButton size="sm">
+              <LucideLogOut /> Sign Out
+            </LogoutButton>
+          </div>
         </div>
       </PopoverContent>
     </Popover>

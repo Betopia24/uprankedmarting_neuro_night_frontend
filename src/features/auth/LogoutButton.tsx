@@ -37,7 +37,7 @@ export default function LogoutButton({
       {...props}
       onClick={handleLogout}
     >
-      Logout
+      {children}
     </Button>
   );
 }
