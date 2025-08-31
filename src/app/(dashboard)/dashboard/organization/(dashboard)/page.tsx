@@ -1,3 +1,3 @@
-export default function PerformancePath() {
-  return <div>PerformancePath</div>;
+export default function DashboardPath() {
+  return <div>DashboardPath</div>;
 }

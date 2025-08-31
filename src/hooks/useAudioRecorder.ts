@@ -7,6 +7,8 @@ export function useAudioRecorder() {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioURL, setAudioURL] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0); // ⏱ seconds
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
   const chunks = useRef<Blob[]>([]);
 
   const startRecording = useCallback(async () => {
@@ -26,11 +28,18 @@ export function useAudioRecorder() {
         setAudioBlob(blob);
         setAudioURL(URL.createObjectURL(blob));
         stream.getTracks().forEach((track) => track.stop());
+        if (timerRef.current) clearInterval(timerRef.current);
       };
 
       recorder.start();
       mediaRecorderRef.current = recorder;
       setIsRecording(true);
+      setRecordingTime(0);
+
+      // ⏱ start timer
+      timerRef.current = setInterval(() => {
+        setRecordingTime((t) => t + 1);
+      }, 1000);
     } catch (err) {
       console.error("Audio recording failed:", err);
       alert("Microphone access denied or unavailable.");
@@ -41,92 +50,40 @@ export function useAudioRecorder() {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
     }
   }, [isRecording]);
+
+  const toggleRecording = useCallback(() => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  }, [isRecording, startRecording, stopRecording]);
 
   const resetRecording = useCallback(() => {
     setAudioBlob(null);
     setAudioURL(null);
+    setRecordingTime(0);
     chunks.current = [];
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
   }, []);
 
   return {
-    audioBlob, // The actual Blob for upload
-    audioURL, // For playback
-    isRecording,
-    startRecording,
-    stopRecording,
-    resetRecording,
-  };
-}
-
-/*
-
-
-"use client";
-
-import { Mic, Square, RotateCcw } from "lucide-react";
-import { useAudioRecorder } from "@/hooks/useAudioRecorder";
-
-export default function AudioRecorderComponent() {
-  const {
     audioBlob,
     audioURL,
     isRecording,
+    recordingTime,
     startRecording,
     stopRecording,
+    toggleRecording,
     resetRecording,
-  } = useAudioRecorder();
-
-  const uploadAudio = async () => {
-    if (!audioBlob) return alert("No audio to upload!");
-    const formData = new FormData();
-    formData.append("file", audioBlob, "recording.webm");
-
-    const res = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (res.ok) alert("Uploaded successfully!");
-    else alert("Upload failed.");
   };
-
-  return (
-    <div className="flex flex-col items-center gap-4 p-4">
-      //Record Controls 
-      <div className="flex gap-4">
-        {!isRecording ? (
-          <button onClick={startRecording} className="p-2 rounded bg-green-500 text-white">
-            <Mic size={20} /> Start
-          </button>
-        ) : (
-          <button onClick={stopRecording} className="p-2 rounded bg-red-500 text-white">
-            <Square size={20} /> Stop
-          </button>
-        )}
-
-        {audioURL && (
-          <button onClick={resetRecording} className="p-2 rounded bg-gray-500 text-white">
-            <RotateCcw size={20} /> Reset
-          </button>
-        )}
-      </div>
-
-      //Playback 
-      {audioURL && (
-        <div className="flex flex-col items-center gap-2">
-          <audio controls src={audioURL} className="w-64" />
-          <button
-            onClick={uploadAudio}
-            className="p-2 rounded bg-gray-500 text-white"
-          >
-            Upload to Server
-          </button>
-        </div>
-      )}
-    </div>
-  );
 }
-
-*/
