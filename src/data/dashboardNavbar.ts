@@ -20,6 +20,11 @@ export const dashboardNavigation = {
   ],
   organization: [
     {
+      name: "Dashboard",
+      icon: "barChart3",
+      href: paths.organizationDashboardPath(),
+    },
+    {
       name: "Buy A Number",
       icon: "phone",
       href: paths.organizationBuyNumbersPath(),
@@ -54,11 +59,7 @@ export const dashboardNavigation = {
       icon: "settings",
       href: paths.organizationToolsPath(),
     },
-    {
-      name: "Performance",
-      icon: "barChart3",
-      href: paths.organizationPerformancePath(),
-    },
+
     {
       name: "Feedback & Reports",
       icon: "messageSquare",
