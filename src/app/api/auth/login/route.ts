@@ -38,16 +38,18 @@ export async function POST(request: Request) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: user.exp,
+      maxAge: user.exp * 1000,
       path: "/",
+      domain: undefined,
     });
 
     nextResponse.cookies.set("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: refreshTokenPayload.exp,
+      maxAge: refreshTokenPayload.exp * 1000,
       path: "/",
+      domain: undefined,
     });
 
     return nextResponse;

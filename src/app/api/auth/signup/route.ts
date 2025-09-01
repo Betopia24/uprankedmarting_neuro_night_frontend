@@ -26,8 +26,6 @@ export async function POST(request: Request) {
       body: JSON.stringify(payload),
     });
 
-    console.log({ response });
-
     if (!response.ok) {
       return Response.json({ error: "Signup failed" }, { status: 401 });
     }

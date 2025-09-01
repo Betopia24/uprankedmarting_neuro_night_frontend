@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import React, { ChangeEvent, DragEvent, useRef, useState } from "react";
 import Button from "./Button";
+import { toast } from "sonner";
 
 type FileWithProgress = {
   id: string;
@@ -25,24 +26,28 @@ type FileWithProgress = {
 };
 
 type FileUploadProps = {
-  /** API URL to upload files */
   uploadUrl?: string;
-  /** Allowed file types, e.g. ['image/*', 'video/mp4'] */
   accept?: string[];
-  /** Max file size in MB */
   maxSize?: number;
-  /** Max number of files */
   maxFiles?: number;
-  /** Callback when upload completes */
+  payload: {
+    organizationId: string;
+  };
   onUploadComplete?: (files: File[]) => void;
 };
 
 export default function FileUpload({
   uploadUrl = "https://httpbin.org/post",
-  accept = ["*/*"],
-  maxSize = 5,
-  maxFiles = 1,
+  accept = [
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.apple.pages",
+  ],
+  maxSize = 10,
+  maxFiles = 5,
   onUploadComplete,
+  payload,
 }: FileUploadProps) {
   const [files, setFiles] = useState<FileWithProgress[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -84,7 +89,9 @@ export default function FileUpload({
       }
     });
 
-    if (errors.length > 0) alert(errors.join("\n"));
+    if (errors.length > 0) {
+      toast.error("File selection error");
+    }
 
     setFiles((prev) => [...prev, ...validFiles]);
   };
@@ -105,12 +112,18 @@ export default function FileUpload({
     if (files.length === 0 || uploading) return;
 
     setUploading(true);
+
     const uploadPromises = files.map(async (f) => {
       const formData = new FormData();
       formData.append("file", f.file);
 
+      if (payload.organizationId) {
+        formData.append("organizationId", payload.organizationId);
+      }
+
       try {
         await axios.post(uploadUrl, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
           onUploadProgress: (e) => {
             const progress = Math.round(
               (e.loaded * 100) / (e.total || f.file.size)
@@ -124,12 +137,16 @@ export default function FileUpload({
         setFiles((prev) =>
           prev.map((x) => (x.id === f.id ? { ...x, uploaded: true } : x))
         );
+
+        toast.success("Upload successful");
       } catch (err) {
         setFiles((prev) =>
           prev.map((x) =>
             x.id === f.id ? { ...x, error: "Upload failed" } : x
           )
         );
+
+        toast.success("Upload failed");
       }
     });
 
@@ -137,13 +154,14 @@ export default function FileUpload({
     setUploading(false);
 
     if (onUploadComplete) {
-      onUploadComplete(files.map((f) => f.file));
+      onUploadComplete(files.filter((f) => f.uploaded).map((f) => f.file));
+    } else {
+      clearAll();
     }
   };
 
   const removeFile = (id: string) =>
     setFiles((prev) => prev.filter((f) => f.id !== id));
-
   const clearAll = () => setFiles([]);
 
   return (
@@ -219,6 +237,8 @@ export default function FileUpload({
   );
 }
 
+// FileItem, ProgressBar, getFileIcon, formatFileSize functions remain the same as before
+
 function FileItem({
   file,
   onRemove,
@@ -230,7 +250,7 @@ function FileItem({
 }) {
   const Icon = getFileIcon(file.file.type);
   return (
-    <div className="space-y-2 rounded-md bg-gray-800 p-4">
+    <>
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <Icon size={40} className="text-primary-500" />
@@ -260,15 +280,15 @@ function FileItem({
           : `${Math.round(file.progress)}%`}
       </div>
       <ProgressBar progress={file.progress} />
-    </div>
+    </>
   );
 }
 
 function ProgressBar({ progress }: { progress: number }) {
   return (
-    <div className="h-2 w-full overflow-hidden rounded-full bg-gray-600">
+    <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
       <div
-        className="h-full bg-gray-500 transition-all duration-300 ease-out"
+        className="h-full bg-blue-500 transition-all duration-300 ease-out"
         style={{ width: `${progress}%` }}
       />
     </div>
@@ -279,7 +299,13 @@ function getFileIcon(mime: string) {
   if (mime.startsWith("image/")) return FileImage;
   if (mime.startsWith("video/")) return FileVideo;
   if (mime.startsWith("audio/")) return FileAudio;
-  if (mime === "application/pdf") return FileText;
+  if (
+    mime === "application/pdf" ||
+    mime === "application/msword" ||
+    mime ===
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  )
+    return FileText;
   return FileIcon;
 }
 

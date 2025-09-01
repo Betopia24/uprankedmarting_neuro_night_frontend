@@ -66,3 +66,38 @@ export type TokenPayload = {
     refreshToken: string;
   };
 };
+
+export type Me = {
+  id: string;
+  name: string;
+  email: string;
+  image: string;
+  bio: string | null;
+  phone: string;
+  isDeleted: boolean;
+  passwordChangedAt: string | null;
+  isVerified: boolean;
+  isResetPassword: boolean;
+  canResetPassword: boolean;
+  isResentOtp: boolean;
+  otp: number;
+  otpExpiresAt: string;
+  status: "ACTIVE" | "INACTIVE" | string;
+  role: "organization_admin" | "agent" | "super_admin";
+  createdAt: string;
+  updatedAt: string;
+  Agent: unknown | null;
+  ownedOrganization?: {
+    id: string;
+    name: string;
+    industry: string;
+    address: string;
+    websiteLink: string;
+    organizationNumber: string;
+    ownerId: string;
+    agentVoiceUrl: string | null;
+    leadQuestions: unknown[];
+    createdAt: string;
+    updatedAt: string;
+  };
+};

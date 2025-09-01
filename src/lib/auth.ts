@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { loginPath } from "@/paths";
 import { env } from "@/env";
-import { AuthMe } from "@/types/user";
+import { AuthMe, Me } from "@/types/user";
 
 export interface User {
   id: string;
@@ -47,4 +47,47 @@ export async function requireAuth(): Promise<AuthMe | null> {
     redirect(loginPath());
   }
   return data;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  data: Me;
+  message?: string;
+}
+
+export async function getMe(): Promise<Me | null> {
+  try {
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get("accessToken")?.value;
+
+    if (!accessToken) {
+      console.log("No access token found");
+      return null;
+    }
+
+    const res = await fetch(`${env.API_BASE_URL}/auth/me`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${accessToken}`,
+      },
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      console.log("Auth check failed:", res.status, res.statusText);
+      return null;
+    }
+
+    const data: AuthResponse = await res.json();
+
+    if (!data?.success) {
+      console.log("Invalid auth response:", data);
+      return null;
+    }
+    return data.data;
+  } catch (error) {
+    console.error("Auth check error:", error);
+    return null;
+  }
 }
