@@ -35,6 +35,7 @@ export function AuthProvider({
     if (initialToken) {
       apiClient.setAccessToken(initialToken);
     }
+    console.log({ initialUser });
   }, [initialToken]);
 
   const login = async (email: string, password: string): Promise<boolean> => {

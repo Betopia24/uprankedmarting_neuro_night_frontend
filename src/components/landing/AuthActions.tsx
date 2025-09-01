@@ -22,7 +22,7 @@ export default function AuthActions() {
   ) : (
     <>
       <DashboardButton variant="secondary" />
-      <LogoutButton />
+      <LogoutButton>Sign out</LogoutButton>
     </>
   );
 }

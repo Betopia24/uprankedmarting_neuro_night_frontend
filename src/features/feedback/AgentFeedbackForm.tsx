@@ -5,7 +5,7 @@ import { Button, Heading } from "@/components";
 import FeedbackRating from "./FeedbackRating";
 import { useState } from "react";
 
-export default function AgentFeedback() {
+export default function AgentFeedbackForm() {
   const form = useForm();
   const [rating, setRating] = useState(4);
 

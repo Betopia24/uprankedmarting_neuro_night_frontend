@@ -28,7 +28,7 @@ export default function LogoutButton({
   return (
     <Button
       className={cn(
-        "rounded-full bg-rose-500 hover:opacity-80 hover:bg-rose-500",
+        "rounded-full bg-red-600 hover:opacity-80 hover:bg-red-600",
         className
       )}
       variant={variant}

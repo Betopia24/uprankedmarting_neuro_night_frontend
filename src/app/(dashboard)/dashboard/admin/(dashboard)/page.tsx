@@ -9,7 +9,7 @@ export default async function DashboardPage() {
         <CallGraph />
         <CallGraphBarChart />
       </div>
-      <div className="basis-72">
+      <div className="basis-72 max-w-72">
         <Feedback />
       </div>
     </div>

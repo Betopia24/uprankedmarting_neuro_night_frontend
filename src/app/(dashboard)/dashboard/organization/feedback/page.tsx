@@ -1,7 +1,7 @@
 "use client";
 
-import AgentFeedback from "@/features/feedback/AgentFeedback";
-import ServiceFeedback from "@/features/feedback/ServiceFeedback";
+import AgentFeedback from "@/features/feedback/AgentFeedbackForm";
+import ServiceFeedback from "@/features/feedback/ServiceFeedbackForm";
 
 export default function FeedbackPage() {
   return (

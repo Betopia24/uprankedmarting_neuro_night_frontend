@@ -31,9 +31,7 @@ export default async function OrganizationDashboardLayout({
             </DashboardSidebar>
           }
         >
-          <div className="pt-4">
-            <Container size="xl">{children}</Container>
-          </div>
+          {children}
         </DashboardLayout>
       </SidebarProvider>
     </>

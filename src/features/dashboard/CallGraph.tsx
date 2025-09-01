@@ -37,14 +37,18 @@ const data = [
 
 export default function CallGraph() {
   return (
-    <div className="flex flex-wrap justify-center">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       {data.map((item, index) => (
         <div
-          className="flex flex-col flex-1 shrink-0 basis-1/1 sm:basis-1/2 md:basis-1/3 p-2"
+          className="flex flex-col flex-1 shrink-0 basis-1/1 sm:basis-1/2 md:basis-1/3"
           key={index}
         >
           <div className="bg-[#eee] rounded-3xl py-6">
-            <Heading className="px-10" as="h3" size="sm">
+            <Heading
+              className="max-w-44 mx-auto px-2 whitespace-nowrap truncate"
+              as="h3"
+              size="sm"
+            >
               {item.name}
             </Heading>
             <div className="size-full flex items-center justify-center rounded-3xl">
