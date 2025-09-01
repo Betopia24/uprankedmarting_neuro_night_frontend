@@ -27,7 +27,7 @@ export default function ProfileButton() {
           <span className="text-sm font-medium capitalize">{user.name}</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-56 p-2 border-gray-200 z-40">
+      <PopoverContent className="w-56 p-2 border-gray-200 z-[9999]">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 border-b border-b-gray-200 pb-2">
             <UserImage image={user.image} username={user.name} />

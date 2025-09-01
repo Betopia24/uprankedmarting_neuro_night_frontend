@@ -9,6 +9,7 @@ import SidebarContent from "../_components/DashboardSidebarContent";
 import { dashboardNavigation } from "@/data/dashboardNavbar";
 import { redirect } from "next/navigation";
 import { unauthorizedPath } from "@/paths";
+import { Container } from "@/components";
 
 export default async function OrganizationDashboardLayout({
   children,
@@ -30,7 +31,9 @@ export default async function OrganizationDashboardLayout({
             </DashboardSidebar>
           }
         >
-          <div className="pt-4">{children}</div>
+          <div className="pt-4">
+            <Container size="xl">{children}</Container>
+          </div>
         </DashboardLayout>
       </SidebarProvider>
     </>

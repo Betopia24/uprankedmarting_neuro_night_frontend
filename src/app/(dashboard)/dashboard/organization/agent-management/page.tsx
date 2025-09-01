@@ -1,3 +1,9 @@
+import AgentListContainer from "@/features/agent/AgentList";
+
 export default function AgentManagementPath() {
-  return <div>AgentManagementPath</div>;
+  return (
+    <div>
+      <AgentListContainer />
+    </div>
+  );
 }
