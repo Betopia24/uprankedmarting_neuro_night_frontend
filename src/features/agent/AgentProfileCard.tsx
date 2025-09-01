@@ -10,9 +10,12 @@ export default function AgentProfileCard({ picked = false }: ProfileCardProps) {
     <div className="bg-white rounded shadow-xl p-4">
       <div className="max-w-84 mx-auto space-y-3 text-center">
         <div className="size-24 border rounded-full mx-auto"></div>
-        <Heading size="h4" as="h4">
-          Imtiaj Howlader
-        </Heading>
+        <div className="">
+          <Heading size="h4" as="h4">
+            Imtiaj Howlader
+          </Heading>
+          <span className="text-xs text-black/70">Marketing</span>
+        </div>
         <div className="flex justify-center">
           <RatingViewer rating={4.9} />
         </div>
@@ -30,7 +33,7 @@ export default function AgentProfileCard({ picked = false }: ProfileCardProps) {
           )}
         </div>
 
-        <div className="flex items-center gap-2 justify-between flex-wrap border-t border-t-gray-200 py-6.5 px-8">
+        <div className="flex items-center gap-2 justify-between flex-wrap border-t border-t-gray-200 py-4 px-8">
           <Stats progress={5055} label="Organization" />
           <Stats progress={8974} label="Handle Call" />
         </div>

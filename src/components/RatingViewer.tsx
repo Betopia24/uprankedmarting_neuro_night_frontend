@@ -11,7 +11,7 @@ interface RatingViewerProps {
 export default function RatingViewer({
   rating,
   max = 5,
-  size = 20,
+  size = 12,
 }: RatingViewerProps) {
   const safeRating = Math.max(0, Math.min(rating, max));
 
