@@ -21,7 +21,7 @@ export default function KnowledgeBaseList({ files, onDelete }: Props) {
       {files.map((file) => (
         <div
           key={file.knowledgeBaseId}
-          className="flex justify-between items-center p-2 rounded shadow-xs border border-gray-100 transition-transform hover:-translate-y-px hover:shadow-sm"
+          className="flex justify-between items-center p-2 rounded shadow-xs border border-gray-100 transition-transform hover:-translate-y-px hover:shadow-sm text-xs"
         >
           {file.fileName}
           <Button

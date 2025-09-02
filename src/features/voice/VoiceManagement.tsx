@@ -166,7 +166,7 @@ export default function VoiceManagement() {
     const file = e.target.files?.[0];
     if (file) {
       setUploadedFile(file);
-      stop(); // stop playback if playing
+      stop();
     }
   };
 
