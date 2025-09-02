@@ -1,6 +1,5 @@
-import { Button } from "@/components";
-import { env } from "@/env";
-import { LucideMonitorCheck, LucideTrash } from "lucide-react";
+import { Button, Heading } from "@/components";
+import { LucideTrash } from "lucide-react";
 
 type KnowledgeBase = {
   knowledgeBaseId: string;
@@ -22,7 +21,7 @@ export default function KnowledgeBaseList({ files, onDelete }: Props) {
       {files.map((file) => (
         <div
           key={file.knowledgeBaseId}
-          className="flex justify-between items-center"
+          className="flex justify-between items-center p-2 rounded shadow-xs border border-gray-100 transition-transform hover:-translate-y-px hover:shadow-sm"
         >
           {file.fileName}
           <Button

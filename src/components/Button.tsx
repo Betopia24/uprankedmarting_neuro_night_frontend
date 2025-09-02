@@ -18,7 +18,7 @@ const buttonVariantClasses: Record<Variant, Record<Partial<Tone>, string>> = {
     outline: "border border-gray-300 text-gray-950",
   },
   destructive: {
-    default: "bg-destructive text-white hover:bg-destructive/90",
+    default: "bg-destructive/70 text-white hover:bg-destructive/90",
     outline:
       "border border-destructive text-destructive hover:bg-destructive hover:text-white",
   },
@@ -28,7 +28,7 @@ const buttonSizeClasses: Record<Size, string> = {
   sm: "h-9 px-4 text-sm",
   md: "h-10 px-6 text-sm",
   lg: "h-12 px-8 text-base",
-  icon: "h-9 w-9",
+  icon: "size-6 & [&>svg]:size-3 rounded",
 };
 
 const buttonWeightClasses: Record<Weight, string> = {

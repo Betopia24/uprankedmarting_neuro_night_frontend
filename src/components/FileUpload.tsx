@@ -151,10 +151,10 @@ export default function FileUpload({
   return (
     <div className="flex flex-col gap-4">
       <div
-        className={`bg-dark2 border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+        className={`bg-dark2 border border-dashed rounded-lg p-8 text-center transition-colors ${
           isDragOver
             ? "border-primary-500 bg-primary-500/10"
-            : "border-gray-700 hover:border-gray-600"
+            : "border-gray-500 hover:border-gray-400"
         }`}
         onDragOver={(e) => {
           e.preventDefault();
@@ -189,14 +189,23 @@ export default function FileUpload({
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={uploading}
+            size="sm"
           >
-            <Plus size={18} /> Select
+            <Plus size={14} /> Select
           </Button>
-          <Button onClick={handleUpload} disabled={uploading || !files.length}>
-            <Upload size={18} /> Upload
+          <Button
+            onClick={handleUpload}
+            disabled={uploading || !files.length}
+            size="sm"
+          >
+            <Upload size={14} /> Upload
           </Button>
-          <Button onClick={clearAll} disabled={uploading || !files.length}>
-            <Trash2 size={18} /> Clear All
+          <Button
+            onClick={clearAll}
+            disabled={uploading || !files.length}
+            size="sm"
+          >
+            <Trash2 size={14} /> Clear All
           </Button>
         </div>
       </div>
@@ -232,9 +241,9 @@ function FileItem({
     <>
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <Icon size={40} className="text-primary-500" />
+          <Icon size={24} className="text-primary-500" />
           <div>
-            <span className="font-medium">{file.file.name}</span>
+            <span className="font-medium text-sm">{file.file.name}</span>
             <div className="text-xs text-gray-400 flex gap-2">
               <span>{formatFileSize(file.file.size)}</span>
               <span>•</span>
@@ -247,25 +256,27 @@ function FileItem({
             onClick={() => onRemove(file.id)}
             className="cursor-pointer p-1"
           >
-            <X size={16} className="text-white hover:text-rose-500" />
+            <X size={16} className="text-rose-400 hover:text-rose-500" />
           </button>
         )}
       </div>
-      <div className="text-right text-xs">
-        {file.error
-          ? `Error: ${file.error}`
-          : file.uploaded
-          ? "Completed"
-          : `${Math.round(file.progress)}%`}
+      <div className="flex gap-4 items-center">
+        <ProgressBar progress={file.progress} />
+        <div className="text-right text-xs whitespace-nowrap">
+          {file.error
+            ? `${file.error}`
+            : file.uploaded
+            ? "Completed"
+            : `${Math.round(file.progress)}%`}
+        </div>
       </div>
-      <ProgressBar progress={file.progress} />
     </>
   );
 }
 
 function ProgressBar({ progress }: { progress: number }) {
   return (
-    <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+    <div className="h-1 w-full overflow-hidden rounded-full bg-gray-200">
       <div
         className="h-full bg-blue-500 transition-all duration-300 ease-out"
         style={{ width: `${progress}%` }}

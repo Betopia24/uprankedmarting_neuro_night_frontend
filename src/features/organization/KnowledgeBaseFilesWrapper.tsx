@@ -5,6 +5,7 @@ import FileUpload from "@/components/FileUpload";
 import { env } from "@/env";
 import KnowledgeBaseFiles from "./KnowledgeBaseFiles";
 import { useCallback, useEffect, useState } from "react";
+import { Heading } from "@/components";
 
 type KnowledgeFile = {
   knowledgeBaseId: string;
@@ -16,9 +17,17 @@ type KnowledgeFile = {
 
 type Props = {
   organizationId: string;
+  deleteUrl: string;
+  uploadUrl: string;
+  fetchUrl: string;
 };
 
-export default function KnowledgeBaseFilesWrapper({ organizationId }: Props) {
+export default function KnowledgeBaseFilesWrapper({
+  organizationId,
+  deleteUrl,
+  uploadUrl,
+  fetchUrl,
+}: Props) {
   const [files, setFiles] = useState<KnowledgeFile[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -26,10 +35,7 @@ export default function KnowledgeBaseFilesWrapper({ organizationId }: Props) {
   const fetchFiles = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch(
-        `${env.NEXT_PUBLIC_API_BASE_URL_AI}/organization-knowledge/knowledge-base/${organizationId}`,
-        { cache: "no-store" }
-      );
+      const response = await fetch(fetchUrl, { cache: "no-store" });
       if (!response.ok) throw new Error("Failed to fetch files");
       const data = await response.json();
       setFiles(data.knowledgeBaseList || []);
@@ -47,18 +53,17 @@ export default function KnowledgeBaseFilesWrapper({ organizationId }: Props) {
 
   // Optimistic delete handler with toast
   const handleDelete = async (id: string) => {
-    // 1️⃣ Optimistically remove the file
     const previousFiles = files;
     const fileToDelete = files.find((f) => f.knowledgeBaseId === id);
     setFiles((prev) => prev.filter((f) => f.knowledgeBaseId !== id));
 
     toast.promise(
       (async () => {
-        const res = await fetch(
-          `${env.NEXT_PUBLIC_API_BASE_URL_AI}/organization-knowledge/knowledge-base/${id}`,
-          { method: "DELETE" }
-        );
-        if (!res.ok) throw new Error("Delete failed");
+        const res = await fetch(`${deleteUrl}/${id}`, { method: "DELETE" });
+        if (!res.ok) {
+          setFiles(previousFiles);
+          throw new Error("Delete failed");
+        }
       })(),
       {
         loading: `Deleting ${fileToDelete?.fileName || "file"}...`,
@@ -71,7 +76,7 @@ export default function KnowledgeBaseFilesWrapper({ organizationId }: Props) {
   return (
     <div className="space-y-4">
       <FileUpload
-        uploadUrl={`${env.NEXT_PUBLIC_API_BASE_URL_AI}/organization-knowledge/knowledge-base/file`}
+        uploadUrl={uploadUrl}
         payload={{ organizationId }}
         accept={[
           "application/pdf",
@@ -82,18 +87,27 @@ export default function KnowledgeBaseFilesWrapper({ organizationId }: Props) {
         maxSize={5}
         maxFiles={5}
         onUploadComplete={() => {
-          fetchFiles(); // refresh the parent list
+          fetchFiles();
         }}
       />
 
       {loading ? (
         <div className="text-center text-gray-400">Loading files...</div>
       ) : (
-        <KnowledgeBaseFiles
-          files={files}
-          organizationId={organizationId}
-          onDelete={handleDelete} // Pass delete handler
-        />
+        <>
+          <Heading size="h6" as="h4">
+            Uploaded Files:
+          </Heading>
+          {files.length ? (
+            <KnowledgeBaseFiles
+              files={files}
+              organizationId={organizationId}
+              onDelete={handleDelete}
+            />
+          ) : (
+            <div className="text-center text-gray-400">No files uploaded</div>
+          )}
+        </>
       )}
     </div>
   );
