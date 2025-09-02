@@ -1,3 +1,7 @@
+import { Button } from "@/components";
+import { env } from "@/env";
+import { LucideMonitorCheck, LucideTrash } from "lucide-react";
+
 type KnowledgeBase = {
   knowledgeBaseId: string;
   knowledgeBaseName: string;
@@ -8,13 +12,30 @@ type KnowledgeBase = {
 
 type Props = {
   files: KnowledgeBase[];
+  organizationId: string;
+  onDelete: (id: string) => void;
 };
 
-export default function KnowledgeBaseList({ files }: Props) {
+export default function KnowledgeBaseList({ files, onDelete }: Props) {
   return (
-    <div>
+    <div className="space-y-2">
       {files.map((file) => (
-        <div key={file.knowledgeBaseId}>{file.fileName}</div>
+        <div
+          key={file.knowledgeBaseId}
+          className="flex justify-between items-center"
+        >
+          {file.fileName}
+          <Button
+            variant="destructive"
+            size="icon"
+            onClick={() => onDelete(file.knowledgeBaseId)}
+          >
+            <LucideTrash />
+          </Button>
+          {/* <Button variant="destructive" size="icon">
+            <LucideMonitorCheck />
+          </Button> */}
+        </div>
       ))}
     </div>
   );

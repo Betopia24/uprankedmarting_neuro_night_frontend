@@ -1,7 +1,7 @@
 import { Slot } from "@radix-ui/react-slot";
 import { cn } from "@/lib/utils";
 
-type Variant = "primary" | "secondary";
+type Variant = "primary" | "secondary" | "destructive";
 type Tone = "default" | "outline";
 type Weight = "bold" | "medium";
 type Size = "sm" | "md" | "lg" | "icon";
@@ -16,6 +16,11 @@ const buttonVariantClasses: Record<Variant, Record<Partial<Tone>, string>> = {
   secondary: {
     default: "bg-white text-gray-950 hover:opacity-90",
     outline: "border border-gray-300 text-gray-950",
+  },
+  destructive: {
+    default: "bg-destructive text-white hover:bg-destructive/90",
+    outline:
+      "border border-destructive text-destructive hover:bg-destructive hover:text-white",
   },
 };
 

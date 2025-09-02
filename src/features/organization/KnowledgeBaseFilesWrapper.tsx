@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import FileUpload from "@/components/FileUpload";
 import { env } from "@/env";
 import KnowledgeBaseFiles from "./KnowledgeBaseFiles";
@@ -34,6 +35,7 @@ export default function KnowledgeBaseFilesWrapper({ organizationId }: Props) {
       setFiles(data.knowledgeBaseList || []);
     } catch (err) {
       console.error(err);
+      toast.error("Failed to fetch files");
     } finally {
       setLoading(false);
     }
@@ -42,6 +44,29 @@ export default function KnowledgeBaseFilesWrapper({ organizationId }: Props) {
   useEffect(() => {
     fetchFiles();
   }, [organizationId, fetchFiles]);
+
+  // Optimistic delete handler with toast
+  const handleDelete = async (id: string) => {
+    // 1️⃣ Optimistically remove the file
+    const previousFiles = files;
+    const fileToDelete = files.find((f) => f.knowledgeBaseId === id);
+    setFiles((prev) => prev.filter((f) => f.knowledgeBaseId !== id));
+
+    toast.promise(
+      (async () => {
+        const res = await fetch(
+          `${env.NEXT_PUBLIC_API_BASE_URL_AI}/organization-knowledge/knowledge-base/${id}`,
+          { method: "DELETE" }
+        );
+        if (!res.ok) throw new Error("Delete failed");
+      })(),
+      {
+        loading: `Deleting ${fileToDelete?.fileName || "file"}...`,
+        success: `${fileToDelete?.fileName || "File"} deleted successfully`,
+        error: `Failed to delete ${fileToDelete?.fileName || "file"}`,
+      }
+    );
+  };
 
   return (
     <div className="space-y-4">
@@ -64,7 +89,11 @@ export default function KnowledgeBaseFilesWrapper({ organizationId }: Props) {
       {loading ? (
         <div className="text-center text-gray-400">Loading files...</div>
       ) : (
-        <KnowledgeBaseFiles files={files} />
+        <KnowledgeBaseFiles
+          files={files}
+          organizationId={organizationId}
+          onDelete={handleDelete} // Pass delete handler
+        />
       )}
     </div>
   );
