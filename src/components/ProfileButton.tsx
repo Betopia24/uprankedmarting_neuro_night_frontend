@@ -13,7 +13,7 @@ import { LucideLogOut, LucideSettings } from "lucide-react";
 import Link from "next/link";
 
 export default function ProfileButton() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   if (!user) return null;
 
   return (

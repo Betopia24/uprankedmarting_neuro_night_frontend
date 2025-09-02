@@ -30,10 +30,8 @@ type FileUploadProps = {
   accept?: string[];
   maxSize?: number;
   maxFiles?: number;
-  payload: {
-    organizationId: string;
-  };
-  onUploadComplete?: (files: File[]) => void;
+  payload: { organizationId: string };
+  onUploadComplete?: (uploadedFiles: File[]) => void;
 };
 
 export default function FileUpload({
@@ -54,31 +52,27 @@ export default function FileUpload({
   const [isDragOver, setIsDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileValidation = (file: File) => {
-    if (file.size > maxSize * 1024 * 1024)
-      return `File size exceeds ${maxSize}MB`;
+  const validateFile = (file: File) => {
+    if (file.size > maxSize * 1024 * 1024) return `File exceeds ${maxSize}MB`;
     if (
-      accept.length > 0 &&
+      accept.length &&
       !accept.includes("*/*") &&
-      !accept.some((type) => file.type.match(type))
+      !accept.some((t) => file.type.match(t))
     )
       return "Invalid file type";
     return null;
   };
 
-  const handleAddFiles = (newFiles: FileList | File[]) => {
-    const existingCount = files.length;
+  const addFiles = (newFiles: FileList | File[]) => {
     const validFiles: FileWithProgress[] = [];
-    const errors: string[] = [];
-
     Array.from(newFiles).forEach((file, idx) => {
-      if (existingCount + validFiles.length >= maxFiles) {
-        errors.push(`Max ${maxFiles} files allowed.`);
+      if (files.length + validFiles.length >= maxFiles) {
+        toast.error(`Max ${maxFiles} files allowed`);
         return;
       }
-      const error = handleFileValidation(file);
+      const error = validateFile(file);
       if (error) {
-        errors.push(`${file.name}: ${error}`);
+        toast.error(`${file.name}: ${error}`);
       } else {
         validFiles.push({
           file,
@@ -88,38 +82,32 @@ export default function FileUpload({
         });
       }
     });
-
-    if (errors.length > 0) {
-      toast.error("File selection error");
-    }
-
     setFiles((prev) => [...prev, ...validFiles]);
   };
 
   const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.length) return;
-    handleAddFiles(e.target.files);
+    if (!e.target.files) return;
+    addFiles(e.target.files);
     if (inputRef.current) inputRef.current.value = "";
   };
 
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragOver(false);
-    if (e.dataTransfer.files.length > 0) handleAddFiles(e.dataTransfer.files);
+    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
   };
 
   const handleUpload = async () => {
-    if (files.length === 0 || uploading) return;
-
+    if (!files.length || uploading) return;
     setUploading(true);
 
-    const uploadPromises = files.map(async (f) => {
+    for (const f of files) {
+      if (f.uploaded) continue; // skip already uploaded
+
       const formData = new FormData();
       formData.append("file", f.file);
-
-      if (payload.organizationId) {
+      if (payload.organizationId)
         formData.append("organizationId", payload.organizationId);
-      }
 
       try {
         await axios.post(uploadUrl, formData, {
@@ -138,26 +126,22 @@ export default function FileUpload({
           prev.map((x) => (x.id === f.id ? { ...x, uploaded: true } : x))
         );
 
-        toast.success("Upload successful");
-      } catch (err) {
+        toast.success(`${f.file.name} uploaded successfully`);
+
+        if (onUploadComplete) {
+          onUploadComplete([f.file]); // send uploaded file immediately
+        }
+      } catch {
         setFiles((prev) =>
           prev.map((x) =>
             x.id === f.id ? { ...x, error: "Upload failed" } : x
           )
         );
-
-        toast.success("Upload failed");
+        toast.error(`${f.file.name} upload failed`);
       }
-    });
-
-    await Promise.all(uploadPromises);
-    setUploading(false);
-
-    if (onUploadComplete) {
-      onUploadComplete(files.filter((f) => f.uploaded).map((f) => f.file));
-    } else {
-      clearAll();
     }
+
+    setUploading(false);
   };
 
   const removeFile = (id: string) =>
@@ -166,7 +150,6 @@ export default function FileUpload({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Drag & Drop Zone */}
       <div
         className={`bg-dark2 border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
           isDragOver
@@ -193,7 +176,6 @@ export default function FileUpload({
           {isDragOver ? "Drop files here" : "Drag & drop files here"}
         </p>
         <p className="text-gray-400 text-sm mt-1">or</p>
-
         <div className="flex gap-2 justify-center mt-4">
           <input
             type="file"
@@ -208,7 +190,7 @@ export default function FileUpload({
             onClick={() => inputRef.current?.click()}
             disabled={uploading}
           >
-            <Plus size={18} /> Select Files
+            <Plus size={18} /> Select
           </Button>
           <Button onClick={handleUpload} disabled={uploading || !files.length}>
             <Upload size={18} /> Upload
@@ -219,7 +201,6 @@ export default function FileUpload({
         </div>
       </div>
 
-      {/* File List */}
       {files.length > 0 && (
         <div className="space-y-2">
           <h3 className="font-semibold">Files:</h3>
@@ -236,8 +217,6 @@ export default function FileUpload({
     </div>
   );
 }
-
-// FileItem, ProgressBar, getFileIcon, formatFileSize functions remain the same as before
 
 function FileItem({
   file,
@@ -300,10 +279,11 @@ function getFileIcon(mime: string) {
   if (mime.startsWith("video/")) return FileVideo;
   if (mime.startsWith("audio/")) return FileAudio;
   if (
-    mime === "application/pdf" ||
-    mime === "application/msword" ||
-    mime ===
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ].includes(mime)
   )
     return FileText;
   return FileIcon;

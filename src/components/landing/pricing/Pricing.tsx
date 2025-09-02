@@ -6,11 +6,9 @@ import { LucideCheck } from "lucide-react";
 import { Section } from "@/components";
 import CardAnimationWrapper from "./CardAnimationWrapper";
 import CardAnimation from "./CardAnimation";
-import { cn } from "@/lib/utils";
 
 export default function Pricing() {
   const [billingPeriod, setBillingPeriod] = useState("monthly");
-  const [isAnnual, setIsAnnual] = useState(false);
 
   const plans = [
     {

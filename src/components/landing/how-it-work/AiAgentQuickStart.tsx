@@ -1,4 +1,4 @@
-import { Section, Container, Button } from "@/components";
+import { Section, Container } from "@/components";
 import { ParallaxEffect, StaggerFadeUp } from "@/components/animations";
 import documentPlaceholderImage from "@/images/how-it-work/document-placeholder.png";
 import Image from "next/image";

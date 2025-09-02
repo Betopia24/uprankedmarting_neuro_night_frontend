@@ -9,7 +9,6 @@ import SidebarContent from "../_components/DashboardSidebarContent";
 import { dashboardNavigation } from "@/data/dashboardNavbar";
 import { redirect } from "next/navigation";
 import { unauthorizedPath } from "@/paths";
-import { Container } from "@/components";
 
 export default async function OrganizationDashboardLayout({
   children,

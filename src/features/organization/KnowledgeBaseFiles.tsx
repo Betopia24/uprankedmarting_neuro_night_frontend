@@ -1,4 +1,4 @@
-type KnowledgeBaseFile = {
+type KnowledgeBase = {
   knowledgeBaseId: string;
   knowledgeBaseName: string;
   fileName: string;
@@ -7,14 +7,14 @@ type KnowledgeBaseFile = {
 };
 
 type Props = {
-  knowledgeBaseList: KnowledgeBaseFile[];
+  files: KnowledgeBase[];
 };
 
-export default async function KnowledgeBaseFiles({ knowledgeBaseList }: Props) {
+export default function KnowledgeBaseList({ files }: Props) {
   return (
     <div>
-      {knowledgeBaseList.map((knowledgeBase) => (
-        <div key={knowledgeBase.knowledgeBaseId}>{knowledgeBase.fileName}</div>
+      {files.map((file) => (
+        <div key={file.knowledgeBaseId}>{file.fileName}</div>
       ))}
     </div>
   );

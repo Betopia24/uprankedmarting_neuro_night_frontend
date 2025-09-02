@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
+import Image from "next/image";
 
 type Member = {
   id: number;
@@ -46,7 +47,7 @@ export default function MembersPage() {
           key={member.id}
           className="p-6 flex flex-col items-center text-center shadow-lg rounded-2xl"
         >
-          <img
+          <Image
             src={member.image}
             alt={member.name}
             className="w-24 h-24 rounded-full object-cover -mt-12 border-4 border-white shadow"

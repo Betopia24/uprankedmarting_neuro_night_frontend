@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { shiftKeys, shifts } from "./constants";
+import { shiftKeys } from "./constants";
 
 export const genderOptions = ["male", "female", "others"] as const;
 export const employmentTypes = ["full_time", "part_time", "contract"] as const;

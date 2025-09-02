@@ -22,7 +22,6 @@ import CheckboxField from "./CheckboxField";
 import SelectField from "@/components/SelectField";
 import AuthButton from "./AuthButton";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 
 const MIN_STEP = 1;
 const MAX_STEP = 2;
@@ -62,7 +61,6 @@ const defaultValues = {
 export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(0);
-  const router = useRouter();
 
   const form = useForm<SignupFormSchema>({
     mode: "all",
@@ -79,8 +77,6 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
       });
 
       if (response.ok) {
-        const data = await response.json();
-
         toast.success("Successfully logged in");
       }
     } catch (error) {

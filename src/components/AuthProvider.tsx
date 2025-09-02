@@ -1,7 +1,6 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { apiClient } from "@/lib/api";
 
 interface User {
   id: string;
@@ -30,13 +29,6 @@ export function AuthProvider({
 }) {
   const [user, setUser] = useState<User | null>(initialUser || null);
 
-  // Set initial token from server
-  useEffect(() => {
-    if (initialToken) {
-      apiClient.setAccessToken(initialToken);
-    }
-  }, [initialToken]);
-
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const response = await fetch("/api/auth/login", {
@@ -51,17 +43,10 @@ export function AuthProvider({
         const { user: userData } = await response.json();
         setUser(userData);
 
-        // Get the new token for client-side use
-        const tokenResponse = await fetch("/api/auth/token");
-        if (tokenResponse.ok) {
-          const { accessToken } = await tokenResponse.json();
-          apiClient.setAccessToken(accessToken);
-        }
-
         return true;
       }
       return false;
-    } catch (error) {
+    } catch {
       return false;
     }
   };
@@ -73,7 +58,7 @@ export function AuthProvider({
       console.error("Logout error:", error);
     } finally {
       setUser(null);
-      apiClient.setAccessToken("");
+
       window.location.href = "/";
     }
   };

@@ -3,7 +3,6 @@ import {
   AiAgentCapabilities,
   AiAgentQuickStart,
   AgentManagement,
-  AutoAnswerNumberHighlight,
   FAQ,
 } from "@/components/landing/how-it-work";
 

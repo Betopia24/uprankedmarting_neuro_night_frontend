@@ -16,7 +16,6 @@ export default function MultiTypewriter({
   typingSpeed = 2,
   deleteSpeed = 1,
   pause = 4000,
-  loop = true,
 }: TypewriterProps) {
   const [index, setIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);

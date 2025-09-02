@@ -1,4 +1,4 @@
-import { Section, Container, Button, ButtonWithIcon } from "@/components";
+import { Section, Container, ButtonWithIcon } from "@/components";
 import { ParallaxEffect, StaggerFadeUp } from "@/components/animations";
 import recordingImage from "@/images/how-it-work/recording.webp";
 import Image from "next/image";

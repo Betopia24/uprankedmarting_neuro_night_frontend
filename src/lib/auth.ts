@@ -34,7 +34,7 @@ export async function getServerAuth(): Promise<
 
       return { ...responseData, accessToken };
     }
-  } catch (error) {
+  } catch {
     return null;
   }
 

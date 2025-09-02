@@ -1,10 +1,4 @@
-import {
-  Section,
-  Container,
-  Button,
-  Heading,
-  ButtonWithIcon,
-} from "@/components";
+import { Section, Container, Heading, ButtonWithIcon } from "@/components";
 import { ParallaxEffect, StaggerFadeUp } from "@/components/animations";
 
 export default function Greetings() {

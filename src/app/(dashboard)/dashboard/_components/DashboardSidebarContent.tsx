@@ -53,7 +53,7 @@ export default function SidebarContent({
   mainItems,
   subItems,
 }: SidebarContentType) {
-  const { isCollapsedSidebar, isExpanded } = useSidebar();
+  const { isCollapsedSidebar } = useSidebar();
   return (
     <div className="h-full flex flex-col justify-between gap-6 px-2">
       <ul className={cn("space-y-2")}>
