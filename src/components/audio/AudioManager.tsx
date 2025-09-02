@@ -1,0 +1,571 @@
+"use client";
+
+import { useRef, useState, ChangeEvent, DragEvent, useEffect } from "react";
+import {
+  LucideCloudUpload,
+  FileAudio,
+  X,
+  Trash2,
+  Upload,
+  Plus,
+  Mic,
+  Play,
+  Pause,
+  Square,
+} from "lucide-react";
+import axios from "axios";
+
+type FileWithProgress = {
+  id: string;
+  file: File;
+  progress: number;
+  uploaded: boolean;
+  error?: string;
+  isRecording?: boolean;
+  audioUrl?: string;
+  duration?: number;
+};
+
+type AudioUploadProps = {
+  uploadUrl?: string;
+  accept?: string[];
+  maxSize?: number;
+  maxFiles?: number;
+  payload?: Record<string, string | number>;
+  onUploadComplete?: (uploadedFiles: File[]) => void;
+  organizationId: string;
+};
+
+export default function AudioUploadRecorder({
+  uploadUrl = "/api/upload",
+  accept = ["audio/*"],
+  maxSize = 100,
+  maxFiles = 10,
+  payload,
+  organizationId,
+  onUploadComplete,
+}: AudioUploadProps) {
+  const [files, setFiles] = useState<FileWithProgress[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [playingId, setPlayingId] = useState<string | null>(null);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const audioRefs = useRef<Map<string, HTMLAudioElement>>(new Map());
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current);
+      }
+      if (
+        mediaRecorderRef.current &&
+        mediaRecorderRef.current.state !== "inactive"
+      ) {
+        mediaRecorderRef.current.stop();
+      }
+      // Cleanup audio URLs
+      files.forEach((f) => {
+        if (f.audioUrl) {
+          URL.revokeObjectURL(f.audioUrl);
+        }
+      });
+    };
+  }, []);
+
+  const validateFile = (file: File) => {
+    if (file.size > maxSize * 1024 * 1024) return `File exceeds ${maxSize}MB`;
+    if (
+      accept.length &&
+      !accept.includes("*/*") &&
+      !accept.some((t) => file.type.match(t))
+    )
+      return "Invalid file type";
+    return null;
+  };
+
+  const addFiles = (newFiles: FileList | File[]) => {
+    const validFiles: FileWithProgress[] = [];
+    Array.from(newFiles).forEach((file, idx) => {
+      if (files.length + validFiles.length >= maxFiles) {
+        console.error(`Max ${maxFiles} files allowed`);
+        return;
+      }
+      const error = validateFile(file);
+      if (error) {
+        console.error(`${file.name}: ${error}`);
+      } else {
+        const audioUrl = URL.createObjectURL(file);
+        validFiles.push({
+          file,
+          progress: 0,
+          uploaded: false,
+          id: `${file.name}-${Date.now()}-${idx}`,
+          audioUrl,
+        });
+      }
+    });
+    setFiles((prev) => [...prev, ...validFiles]);
+  };
+
+  const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    addFiles(e.target.files);
+    if (inputRef.current) inputRef.current.value = "";
+  };
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        audioChunksRef.current.push(event.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: "audio/wav",
+        });
+        const audioFile = new File([audioBlob], `recording-${Date.now()}.wav`, {
+          type: "audio/wav",
+        });
+        const audioUrl = URL.createObjectURL(audioBlob);
+
+        const newFile: FileWithProgress = {
+          id: `recording-${Date.now()}`,
+          file: audioFile,
+          progress: 0,
+          uploaded: false,
+          isRecording: true,
+          audioUrl,
+        };
+
+        setFiles((prev) => [...prev, newFile]);
+        stream.getTracks().forEach((track) => track.stop());
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      setRecordingTime(0);
+
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingTime((prev) => prev + 1);
+      }, 1000);
+    } catch (error) {
+      console.error("Failed to start recording:", error);
+    }
+  };
+
+  const stopRecording = () => {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state !== "inactive"
+    ) {
+      mediaRecorderRef.current.stop();
+    }
+    if (recordingIntervalRef.current) {
+      clearInterval(recordingIntervalRef.current);
+      recordingIntervalRef.current = null;
+    }
+    setIsRecording(false);
+    setRecordingTime(0);
+  };
+
+  const togglePlayPause = (fileId: string, audioUrl?: string) => {
+    if (!audioUrl) return;
+
+    let audio = audioRefs.current.get(fileId);
+
+    if (!audio) {
+      audio = new Audio(audioUrl);
+      audioRefs.current.set(fileId, audio);
+
+      audio.onended = () => {
+        setPlayingId(null);
+      };
+    }
+
+    if (playingId === fileId) {
+      audio.pause();
+      setPlayingId(null);
+    } else {
+      // Pause any currently playing audio
+      audioRefs.current.forEach((a, id) => {
+        if (id !== fileId) a.pause();
+      });
+
+      audio.currentTime = 0;
+      audio.play();
+      setPlayingId(fileId);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!files.length || uploading) return;
+    setUploading(true);
+
+    const uploadPromises = files
+      .filter((f) => !f.uploaded)
+      .map(async (f) => {
+        const formData = new FormData();
+        formData.append("file", f.file);
+
+        // Add additional payload data if provided
+        if (payload) {
+          Object.entries(payload).forEach(([key, val]) =>
+            formData.append(key, String(val))
+          );
+        }
+
+        try {
+          const response = await axios.post(
+            `${uploadUrl}/${organizationId}/voice-clone`,
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+              onUploadProgress: (progressEvent) => {
+                const progress = Math.round(
+                  (progressEvent.loaded * 100) /
+                    (progressEvent.total || f.file.size)
+                );
+
+                setFiles((prev) =>
+                  prev.map((x) => (x.id === f.id ? { ...x, progress } : x))
+                );
+              },
+            }
+          );
+
+          // Mark file as uploaded successfully
+          setFiles((prev) =>
+            prev.map((x) =>
+              x.id === f.id ? { ...x, uploaded: true, progress: 100 } : x
+            )
+          );
+
+          console.log(`${f.file.name} uploaded successfully`, response.data);
+
+          // Call success callback with uploaded file
+          if (onUploadComplete) {
+            onUploadComplete([f.file]);
+          }
+
+          return { success: true, file: f, response: response.data };
+        } catch (error) {
+          // Handle upload error
+          const errorMessage = axios.isAxiosError(error)
+            ? error.response?.data?.message || error.message || "Upload failed"
+            : "Upload failed";
+
+          setFiles((prev) =>
+            prev.map((x) =>
+              x.id === f.id ? { ...x, error: errorMessage, progress: 0 } : x
+            )
+          );
+
+          console.error(`${f.file.name} upload failed:`, error);
+          return { success: false, file: f, error: errorMessage };
+        }
+      });
+
+    try {
+      // Wait for all uploads to complete
+      const results = await Promise.allSettled(uploadPromises);
+
+      // Log summary of results
+      const successful = results.filter(
+        (r) => r.status === "fulfilled" && r.value.success
+      ).length;
+      const failed = results.length - successful;
+
+      if (successful > 0) {
+        console.log(`Successfully uploaded ${successful} file(s)`);
+      }
+      if (failed > 0) {
+        console.error(`Failed to upload ${failed} file(s)`);
+      }
+    } catch (error) {
+      console.error("Upload process failed:", error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeFile = (id: string) => {
+    const file = files.find((f) => f.id === id);
+    if (file?.audioUrl) {
+      URL.revokeObjectURL(file.audioUrl);
+    }
+    const audio = audioRefs.current.get(id);
+    if (audio) {
+      audio.pause();
+      audioRefs.current.delete(id);
+    }
+    if (playingId === id) {
+      setPlayingId(null);
+    }
+    setFiles((prev) => prev.filter((f) => f.id !== id));
+  };
+
+  const clearAll = () => {
+    files.forEach((f) => {
+      if (f.audioUrl) {
+        URL.revokeObjectURL(f.audioUrl);
+      }
+    });
+    audioRefs.current.clear();
+    setPlayingId(null);
+    setFiles([]);
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return "0 B";
+    const k = 1024;
+    const sizes = ["B", "KB", "MB", "GB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
+  };
+
+  return (
+    <div className="bg-white rounded-3xl shadow-2xl shadow-slate-200/50 p-8 max-w-4xl mx-auto">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold text-slate-800 mb-2">
+          Audio Upload & Recording Studio
+        </h2>
+        <p className="text-slate-500">
+          Record audio, drag & drop files, or select files to upload (max{" "}
+          {maxFiles})
+        </p>
+      </div>
+
+      {/* Recording Controls */}
+      <div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-2xl p-6 mb-6 border border-red-100">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              {!isRecording ? (
+                <button
+                  onClick={startRecording}
+                  className="bg-red-500 hover:bg-red-600 text-white p-3 rounded-full transition-all duration-200 hover:scale-105 shadow-lg"
+                  disabled={uploading}
+                >
+                  <Mic className="w-6 h-6" />
+                </button>
+              ) : (
+                <button
+                  onClick={stopRecording}
+                  className="bg-red-600 text-white p-3 rounded-full animate-pulse shadow-lg"
+                >
+                  <Square className="w-6 h-6" />
+                </button>
+              )}
+              <div className="text-lg font-semibold text-slate-700">
+                {isRecording ? (
+                  <span className="flex items-center gap-2">
+                    <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                    Recording: {formatTime(recordingTime)}
+                  </span>
+                ) : (
+                  "Click to start recording"
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Drop Zone */}
+      <div
+        className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 ${
+          isDragOver
+            ? "border-blue-500 bg-blue-50 scale-[1.01] shadow-lg"
+            : "border-slate-300 hover:border-slate-400 hover:bg-slate-50"
+        }`}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setIsDragOver(true);
+        }}
+        onDragLeave={(e) => {
+          e.preventDefault();
+          setIsDragOver(false);
+        }}
+        onDrop={handleDrop}
+      >
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center">
+            <LucideCloudUpload
+              className={`w-10 h-10 ${
+                isDragOver ? "text-blue-500 animate-bounce" : "text-slate-500"
+              }`}
+            />
+          </div>
+          <div>
+            <p className="text-xl font-semibold text-slate-700">
+              {isDragOver ? "Drop files here!" : "Drag & drop audio files"}
+            </p>
+            <p className="text-sm text-slate-400 mt-1">
+              Supports MP3, WAV, M4A, AAC up to {maxSize}MB each
+            </p>
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={() => inputRef.current?.click()}
+              disabled={uploading}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-105 shadow-lg flex items-center gap-2"
+            >
+              <Plus className="w-5 h-5" /> Select Files
+            </button>
+          </div>
+        </div>
+        <input
+          type="file"
+          ref={inputRef}
+          multiple
+          accept={accept.join(",")}
+          className="hidden"
+          onChange={handleFileSelect}
+        />
+      </div>
+
+      {/* File List */}
+      {files.length > 0 && (
+        <div className="mt-8">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-bold text-slate-800">
+              Files ({files.length}/{maxFiles})
+            </h3>
+          </div>
+          <div className="space-y-3">
+            {files.map((f) => (
+              <div
+                key={f.id}
+                className="bg-slate-50 hover:bg-slate-100 p-4 rounded-xl shadow-sm border transition-all duration-200"
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex items-center gap-3">
+                    <FileAudio className="w-8 h-8 text-blue-500 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-slate-800">
+                        {f.file.name}
+                        {f.isRecording && (
+                          <span className="ml-2 text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">
+                            Recorded
+                          </span>
+                        )}
+                      </p>
+                      <div className="flex items-center gap-4 text-sm text-slate-500 mt-1">
+                        <span>{formatFileSize(f.file.size)}</span>
+                        <span>•</span>
+                        <span>{f.file.type || "Audio file"}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {f.audioUrl && (
+                      <button
+                        onClick={() => togglePlayPause(f.id, f.audioUrl)}
+                        className="p-2 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-600 transition-colors"
+                        disabled={uploading}
+                      >
+                        {playingId === f.id ? (
+                          <Pause className="w-4 h-4" />
+                        ) : (
+                          <Play className="w-4 h-4" />
+                        )}
+                      </button>
+                    )}
+                    {!uploading && (
+                      <button
+                        onClick={() => removeFile(f.id)}
+                        className="p-2 rounded-lg hover:bg-red-100 text-red-500 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Progress Bar */}
+                <div className="relative">
+                  <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full transition-all duration-300 ${
+                        f.error
+                          ? "bg-red-500"
+                          : f.uploaded
+                          ? "bg-green-500"
+                          : "bg-blue-500"
+                      }`}
+                      style={{ width: `${f.progress}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between items-center mt-1">
+                    <span className="text-xs text-slate-500">
+                      {f.error
+                        ? f.error
+                        : f.uploaded
+                        ? "Upload complete"
+                        : uploading
+                        ? "Uploading..."
+                        : "Ready to upload"}
+                    </span>
+                    <span className="text-xs text-slate-500">
+                      {f.progress}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Action Buttons */}
+      {files.length > 0 && (
+        <div className="flex justify-between items-center mt-8 pt-6 border-t border-slate-200">
+          <button
+            onClick={clearAll}
+            disabled={uploading}
+            className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center gap-2 disabled:opacity-50"
+          >
+            <Trash2 className="w-5 h-5" /> Clear All
+          </button>
+          <button
+            onClick={handleUpload}
+            disabled={uploading || !files.some((f) => !f.uploaded)}
+            className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200 hover:scale-105 shadow-lg flex items-center gap-2 disabled:opacity-50"
+          >
+            <Upload className="w-5 h-5" />
+            {uploading
+              ? "Uploading..."
+              : `Upload ${files.filter((f) => !f.uploaded).length} Files`}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
