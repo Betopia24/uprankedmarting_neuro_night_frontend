@@ -1,11 +1,9 @@
-"use client";
-
 import DocumentUploads from "@/features/organization/DocumentUploads";
 import { env } from "@/env";
-import { useAuth } from "@/components/AuthProvider";
+import { getServerAuth } from "@/lib/auth";
 
-export default function OrganizationDocumentUploadPage() {
-  const me = useAuth();
+export default async function OrganizationDocumentUploadPage() {
+  const me = await getServerAuth();
 
   const AI_AGENT_BASE_URL = env.NEXT_PUBLIC_API_BASE_URL_AI;
 
@@ -21,11 +19,11 @@ export default function OrganizationDocumentUploadPage() {
     <>
       <div className="space-y-10">
         <DocumentUploads
-          organizationId={me?.organizationInfo?.id || ""}
+          organizationId={me?.data?.ownedOrganization?.id || ""}
           title="Upload Document for AI Agent"
           uploadUrl={AI_AGENT_UPLOAD_URL()}
           deleteUrl={AI_AGENT_DELETE_URL}
-          fetchUrl={AI_AGENT_FETCH_URL(me?.organizationInfo?.id || "")}
+          fetchUrl={AI_AGENT_FETCH_URL(me?.data.ownedOrganization?.id || "")}
         />
         {/* <DocumentUploads
           organizationId={me.organizationInfo.id}

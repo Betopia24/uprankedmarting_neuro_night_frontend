@@ -8,6 +8,20 @@ export type UserToken = {
   exp: number;
 };
 
+type OrganizationInfo = {
+  id: string;
+  name: string;
+  industry: string;
+  address: string;
+  websiteLink: string;
+  organizationNumber: any;
+  ownerId: string;
+  agentVoiceUrl: any;
+  leadQuestions: any[];
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type AuthMe = {
   success: boolean;
   message: string;
@@ -29,9 +43,8 @@ export type AuthMe = {
     createdAt: string;
     updatedAt: string;
     Agent: unknown | null;
-    ownedOrganization: unknown | null;
+    ownedOrganization: OrganizationInfo | null;
   };
-  organizationInfo?: OrganizationInfo | null;
 };
 
 export type AuthMe2 = {
@@ -55,7 +68,7 @@ export type AuthMe2 = {
     createdAt: string;
     updatedAt: string;
     Agent: unknown | null;
-    ownedOrganization: unknown | null;
+    ownedOrganization: OrganizationInfo | null;
   };
 };
 
@@ -102,17 +115,3 @@ export type Me = {
     updatedAt: string;
   };
 };
-
-export interface OrganizationInfo {
-  id: string;
-  name: string;
-  industry: string;
-  address: string;
-  websiteLink: string;
-  organizationNumber: any;
-  ownerId: string;
-  agentVoiceUrl: any;
-  leadQuestions: any[];
-  createdAt: string;
-  updatedAt: string;
-}
