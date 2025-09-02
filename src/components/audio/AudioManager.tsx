@@ -12,8 +12,9 @@ import {
   Play,
   Pause,
   Square,
+  Edit3,
+  Check,
 } from "lucide-react";
-import axios from "axios";
 
 type FileWithProgress = {
   id: string;
@@ -24,6 +25,10 @@ type FileWithProgress = {
   isRecording?: boolean;
   audioUrl?: string;
   duration?: number;
+  displayName: string;
+  description?: string;
+  isEditingName?: boolean;
+  isEditingDescription?: boolean;
 };
 
 type AudioUploadProps = {
@@ -32,8 +37,11 @@ type AudioUploadProps = {
   maxSize?: number;
   maxFiles?: number;
   payload?: Record<string, string | number>;
-  onUploadComplete?: (uploadedFiles: File[]) => void;
+  onUploadComplete?: (
+    uploadedFiles: Array<{ file: File; name: string; description?: string }>
+  ) => void;
   organizationId: string;
+  showDescription?: boolean;
 };
 
 export default function AudioUploadRecorder({
@@ -44,6 +52,7 @@ export default function AudioUploadRecorder({
   payload,
   organizationId,
   onUploadComplete,
+  showDescription = true,
 }: AudioUploadProps) {
   const [files, setFiles] = useState<FileWithProgress[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -102,12 +111,15 @@ export default function AudioUploadRecorder({
         console.error(`${file.name}: ${error}`);
       } else {
         const audioUrl = URL.createObjectURL(file);
+        const nameWithoutExtension = file.name.replace(/\.[^/.]+$/, "");
         validFiles.push({
           file,
           progress: 0,
           uploaded: false,
           id: `${file.name}-${Date.now()}-${idx}`,
           audioUrl,
+          displayName: nameWithoutExtension,
+          description: "",
         });
       }
     });
@@ -141,18 +153,21 @@ export default function AudioUploadRecorder({
         const audioBlob = new Blob(audioChunksRef.current, {
           type: "audio/wav",
         });
-        const audioFile = new File([audioBlob], `recording-${Date.now()}.wav`, {
+        const timestamp = Date.now();
+        const audioFile = new File([audioBlob], `recording-${timestamp}.wav`, {
           type: "audio/wav",
         });
         const audioUrl = URL.createObjectURL(audioBlob);
 
         const newFile: FileWithProgress = {
-          id: `recording-${Date.now()}`,
+          id: `recording-${timestamp}`,
           file: audioFile,
           progress: 0,
           uploaded: false,
           isRecording: true,
           audioUrl,
+          displayName: `Voice Recording ${new Date().toLocaleTimeString()}`,
+          description: "",
         };
 
         setFiles((prev) => [...prev, newFile]);
@@ -215,6 +230,42 @@ export default function AudioUploadRecorder({
     }
   };
 
+  const updateFileName = (id: string, newName: string) => {
+    setFiles((prev) =>
+      prev.map((f) =>
+        f.id === id ? { ...f, displayName: newName, isEditingName: false } : f
+      )
+    );
+  };
+
+  const updateFileDescription = (id: string, newDescription: string) => {
+    setFiles((prev) =>
+      prev.map((f) =>
+        f.id === id
+          ? { ...f, description: newDescription, isEditingDescription: false }
+          : f
+      )
+    );
+  };
+
+  const toggleEditName = (id: string) => {
+    setFiles((prev) =>
+      prev.map((f) =>
+        f.id === id ? { ...f, isEditingName: !f.isEditingName } : f
+      )
+    );
+  };
+
+  const toggleEditDescription = (id: string) => {
+    setFiles((prev) =>
+      prev.map((f) =>
+        f.id === id
+          ? { ...f, isEditingDescription: !f.isEditingDescription }
+          : f
+      )
+    );
+  };
+
   const handleUpload = async () => {
     if (!files.length || uploading) return;
     setUploading(true);
@@ -223,7 +274,21 @@ export default function AudioUploadRecorder({
       .filter((f) => !f.uploaded)
       .map(async (f) => {
         const formData = new FormData();
-        formData.append("file", f.file);
+
+        // Create a new file with the updated name
+        const fileExtension = f.file.name.split(".").pop();
+        const newFileName =
+          f.displayName + (fileExtension ? `.${fileExtension}` : "");
+        const renamedFile = new File([f.file], newFileName, {
+          type: f.file.type,
+        });
+
+        formData.append("file", renamedFile);
+        formData.append("name", f.displayName);
+
+        if (f.description) {
+          formData.append("description", f.description);
+        }
 
         // Add additional payload data if provided
         if (payload) {
@@ -233,25 +298,19 @@ export default function AudioUploadRecorder({
         }
 
         try {
-          const response = await axios.post(
+          const response = await fetch(
             `${uploadUrl}/${organizationId}/voice-clone`,
-            formData,
             {
-              headers: {
-                "Content-Type": "multipart/form-data",
-              },
-              onUploadProgress: (progressEvent) => {
-                const progress = Math.round(
-                  (progressEvent.loaded * 100) /
-                    (progressEvent.total || f.file.size)
-                );
-
-                setFiles((prev) =>
-                  prev.map((x) => (x.id === f.id ? { ...x, progress } : x))
-                );
-              },
+              method: "POST",
+              body: formData,
             }
           );
+
+          if (!response.ok) {
+            throw new Error(`Upload failed: ${response.statusText}`);
+          }
+
+          const responseData = await response.json();
 
           // Mark file as uploaded successfully
           setFiles((prev) =>
@@ -260,19 +319,24 @@ export default function AudioUploadRecorder({
             )
           );
 
-          console.log(`${f.file.name} uploaded successfully`, response.data);
+          console.log(`${f.displayName} uploaded successfully`, responseData);
 
-          // Call success callback with uploaded file
+          // Call success callback with uploaded file and metadata
           if (onUploadComplete) {
-            onUploadComplete([f.file]);
+            onUploadComplete([
+              {
+                file: renamedFile,
+                name: f.displayName,
+                description: f.description,
+              },
+            ]);
           }
 
-          return { success: true, file: f, response: response.data };
+          return { success: true, file: f, response: responseData };
         } catch (error) {
           // Handle upload error
-          const errorMessage = axios.isAxiosError(error)
-            ? error.response?.data?.message || error.message || "Upload failed"
-            : "Upload failed";
+          const errorMessage =
+            error instanceof Error ? error.message : "Upload failed";
 
           setFiles((prev) =>
             prev.map((x) =>
@@ -280,7 +344,7 @@ export default function AudioUploadRecorder({
             )
           );
 
-          console.error(`${f.file.name} upload failed:`, error);
+          console.error(`${f.displayName} upload failed:`, error);
           return { success: false, file: f, error: errorMessage };
         }
       });
@@ -459,31 +523,147 @@ export default function AudioUploadRecorder({
               Files ({files.length}/{maxFiles})
             </h3>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {files.map((f) => (
               <div
                 key={f.id}
-                className="bg-slate-50 hover:bg-slate-100 p-4 rounded-xl shadow-sm border transition-all duration-200"
+                className="bg-slate-50 hover:bg-slate-100 p-6 rounded-xl shadow-sm border transition-all duration-200"
               >
-                <div className="flex justify-between items-start mb-3">
-                  <div className="flex items-center gap-3">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center gap-3 flex-1">
                     <FileAudio className="w-8 h-8 text-blue-500 flex-shrink-0" />
-                    <div>
-                      <p className="font-semibold text-slate-800">
-                        {f.file.name}
+                    <div className="flex-1">
+                      {/* File Name Field */}
+                      <div className="flex items-center gap-2 mb-2">
+                        {f.isEditingName ? (
+                          <div className="flex items-center gap-2 flex-1">
+                            <input
+                              type="text"
+                              value={f.displayName}
+                              onChange={(e) =>
+                                setFiles((prev) =>
+                                  prev.map((file) =>
+                                    file.id === f.id
+                                      ? { ...file, displayName: e.target.value }
+                                      : file
+                                  )
+                                )
+                              }
+                              onKeyPress={(e) => {
+                                if (e.key === "Enter") {
+                                  updateFileName(f.id, f.displayName);
+                                }
+                              }}
+                              className="flex-1 px-3 py-1 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              autoFocus
+                            />
+                            <button
+                              onClick={() =>
+                                updateFileName(f.id, f.displayName)
+                              }
+                              className="p-1 rounded text-green-600 hover:bg-green-100"
+                            >
+                              <Check className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 flex-1">
+                            <span className="font-semibold text-slate-800 text-lg">
+                              {f.displayName}
+                            </span>
+                            <button
+                              onClick={() => toggleEditName(f.id)}
+                              className="p-1 rounded text-slate-500 hover:bg-slate-200"
+                              disabled={uploading}
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
                         {f.isRecording && (
                           <span className="ml-2 text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">
                             Recorded
                           </span>
                         )}
-                      </p>
-                      <div className="flex items-center gap-4 text-sm text-slate-500 mt-1">
+                      </div>
+
+                      {/* File Info */}
+                      <div className="flex items-center gap-4 text-sm text-slate-500 mb-3">
                         <span>{formatFileSize(f.file.size)}</span>
                         <span>•</span>
                         <span>{f.file.type || "Audio file"}</span>
+                        <span>•</span>
+                        <span className="text-xs text-slate-400">
+                          Original: {f.file.name}
+                        </span>
                       </div>
+
+                      {/* Description Field */}
+                      {showDescription && (
+                        <div className="mb-3">
+                          {f.isEditingDescription ? (
+                            <div className="flex items-start gap-2">
+                              <textarea
+                                value={f.description || ""}
+                                onChange={(e) =>
+                                  setFiles((prev) =>
+                                    prev.map((file) =>
+                                      file.id === f.id
+                                        ? {
+                                            ...file,
+                                            description: e.target.value,
+                                          }
+                                        : file
+                                    )
+                                  )
+                                }
+                                placeholder="Add a description for this audio file..."
+                                className="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                rows={2}
+                                autoFocus
+                              />
+                              <button
+                                onClick={() =>
+                                  updateFileDescription(
+                                    f.id,
+                                    f.description || ""
+                                  )
+                                }
+                                className="p-1 rounded text-green-600 hover:bg-green-100 mt-1"
+                              >
+                                <Check className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div
+                              className="flex items-start gap-2 cursor-pointer group"
+                              onClick={() => toggleEditDescription(f.id)}
+                            >
+                              <div className="flex-1">
+                                {f.description ? (
+                                  <p className="text-sm text-slate-600 bg-slate-100 p-2 rounded-lg group-hover:bg-slate-200 transition-colors">
+                                    {f.description}
+                                  </p>
+                                ) : (
+                                  <p className="text-sm text-slate-400 italic bg-slate-100 p-2 rounded-lg group-hover:bg-slate-200 transition-colors">
+                                    Click to add description...
+                                  </p>
+                                )}
+                              </div>
+                              <button
+                                className="p-1 rounded text-slate-500 hover:bg-slate-200 opacity-0 group-hover:opacity-100 transition-opacity"
+                                disabled={uploading}
+                              >
+                                <Edit3 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
+
+                  {/* Action Buttons */}
                   <div className="flex items-center gap-2">
                     {f.audioUrl && (
                       <button
