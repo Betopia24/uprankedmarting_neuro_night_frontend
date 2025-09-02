@@ -31,6 +31,7 @@ export type AuthMe = {
     Agent: unknown | null;
     ownedOrganization: unknown | null;
   };
+  organizationInfo?: OrganizationInfo | null;
 };
 
 export type AuthMe2 = {
@@ -101,3 +102,17 @@ export type Me = {
     updatedAt: string;
   };
 };
+
+export interface OrganizationInfo {
+  id: string;
+  name: string;
+  industry: string;
+  address: string;
+  websiteLink: string;
+  organizationNumber: any;
+  ownerId: string;
+  agentVoiceUrl: any;
+  leadQuestions: any[];
+  createdAt: string;
+  updatedAt: string;
+}

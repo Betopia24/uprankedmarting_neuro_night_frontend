@@ -1,6 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import { OrganizationInfo } from "@/types/user";
+import React, { createContext, useContext, useState } from "react";
 
 interface User {
   id: string;
@@ -12,6 +13,7 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
+  organizationInfo: OrganizationInfo | null;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
 }
@@ -21,11 +23,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({
   children,
   initialUser,
-  initialToken,
+  organizationInfo,
 }: {
   children: React.ReactNode;
   initialUser?: User | null;
   initialToken?: string;
+  organizationInfo: OrganizationInfo | null;
 }) {
   const [user, setUser] = useState<User | null>(initialUser || null);
 
@@ -64,7 +67,14 @@ export function AuthProvider({
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        logout,
+        organizationInfo: organizationInfo || null,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

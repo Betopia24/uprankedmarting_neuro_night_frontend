@@ -15,7 +15,9 @@ export default async function OrganizationDashboardLayout({
 }: React.PropsWithChildren) {
   const data = await requireAuth();
   const user = data?.data || { role: "" };
-  if (user.role !== "organization_admin") return redirect(unauthorizedPath());
+  if (user.role !== "organization_admin") {
+    return redirect(unauthorizedPath());
+  }
   return (
     <>
       <SidebarProvider>

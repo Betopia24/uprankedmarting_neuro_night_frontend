@@ -15,6 +15,7 @@ import {
   Edit3,
   Check,
 } from "lucide-react";
+import { toast } from "sonner";
 
 type FileWithProgress = {
   id: string;
@@ -48,7 +49,7 @@ export default function AudioUploadRecorder({
   uploadUrl = "/api/upload",
   accept = ["audio/*"],
   maxSize = 100,
-  maxFiles = 10,
+  maxFiles = 1,
   payload,
   organizationId,
   onUploadComplete,
@@ -103,12 +104,12 @@ export default function AudioUploadRecorder({
     const validFiles: FileWithProgress[] = [];
     Array.from(newFiles).forEach((file, idx) => {
       if (files.length + validFiles.length >= maxFiles) {
-        console.error(`Max ${maxFiles} files allowed`);
+        toast.error(`Maximum ${maxFiles} files allowed`);
         return;
       }
       const error = validateFile(file);
       if (error) {
-        console.error(`${file.name}: ${error}`);
+        toast.error(`${file.name}: ${error}`);
       } else {
         const audioUrl = URL.createObjectURL(file);
         const nameWithoutExtension = file.name.replace(/\.[^/.]+$/, "");
@@ -183,6 +184,9 @@ export default function AudioUploadRecorder({
       }, 1000);
     } catch (error) {
       console.error("Failed to start recording:", error);
+      toast.error(
+        "Failed to start recording. Please check microphone permissions."
+      );
     }
   };
 
@@ -270,8 +274,13 @@ export default function AudioUploadRecorder({
     if (!files.length || uploading) return;
     setUploading(true);
 
+    // Reset progress for files that previously failed
+    setFiles((prev) =>
+      prev.map((f) => (f.error ? { ...f, progress: 0, error: undefined } : f))
+    );
+
     const uploadPromises = files
-      .filter((f) => !f.uploaded)
+      .filter((f) => !f.uploaded && !f.error)
       .map(async (f) => {
         const formData = new FormData();
 
@@ -298,6 +307,11 @@ export default function AudioUploadRecorder({
         }
 
         try {
+          // Update progress to show upload starting
+          setFiles((prev) =>
+            prev.map((x) => (x.id === f.id ? { ...x, progress: 10 } : x))
+          );
+
           const response = await fetch(
             `${uploadUrl}/${organizationId}/voice-clone`,
             {
@@ -319,7 +333,7 @@ export default function AudioUploadRecorder({
             )
           );
 
-          console.log(`${f.displayName} uploaded successfully`, responseData);
+          toast.success(`${f.displayName} uploaded successfully`);
 
           // Call success callback with uploaded file and metadata
           if (onUploadComplete) {
@@ -344,7 +358,7 @@ export default function AudioUploadRecorder({
             )
           );
 
-          console.error(`${f.displayName} upload failed:`, error);
+          toast.error(`${f.displayName} upload failed: ${errorMessage}`);
           return { success: false, file: f, error: errorMessage };
         }
       });
@@ -360,13 +374,14 @@ export default function AudioUploadRecorder({
       const failed = results.length - successful;
 
       if (successful > 0) {
-        console.log(`Successfully uploaded ${successful} file(s)`);
+        toast.success(`Successfully uploaded ${successful} file(s)`);
       }
       if (failed > 0) {
-        console.error(`Failed to upload ${failed} file(s)`);
+        toast.error(`Failed to upload ${failed} file(s)`);
       }
     } catch (error) {
       console.error("Upload process failed:", error);
+      toast.error("Upload process failed");
     } finally {
       setUploading(false);
     }
@@ -386,6 +401,7 @@ export default function AudioUploadRecorder({
       setPlayingId(null);
     }
     setFiles((prev) => prev.filter((f) => f.id !== id));
+    toast.success("File removed");
   };
 
   const clearAll = () => {
@@ -397,6 +413,7 @@ export default function AudioUploadRecorder({
     audioRefs.current.clear();
     setPlayingId(null);
     setFiles([]);
+    toast.success("All files cleared");
   };
 
   const formatTime = (seconds: number) => {
@@ -414,43 +431,44 @@ export default function AudioUploadRecorder({
   };
 
   return (
-    <div className="bg-white rounded-3xl shadow-2xl shadow-slate-200/50 p-8 max-w-4xl mx-auto">
+    <>
       {/* Header */}
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-slate-800 mb-2">
+        <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
           Audio Upload & Recording Studio
         </h2>
-        <p className="text-slate-500">
-          Record audio, drag & drop files, or select files to upload (max{" "}
-          {maxFiles})
+        <p className="text-slate-500 text-sm">
+          Record audio or drag & drop / select files to upload (max{" "}
+          <strong>{maxFiles}</strong>
+          ). Minimum <strong>5</strong> seconds required.
         </p>
       </div>
 
       {/* Recording Controls */}
-      <div className="bg-gradient-to-r from-red-50 to-pink-50 rounded-2xl p-6 mb-6 border border-red-100">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3">
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-6 mb-6 border border-blue-200">
+        <div className="flex items-center justify-center">
+          <div className="flex items-center justify-center gap-4">
+            <div className="flex flex-col justify-center items-center gap-3">
               {!isRecording ? (
                 <button
                   onClick={startRecording}
-                  className="bg-red-500 hover:bg-red-600 text-white p-3 rounded-full transition-all duration-200 hover:scale-105 shadow-lg"
+                  className="bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-full transition-all duration-200 hover:scale-105 shadow-lg shadow-blue-200"
                   disabled={uploading}
                 >
-                  <Mic className="w-6 h-6" />
+                  <Mic className="size-12" />
                 </button>
               ) : (
                 <button
                   onClick={stopRecording}
-                  className="bg-red-600 text-white p-3 rounded-full animate-pulse shadow-lg"
+                  className="bg-blue-600 text-white p-4 rounded-full animate-pulse shadow-lg shadow-blue-300"
                 >
-                  <Square className="w-6 h-6" />
+                  <Square className="size-12" />
                 </button>
               )}
-              <div className="text-lg font-semibold text-slate-700">
+              <div className="text-lg font-semibold text-slate-700 ">
                 {isRecording ? (
                   <span className="flex items-center gap-2">
-                    <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                    <div className="size-4 bg-blue-500 rounded-full animate-pulse"></div>
                     Recording: {formatTime(recordingTime)}
                   </span>
                 ) : (
@@ -467,7 +485,7 @@ export default function AudioUploadRecorder({
         className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 ${
           isDragOver
             ? "border-blue-500 bg-blue-50 scale-[1.01] shadow-lg"
-            : "border-slate-300 hover:border-slate-400 hover:bg-slate-50"
+            : "border-blue-200 hover:border-blue-300 hover:bg-blue-50"
         }`}
         onDragOver={(e) => {
           e.preventDefault();
@@ -480,10 +498,10 @@ export default function AudioUploadRecorder({
         onDrop={handleDrop}
       >
         <div className="flex flex-col items-center space-y-4">
-          <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center">
+          <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center">
             <LucideCloudUpload
               className={`w-10 h-10 ${
-                isDragOver ? "text-blue-500 animate-bounce" : "text-slate-500"
+                isDragOver ? "text-blue-500 animate-bounce" : "text-blue-400"
               }`}
             />
           </div>
@@ -499,7 +517,7 @@ export default function AudioUploadRecorder({
             <button
               onClick={() => inputRef.current?.click()}
               disabled={uploading}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-105 shadow-lg flex items-center gap-2"
+              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-105 shadow-lg shadow-blue-300 flex items-center gap-2"
             >
               <Plus className="w-5 h-5" /> Select Files
             </button>
@@ -527,7 +545,7 @@ export default function AudioUploadRecorder({
             {files.map((f) => (
               <div
                 key={f.id}
-                className="bg-slate-50 hover:bg-slate-100 p-6 rounded-xl shadow-sm border transition-all duration-200"
+                className="bg-slate-50 hover:bg-slate-100 p-6 rounded-xl shadow-sm border border-blue-100 transition-all duration-200"
               >
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-3 flex-1">
@@ -581,7 +599,7 @@ export default function AudioUploadRecorder({
                           </div>
                         )}
                         {f.isRecording && (
-                          <span className="ml-2 text-xs bg-red-100 text-red-600 px-2 py-1 rounded-full">
+                          <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
                             Recorded
                           </span>
                         )}
@@ -736,16 +754,18 @@ export default function AudioUploadRecorder({
           </button>
           <button
             onClick={handleUpload}
-            disabled={uploading || !files.some((f) => !f.uploaded)}
+            disabled={uploading || !files.some((f) => !f.uploaded && !f.error)}
             className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold transition-all duration-200 hover:scale-105 shadow-lg flex items-center gap-2 disabled:opacity-50"
           >
             <Upload className="w-5 h-5" />
             {uploading
               ? "Uploading..."
-              : `Upload ${files.filter((f) => !f.uploaded).length} Files`}
+              : `Upload ${
+                  files.filter((f) => !f.uploaded && !f.error).length
+                } Files`}
           </button>
         </div>
       )}
-    </div>
+    </>
   );
 }
