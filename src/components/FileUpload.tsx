@@ -16,6 +16,7 @@ import {
 import React, { ChangeEvent, DragEvent, useRef, useState } from "react";
 import Button from "./Button";
 import { toast } from "sonner";
+import { useAuth } from "./AuthProvider";
 
 type FileWithProgress = {
   id: string;
@@ -51,6 +52,9 @@ export default function FileUpload({
   const [uploading, setUploading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const me = useAuth();
+  console.log(me?.token);
 
   const validateFile = (file: File) => {
     if (file.size > maxSize * 1024 * 1024) return `File exceeds ${maxSize}MB`;
@@ -102,17 +106,27 @@ export default function FileUpload({
     setUploading(true);
 
     for (const f of files) {
-      if (f.uploaded) continue; // skip already uploaded
+      if (f.uploaded) continue; 
 
       const formData = new FormData();
-      formData.append("file", f.file);
-      if (payload.organizationId)
-        formData.append("organizationId", payload.organizationId);
+      // 🔑 If it's human agent upload
+      if (uploadUrl.includes("/company-docs")) {
+        formData.append("document", f.file);
+        formData.append("data", JSON.stringify({ docFor: "AGENT" }));
+      } else {
+        // AI agent upload
+        formData.append("file", f.file);
+        if (payload.organizationId)
+          formData.append("organizationId", payload.organizationId);
+      }
 
       try {
         await axios.post(uploadUrl, formData, {
-          // headers: { "Content-Type": "multipart/form-data" },
-           withCredentials: true, 
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `${me?.token}`,
+          },
+          withCredentials: true,
           onUploadProgress: (e) => {
             const progress = Math.round(
               (e.loaded * 100) / (e.total || f.file.size)
