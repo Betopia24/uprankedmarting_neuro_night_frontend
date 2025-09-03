@@ -77,9 +77,13 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
       });
 
       const result = await response.json().catch(() => null);
-
       if (response.ok) {
-        toast.success(result?.message || "Registration successful!");
+        toast.success(
+          result?.message || "Please check your email for verification."
+        );
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        window.location.href =
+          "/auth/verify-otp?email=" + encodeURIComponent(formData.email);
         return;
       }
 
@@ -162,7 +166,7 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
                   <fieldset className="space-y-6">
                     <TextField
                       label="Full Name"
-                      name="full_name"
+                      name="name"
                       placeholder="Enter your name"
                     >
                       <LucideUser2 className="size-9 p-2.5 absolute right-0 bottom-0" />
