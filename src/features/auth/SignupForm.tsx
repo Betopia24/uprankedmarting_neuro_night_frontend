@@ -70,19 +70,32 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
 
   const onSubmit = async (formData: SignupFormSchema) => {
     try {
-      const response = await fetch(`/api/auth/signup`, {
+      const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
+      const result = await response.json().catch(() => null);
+
       if (response.ok) {
-        toast.success("Successfully logged in");
+        toast.success(result?.message || "Registration successful!");
+        return;
+      }
+
+      // ❌ Backend error response
+      if (result?.errors?.length) {
+        // Field-level validation errors
+        result.errors.forEach((err: { field: string; message: string }) => {
+          toast.error(`${err.field}: ${err.message}`);
+        });
+      } else {
+        // General error message
+        toast.error(result?.message || "Registration failed.");
       }
     } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      }
+      console.error("Signup Request Error:", error);
+      toast.error("Something went wrong. Please try again later.");
     }
   };
 
