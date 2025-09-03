@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { env } from "@/env";
 import { AuthProvider } from "@/components/AuthProvider";
 import { getServerAuth } from "@/lib/auth";
-import { OrganizationInfo } from "@/types/user";
+import { AuthMe } from "@/types/user";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -23,16 +23,12 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const data = await getServerAuth();
-  console.log("layout data:", data?.data.ownedOrganization);
   return (
     <html lang="en">
       <body className={`${inter.className} ${inter.variable} antialiased`}>
         <AuthProvider
           initialUser={data?.data || null}
-          initialToken={data?.accessToken}
-          organizationInfo={
-            (data?.data?.ownedOrganization as OrganizationInfo) || null
-          }
+          token={data?.accessToken}
         >
           {children}
         </AuthProvider>

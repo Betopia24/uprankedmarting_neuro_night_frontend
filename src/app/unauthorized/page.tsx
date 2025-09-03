@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ShieldX } from "lucide-react";
 import { loginPath } from "@/paths";
-import { Button } from "@/components/ui/button"; // shadcn/ui
+import { Button } from "@/components/ui/button";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
