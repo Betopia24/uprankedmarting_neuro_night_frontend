@@ -14,6 +14,7 @@ interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
+  token?: string | undefined;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,10 +22,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({
   children,
   initialUser,
+  token,
 }: {
   children: React.ReactNode;
   initialUser?: User | null;
-  initialToken?: string;
+  token?: string;
 }) {
   const [user, setUser] = useState<User | null>(initialUser || null);
 
@@ -68,6 +70,7 @@ export function AuthProvider({
         user,
         login,
         logout,
+        token,
       }}
     >
       {children}

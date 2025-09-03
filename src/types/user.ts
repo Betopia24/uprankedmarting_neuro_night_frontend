@@ -25,6 +25,7 @@ type OrganizationInfo = {
 export type AuthMe = {
   success: boolean;
   message: string;
+  accessToken: string;
   data: {
     id: string;
     name: string;
