@@ -13,7 +13,6 @@ import AuthButton from "./AuthButton";
 import Link from "next/link";
 import { toast } from "sonner";
 import { adminPaths } from "@/constants";
-import { AuthMe2 } from "@/types/user";
 
 type AuthResponse = {
   success: boolean;
@@ -27,6 +26,7 @@ type AuthResponse = {
     };
     accessToken?: string;
     refreshToken?: string;
+    isVerified?: boolean;
   };
   errors?: { field: string; message: string }[];
 };
@@ -54,12 +54,12 @@ export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
 
       const result: AuthResponse = await response.json().catch(() => null);
 
+      // ❌ Handle errors
       if (!response.ok || !result?.success) {
-        // ❌ Field-level validation errors (from server)
         if (result?.errors?.length) {
-          result.errors.forEach((err) => {
-            toast.error(`${err.field}: ${err.message}`);
-          });
+          result.errors.forEach((err) =>
+            toast.error(`${err.field}: ${err.message}`)
+          );
         } else {
           toast.error(
             result?.message || response.statusText || "Login failed."
@@ -68,15 +68,23 @@ export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
         return;
       }
 
-      // ✅ Success
+      // 🔹 Check if user is verified
+      if (result.data?.isVerified === false) {
+        toast.info("Please verify your account first.");
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        window.location.href =
+          "/auth/verify-otp?email=" + encodeURIComponent(formData.email);
+        return;
+      }
+
+      // ✅ Success: show message
       toast.success(result.message || "Login successful!");
 
-      // Redirect based on role
+      // 🔹 Redirect based on role
       const role = result.data?.user?.role;
       if (role && role in adminPaths) {
         window.location.href = adminPaths[role as keyof typeof adminPaths];
       } else {
-        // Fallback redirect if role missing
         window.location.href = "/";
       }
     } catch (error) {

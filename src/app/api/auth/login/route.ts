@@ -16,52 +16,66 @@ export async function POST(request: Request) {
     const body = await response.json().catch(() => null);
 
     if (!response.ok) {
-      // ❌ Forward backend error as-is
       return NextResponse.json(
         body ?? { success: false, message: response.statusText },
-        {
-          status: response.status,
-        }
+        { status: response.status }
       );
     }
 
-    // ✅ Successful login → extract tokens
     const { success, message, data } = body as {
       success: boolean;
       message: string;
-      data: { accessToken: string; refreshToken: string };
+      data: {
+        accessToken?: string;
+        refreshToken?: string;
+        isVerified?: boolean;
+      };
     };
 
     const { accessToken, refreshToken } = data;
 
-    // 🔹 Decode JWTs for expiry
-    const user: UserToken = JSON.parse(atob(accessToken.split(".")[1]));
-    const refreshTokenPayload: UserToken = JSON.parse(
-      atob(refreshToken.split(".")[1])
-    );
+    // 🔹 Decode JWTs if tokens exist
+    let user: UserToken | undefined;
+    let refreshTokenPayload: UserToken | undefined;
 
-    // 🔹 Build response, but still pass what server sent
+    if (accessToken) {
+      user = JSON.parse(atob(accessToken.split(".")[1]));
+    }
+
+    if (refreshToken) {
+      refreshTokenPayload = JSON.parse(atob(refreshToken.split(".")[1]));
+    }
+
+    // 🔹 Build response
     const nextResponse = NextResponse.json(
-      { success, message, data: { user, accessToken, refreshToken } },
+      {
+        success,
+        message,
+        data: { user, accessToken, refreshToken, isVerified: data.isVerified },
+      },
       { status: 200 }
     );
 
-    // 🔹 Set secure cookies
-    nextResponse.cookies.set("accessToken", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: user.exp * 1000, // NOTE: exp is in seconds, careful
-      path: "/",
-    });
+    // 🔹 Set cookies if tokens exist
+    if (accessToken && user) {
+      nextResponse.cookies.set("accessToken", accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: user.exp,
+        path: "/",
+      });
+    }
 
-    nextResponse.cookies.set("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: refreshTokenPayload.exp * 1000,
-      path: "/",
-    });
+    if (refreshToken && refreshTokenPayload) {
+      nextResponse.cookies.set("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: refreshTokenPayload.exp,
+        path: "/",
+      });
+    }
 
     return nextResponse;
   } catch (error: unknown) {

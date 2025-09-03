@@ -11,16 +11,65 @@ import { cn } from "@/lib/utils";
 import { AuthCard } from "./AuthForm";
 import AuthLayout from "./AuthLayout";
 
-export default function OTPForm() {
-  const [otp, setOtp] = useState("");
-  const [error, setError] = useState<string | null>(null);
+import { useSearchParams } from "next/navigation";
+import { env } from "@/env";
+import { toast } from "sonner";
 
-  const handleComplete = (value: string) => {
-    if (value === "1234") {
-      setError(null);
-      console.log("OTP Verified!");
-    } else {
-      setError("Invalid OTP. Try again.");
+export default function OTPForm() {
+  const searchParams = useSearchParams();
+  const encodedEmail = searchParams.get("email");
+  const email = encodedEmail ? decodeURIComponent(encodedEmail) : "";
+
+  const [otp, setOtp] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!email) {
+      toast.error("Email is missing.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/users/verify-otp`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, otp: Number(otp) }),
+        }
+      );
+
+      const result = await response.json().catch(() => null);
+
+      if (!response.ok || !result?.success) {
+        // Show field-level errors if any
+        if (result?.errors?.length) {
+          result.errors.forEach((err: { field: string; message: string }) =>
+            toast.error(`${err.field}: ${err.message}`)
+          );
+        } else {
+          toast.error(result?.message || "OTP verification failed.");
+        }
+        return;
+      }
+
+      // ✅ Success
+      toast.success(result.message || "OTP verified successfully!");
+      setOtp("");
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      window.location.href = "/auth/login";
+    } catch (error) {
+      console.error("Error verifying OTP:", error);
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Something went wrong. Please try again later.");
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -41,7 +90,6 @@ export default function OTPForm() {
               pattern="^[0-9]*$"
               value={otp}
               onChange={setOtp}
-              onComplete={handleComplete}
             >
               <InputOTPGroup className="gap-6">
                 <InputOTPSlot index={0} />
@@ -51,24 +99,16 @@ export default function OTPForm() {
               </InputOTPGroup>
             </InputOTP>
 
-            {error && <p className="text-sm text-red-500">{error}</p>}
-
             <Button
               type="button"
-              onClick={() => handleComplete(otp)}
-              disabled={otp.length !== 4}
+              onClick={handleSubmit}
+              disabled={otp.length !== 4 || isSubmitting}
               className={cn("w-full")}
             >
-              Verify OTP
+              {isSubmitting ? "Verifying..." : "Verify OTP"}
             </Button>
           </div>
         </AuthCard.Content>
-        {/* <AuthCard.Footer>
-          <AuthCard.Text>Need to start over?</AuthCard.Text>
-          <AuthCard.Link href={forgotPasswordPath()}>
-            Request Reset Link
-          </AuthCard.Link>
-        </AuthCard.Footer> */}
       </AuthCard>
     </AuthLayout>
   );
