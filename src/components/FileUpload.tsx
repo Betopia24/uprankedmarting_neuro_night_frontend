@@ -111,7 +111,8 @@ export default function FileUpload({
 
       try {
         await axios.post(uploadUrl, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
+          // headers: { "Content-Type": "multipart/form-data" },
+           withCredentials: true, 
           onUploadProgress: (e) => {
             const progress = Math.round(
               (e.loaded * 100) / (e.total || f.file.size)
