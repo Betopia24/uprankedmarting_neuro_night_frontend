@@ -8,6 +8,11 @@ export const dashboardNavigation = {
       href: paths.adminDashboardPath(),
     },
     {
+      name: "Number Management",
+      icon: "phone",
+      href: paths.adminNumberManagementPath(),
+    },
+    {
       name: "Agent Management",
       icon: "userCog",
       href: paths.adminAgentManagementPath(),

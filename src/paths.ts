@@ -23,6 +23,8 @@ export const adminAgentManagementPath = () =>
   `${adminDashboardPath()}/agent-management`;
 export const adminOrganizationManagementPath = () =>
   `${adminDashboardPath()}/organization-management`;
+export const adminNumberManagementPath = () =>
+  `${adminDashboardPath()}/number-management`;
 
 // organization dashboard paths
 export const organizationDashboardPath = () =>
