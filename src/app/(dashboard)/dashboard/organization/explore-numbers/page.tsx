@@ -174,9 +174,9 @@ export default async function CallManageAndLogsPage({
               })}
               <td>
                 <Link
-                  href={`${organizationBuyNumberPath()}?sid=${
+                  href={`${organizationBuyNumberPath()}?ts=${
                     item.sid
-                  }&orgId=${orgId}`}
+                  }&ci=${orgId}&np=${item.phoneNumber}`}
                 >
                   Buy
                 </Link>
