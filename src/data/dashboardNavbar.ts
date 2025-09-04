@@ -30,9 +30,9 @@ export const dashboardNavigation = {
       href: paths.organizationDashboardPath(),
     },
     {
-      name: "Buy A Number",
+      name: "Explore Numbers",
       icon: "phone",
-      href: paths.organizationBuyNumbersPath(),
+      href: paths.organizationExploreNumbersPath(),
     },
     {
       name: "Call Logs & Management",

@@ -30,8 +30,10 @@ export const adminNumberManagementPath = () =>
 export const organizationDashboardPath = () =>
   `${DASHBOARD_PREFIX}/organization`;
 //
-export const organizationBuyNumbersPath = () =>
-  `${organizationDashboardPath()}/buy-number`;
+export const organizationExploreNumbersPath = () =>
+  `${organizationDashboardPath()}/explore-numbers`;
+export const organizationBuyNumberPath = () =>
+  `${organizationExploreNumbersPath()}/buy-number`;
 export const organizationCallLogsPath = () =>
   `${organizationDashboardPath()}/call-manage-and-logs`;
 export const organizationAgentManagementPath = () =>
