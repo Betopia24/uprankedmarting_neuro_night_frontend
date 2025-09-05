@@ -9,7 +9,7 @@ export default async function CheckoutPage({
   searchParams,
 }: CheckoutPageProps) {
   const query = (await searchParams) ?? {};
-  const { pid: planId, ci, ts } = query;
+  const { pid: planId, ci, ts, type, np } = query;
 
   if (!planId || !ci || !ts) {
     notFound();
@@ -27,6 +27,18 @@ export default async function CheckoutPage({
   const only_ai = planData.data.planLevel === "only_ai";
 
   return (
-    <>{<Subscription only_ai={only_ai} planPrice={planData.data.amount} />}</>
+    <>
+      {
+        <Subscription
+          only_ai={only_ai}
+          planPrice={planData.data.amount}
+          planId={planId as string}
+          organizationId={ci as string}
+          sid={ts as string}
+          number={np as string}
+          planLevel={type as string}
+        />
+      }
+    </>
   );
 }

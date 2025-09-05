@@ -18,9 +18,22 @@ interface FormData {
 interface Subscription {
   only_ai: boolean;
   planPrice: number;
+  planId: string;
+  organizationId: string;
+  sid: string;
+  planLevel: string;
+  number: string;
 }
 
-const Subscription: React.FC<Subscription> = ({ only_ai, planPrice }) => {
+const Subscription: React.FC<Subscription> = ({
+  only_ai,
+  planPrice,
+  planId,
+  organizationId,
+  sid,
+  planLevel,
+  number,
+}) => {
   const [cardType, setCardType] = useState<CardType>("none");
   const [formData, setFormData] = useState<FormData>({
     cardNumber: "",
@@ -67,6 +80,23 @@ const Subscription: React.FC<Subscription> = ({ only_ai, planPrice }) => {
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>): void => {
     e.preventDefault();
     console.log("Form Data:", formData);
+    const readyData = {
+      subscription: {
+        planId,
+        organizationId,
+        sid,
+        planLevel,
+        purchasedNumber: number.toString().trim(),
+        numberOfAgents: formData.agentCount,
+      },
+      cardDetails: {
+        cardNumber: formData.cardNumber,
+        expiryDate: formData.expiryDate,
+        cvc: formData.cvc,
+        cardholderName: formData.cardholderName,
+      },
+    };
+    console.log("Ready Data:", readyData);
     // Handle form submission here
   };
 
