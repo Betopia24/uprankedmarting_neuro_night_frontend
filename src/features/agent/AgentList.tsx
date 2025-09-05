@@ -2,7 +2,7 @@ import { Button } from "@/components";
 import AgentProfileCard from "./AgentProfileCard";
 import { LucideSearch } from "lucide-react";
 
-export default function AgentList() {
+export default function AgentList({ children }: React.PropsWithChildren) {
   return (
     <div className="mt-6 space-y-10 max-w-6xlx mx-auto">
       <div className="border inline-flex gap-1 focus-within:text-blue-500 items-center px-2 py-1 rounded-md focus-within:border-blue-500">
@@ -13,7 +13,7 @@ export default function AgentList() {
         />
       </div>
       <Wrapper>
-        <Tabs />
+        {children}
         <AgentListWrapper>
           <AgentProfileCard />
           <AgentProfileCard />
@@ -36,19 +36,6 @@ function AgentListWrapper({ children }: React.PropsWithChildren) {
   return (
     <div className="grid grid-cols-1  lg:grid-cols-2 xl:grid-cols-4 gap-6">
       {children}
-    </div>
-  );
-}
-
-function Tabs() {
-  return (
-    <div>
-      <Button variant="secondary" size="sm" className="rounded-none">
-        View Agent List
-      </Button>
-      <Button variant="secondary" size="sm" className="rounded-none">
-        View My Agent List
-      </Button>
     </div>
   );
 }
