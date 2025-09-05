@@ -44,6 +44,13 @@ export interface Organization {
   industry: string;
 }
 
+export interface Metadata {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
 type ViewType = "unassigned" | "my-agents";
 
 type Props = {
@@ -76,6 +83,7 @@ export default async function AgentManagementPath({ searchParams }: Props) {
 
   const agents = await response.json();
   const users: AgentUser[] = agents.data.users ?? [];
+  const metadata: Metadata = agents.data.metadata;
 
   return (
     <div className="space-y-4">
