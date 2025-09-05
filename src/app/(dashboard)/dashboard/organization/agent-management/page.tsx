@@ -1,16 +1,11 @@
-import Button from "@/components/Button";
-import Heading from "@/components/Heading";
-import RatingViewer from "@/components/RatingViewer";
+// app/agent-management/page.tsx
 import { getServerAuth } from "@/lib/auth";
-import { cn } from "@/lib/utils";
-import Image from "next/image";
-import Link from "next/link";
 import AgentsList from "./_components/AgentsList";
+import Tabs from "./_components/Tabs";
 
 // -----------------------------
 // Types
 // -----------------------------
-
 export interface AgentUser {
   id: string;
   name: string;
@@ -22,7 +17,7 @@ export interface AgentUser {
 }
 
 export interface Agent {
-  AgentFeedbacks: any[];
+  AgentFeedbacks: Record<string, string>[];
   skills: string[];
   totalCalls: number;
   isAvailable: boolean;
@@ -52,74 +47,126 @@ export interface Metadata {
   totalPages: number;
 }
 
-type ViewType = "unassigned" | "my-agents";
+export type ViewType = "unassigned" | "my-agents";
+
+interface AgentsApiSuccess {
+  data: {
+    users: AgentUser[];
+    metadata: Metadata;
+  };
+}
+
+interface AgentsApiError {
+  error: string;
+}
+
+interface AgentsResult {
+  users: AgentUser[];
+  metadata: Metadata;
+  error: string | null;
+}
 
 type Props = {
-  searchParams: Promise<{ view?: ViewType }>;
+  searchParams: Promise<{ view?: ViewType; limit?: string }>;
 };
+
+// -----------------------------
+// Safe Fetcher
+// -----------------------------
+async function fetchAgents(
+  view: ViewType,
+  limit?: number
+): Promise<AgentsResult> {
+  const auth = await getServerAuth();
+  if (!auth?.accessToken) {
+    return {
+      users: [],
+      metadata: { page: 1, limit: 0, total: 0, totalPages: 0 },
+      error: "Missing access token",
+    };
+  }
+
+  const apiBase = process.env.API_BASE_URL;
+  if (!apiBase) {
+    return {
+      users: [],
+      metadata: { page: 1, limit: 0, total: 0, totalPages: 0 },
+      error: "Missing API_BASE_URL",
+    };
+  }
+
+  const query = new URLSearchParams();
+  query.set("viewType", view);
+  if (limit && limit > 0) query.set("limit", String(limit));
+
+  let response: Response;
+  try {
+    response = await fetch(`${apiBase}/agents?${query.toString()}`, {
+      headers: { Authorization: `${auth.accessToken}` },
+      cache: "no-store",
+    });
+  } catch (err) {
+    return {
+      users: [],
+      metadata: { page: 1, limit: 0, total: 0, totalPages: 0 },
+      error: `Network error: ${(err as Error).message}`,
+    };
+  }
+
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    return {
+      users: [],
+      metadata: { page: 1, limit: 0, total: 0, totalPages: 0 },
+      error: `Failed to fetch agents. Status: ${response.status}. Body: ${text}`,
+    };
+  }
+
+  let json: AgentsApiSuccess | AgentsApiError;
+  try {
+    json = (await response.json()) as AgentsApiSuccess | AgentsApiError;
+  } catch {
+    return {
+      users: [],
+      metadata: { page: 1, limit: 0, total: 0, totalPages: 0 },
+      error: "Invalid JSON response from API",
+    };
+  }
+
+  if ("error" in json) {
+    return {
+      users: [],
+      metadata: { page: 1, limit: 0, total: 0, totalPages: 0 },
+      error: json.error,
+    };
+  }
+
+  return {
+    users: Array.isArray(json.data.users) ? json.data.users : [],
+    metadata: json.data.metadata ?? {
+      page: 1,
+      limit: limit ?? 10,
+      total: 0,
+      totalPages: 0,
+    },
+    error: null,
+  };
+}
 
 // -----------------------------
 // Page Component
 // -----------------------------
-
-export default async function AgentManagementPath({ searchParams }: Props) {
-  const auth = await getServerAuth();
-
+export default async function AgentManagementPage({ searchParams }: Props) {
   const params = await searchParams;
   const viewParam: ViewType = params.view ?? "unassigned";
+  const limit = params.limit ? parseInt(params.limit, 10) : 10;
 
-  const response = await fetch(
-    `${process.env.API_BASE_URL}/agents?viewType=${viewParam}`,
-    {
-      headers: {
-        Authorization: `${auth?.accessToken}`,
-      },
-      cache: "no-store",
-    }
-  );
+  const { users, metadata, error } = await fetchAgents(viewParam, limit);
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch agents");
+  if (error) {
+    // Next.js will catch this in app/agent-management/error.tsx
+    throw new Error(error);
   }
 
-  const agents = await response.json();
-  const users: AgentUser[] = agents.data.users ?? [];
-  const metadata: Metadata = agents.data.metadata;
-
-  return (
-    <div className="space-y-4">
-      <Tabs selectedTab={viewParam} />
-      <AgentsList users={users} viewParam={viewParam} />
-    </div>
-  );
-}
-
-// -----------------------------
-// Tabs
-// -----------------------------
-
-function Tabs({ selectedTab }: { selectedTab: ViewType }) {
-  return (
-    <div className="flex gap-4">
-      <Link
-        className={cn(
-          "px-3 py-1 rounded",
-          selectedTab === "unassigned" && "bg-primary text-white"
-        )}
-        href={{ pathname: "agent-management", query: { view: "unassigned" } }}
-      >
-        View Agent List
-      </Link>
-
-      <Link
-        className={cn(
-          "px-3 py-1 rounded",
-          selectedTab === "my-agents" && "bg-primary text-white"
-        )}
-        href={{ pathname: "agent-management", query: { view: "my-agents" } }}
-      >
-        View My Agent List
-      </Link>
-    </div>
-  );
+  return <AgentsList users={users} viewParam={viewParam} metadata={metadata} />;
 }
