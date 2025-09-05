@@ -10,6 +10,7 @@ import {
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
+import { useAuth } from "@/components/AuthProvider";
 
 // Types
 type CardType = "visa" | "mastercard" | "amex" | "none";
@@ -28,7 +29,10 @@ interface SubscriptionProps {
   only_ai: boolean;
   planPrice: number;
   planLevel: string;
+  planId: string;
   number: string;
+  organizationId: string;
+  sid: string;
   onBack?: () => void;
 }
 
@@ -43,8 +47,12 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
   planPrice,
   planLevel,
   number,
+  planId,
+  organizationId,
+  sid,
   onBack,
 }) => {
+  const auth = useAuth();
   const stripe = useStripe();
   const elements = useElements();
 
@@ -99,6 +107,33 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
     }
 
     setIsLoading(true);
+
+    const subscriptionData = {
+      planId,
+      organizationId,
+      sid,
+      planLevel,
+      purchasedNumber: number.toString().trim(),
+      numberOfAgents: formData.agentCount,
+    };
+
+    // below code adds payment in the stripe as incomplete and working in popst man...
+    // current below code is working in my frontend but no error but not adding anything
+
+    const createdSubscriptionResponse = await fetch(
+      process.env.NEXT_PUBLIC_API_URL + "/subscriptions/create-subscription",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `${auth.token}`,
+        },
+        body: JSON.stringify(subscriptionData),
+      }
+    );
+    const createdSubscription = await createdSubscriptionResponse.json();
+    console.log("Created subscription:", { createdSubscription });
+
     try {
       const { paymentMethod, error } = await stripe.createPaymentMethod({
         type: "card",
