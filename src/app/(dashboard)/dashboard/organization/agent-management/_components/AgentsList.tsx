@@ -5,12 +5,20 @@ import SearchBar from "./SearchBar";
 import Tabs from "./Tabs";
 import AgentProfileCard from "./AgentProfileCard";
 import { useState } from "react";
+import {
+  RemoveAgentButton,
+  SelectAgentButton,
+} from "@/features/organization/agent-management/AgentButton";
 
 export default function AgentsList({ users, viewParam }: any) {
   const [search, setSearch] = useState("");
-  const filteredUsers = users.filter((user: AgentUser) => {
-    return user.name.toLowerCase().includes(search.toLowerCase());
-  });
+  const filteredUsers = users
+    .filter((user: AgentUser) => {
+      return user.name.toLowerCase().includes(search.toLowerCase());
+    })
+    .filter((user: AgentUser) => {
+      return user.Agent?.assignments[0]?.status !== "REJECTED";
+    });
 
   return (
     <div className="space-y-4">
@@ -26,6 +34,30 @@ export default function AgentsList({ users, viewParam }: any) {
               key={user.id}
               user={user}
               isSelected={viewParam === "my-agents"}
+              action={
+                viewParam === "my-agents" ? (
+                  <RemoveAgentButton
+                    agentId={user.id}
+                    pending={
+                      user?.Agent?.assignments[0]?.status ===
+                      "REMOVAL_REQUESTED"
+                    }
+                  >
+                    {user?.Agent?.assignments[0]?.status === "REMOVAL_REQUESTED"
+                      ? "Pending"
+                      : "Remove"}
+                  </RemoveAgentButton>
+                ) : (
+                  <SelectAgentButton
+                    agentId={user.id}
+                    pending={user?.Agent?.assignments[0]?.status === "PENDING"}
+                  >
+                    {user?.Agent?.assignments[0]?.status === "PENDING"
+                      ? "Pending"
+                      : "Select"}
+                  </SelectAgentButton>
+                )
+              }
             />
           ))}
         </div>

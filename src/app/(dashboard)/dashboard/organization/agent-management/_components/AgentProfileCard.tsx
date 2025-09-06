@@ -7,9 +7,11 @@ import Button from "@/components/Button";
 export default function AgentProfileCard({
   user,
   isSelected,
+  action,
 }: {
   user: AgentUser;
   isSelected: boolean;
+  action: React.ReactNode;
 }) {
   return (
     <div className="bg-white rounded shadow-xl p-4 overflow-hidden">
@@ -43,15 +45,7 @@ export default function AgentProfileCard({
 
         <p className="text-xs">{user.bio}</p>
 
-        <div className="text-center">
-          {!isSelected ? (
-            <Button size="sm">Select</Button>
-          ) : (
-            <Button size="sm" className="bg-yellow-500 px-8">
-              Remove
-            </Button>
-          )}
-        </div>
+        <div className="text-center">{action}</div>
 
         <div className="flex items-center gap-2 justify-between flex-wrap border-t border-t-gray-200 py-4 px-8">
           <Stats
