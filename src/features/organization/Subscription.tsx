@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import { FaCcVisa, FaCcMastercard, FaCcAmex } from "react-icons/fa6";
 import { IoArrowBack, IoInformationCircle } from "react-icons/io5";
-import { loadStripe, Stripe } from "@stripe/stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
   CardElement,
@@ -95,38 +95,41 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
 
   const handleBackClick = () => onBack && onBack();
 
-  // ----------------- SUBMIT -----------------
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
+  // ----------------- CREATE PAYMENT METHOD -----------------
+  const createPaymentMethod = async () => {
     if (!stripe || !elements) {
-      alert("Stripe or Elements not initialized");
-      return;
+      throw new Error("Stripe or Elements not initialized");
     }
 
     const cardElement = elements.getElement(CardElement);
     if (!cardElement) {
-      alert("Card Element not found");
-      return;
+      throw new Error("Card Element not found");
     }
+
+    const { paymentMethod, error } = await stripe.createPaymentMethod({
+      type: "card",
+      card: cardElement,
+      billing_details: { name: formData.cardholderName },
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return paymentMethod;
+  };
+
+  // ----------------- SUBMIT -----------------
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
 
     setIsLoading(true);
 
     try {
-      // Create PaymentMethod
-      const { paymentMethod, error: paymentMethodError } =
-        await stripe.createPaymentMethod({
-          type: "card",
-          card: cardElement,
-          billing_details: { name: formData.cardholderName },
-        });
+      // 1) Create a PaymentMethod from the card input
+      const paymentMethod = await createPaymentMethod();
 
-      if (paymentMethodError) {
-        throw new Error(paymentMethodError.message);
-      }
-
-      console.log("PaymentMethod created:", paymentMethod);
-
-      // Send subscription data with paymentMethod.id
+      // 2) Ask your API to create the subscription and PI on the server
       const subscriptionData = {
         planId,
         organizationId,
@@ -134,7 +137,7 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
         planLevel,
         purchasedNumber: number.toString().trim(),
         numberOfAgents: formData.agentCount,
-        paymentMethodId: paymentMethod.id,
+        paymentMethodId: paymentMethod.id, // <-- server needs this
       };
 
       const createdSubscriptionResponse = await fetch(
@@ -149,36 +152,45 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
         }
       );
 
-      const createdSubscription = await createdSubscriptionResponse.json();
+      const created = await createdSubscriptionResponse.json();
 
-      if (!createdSubscriptionResponse.ok) {
-        throw new Error(
-          createdSubscription.message || "Failed to create subscription"
-        );
+      if (!createdSubscriptionResponse.ok || created?.success === false) {
+        throw new Error(created?.message || "Failed to create subscription");
       }
 
-      // Handle 3D Secure if needed
-      if (
-        createdSubscription.status === "incomplete" &&
-        createdSubscription.latest_invoice?.payment_intent?.client_secret
-      ) {
-        const { error: confirmError } = await stripe.confirmCardPayment(
-          createdSubscription.latest_invoice.payment_intent.client_secret,
-          {
-            payment_method: paymentMethod.id,
-          }
-        );
+      // 3) Confirm the PaymentIntent client-side using the provided clientSecret
+      //    Stripe requires both the client_secret and the payment_method.
+      const clientSecret: string | undefined = created?.data?.clientSecret;
 
-        if (confirmError) {
-          throw new Error(confirmError.message);
-        }
+      if (!clientSecret) {
+        throw new Error("Missing client secret from server response.");
       }
 
-      console.log("Created subscription:", createdSubscription);
-      alert("Subscription created successfully!");
+      if (!stripe) {
+        throw new Error("Stripe not initialized");
+      }
+
+      // Use the PaymentMethod we just created
+      const { error: confirmError, paymentIntent } =
+        await stripe.confirmCardPayment(clientSecret, {
+          payment_method: paymentMethod.id,
+        });
+
+      if (confirmError) {
+        // Common 3DS/authentication errors will land here
+        throw new Error(confirmError.message);
+      }
+
+      // Optional: you can inspect paymentIntent?.status === 'succeeded'
+      // and (if you have an endpoint) notify your backend to finalize/refresh state.
+
+      console.log("PaymentIntent after confirmation:", paymentIntent);
+      console.log("Created subscription:", created?.data?.subscription);
+
+      alert("Subscription created and payment confirmed successfully!");
     } catch (err: any) {
       console.error("Error:", err);
-      alert(err.message || "Failed to process subscription");
+      alert(err?.message || "Failed to process subscription");
     } finally {
       setIsLoading(false);
     }
