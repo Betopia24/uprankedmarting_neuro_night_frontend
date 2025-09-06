@@ -98,7 +98,10 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
   // ----------------- SUBMIT -----------------
   const handleSubmit = async () => {
     if (!validateForm()) return;
-    if (!stripe || !elements) return;
+    if (!stripe || !elements) {
+      alert("Stripe or Elements not initialized");
+      return;
+    }
 
     const cardElement = elements.getElement(CardElement);
     if (!cardElement) {
@@ -108,46 +111,74 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
 
     setIsLoading(true);
 
-    const subscriptionData = {
-      planId,
-      organizationId,
-      sid,
-      planLevel,
-      purchasedNumber: number.toString().trim(),
-      numberOfAgents: formData.agentCount,
-    };
-
-    // below code adds payment in the stripe as incomplete and working in popst man...
-    // current below code is working in my frontend but no error but not adding anything
-
-    const createdSubscriptionResponse = await fetch(
-      process.env.NEXT_PUBLIC_API_URL + "/subscriptions/create-subscription",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `${auth.token}`,
-        },
-        body: JSON.stringify(subscriptionData),
-      }
-    );
-    const createdSubscription = await createdSubscriptionResponse.json();
-    console.log("Created subscription:", { createdSubscription });
-
     try {
-      const { paymentMethod, error } = await stripe.createPaymentMethod({
-        type: "card",
-        card: cardElement,
-        billing_details: { name: formData.cardholderName },
-      });
+      // Create PaymentMethod
+      const { paymentMethod, error: paymentMethodError } =
+        await stripe.createPaymentMethod({
+          type: "card",
+          card: cardElement,
+          billing_details: { name: formData.cardholderName },
+        });
 
-      if (error) throw error;
+      if (paymentMethodError) {
+        throw new Error(paymentMethodError.message);
+      }
 
       console.log("PaymentMethod created:", paymentMethod);
-      alert(`PaymentMethod created! ID: ${paymentMethod?.id}`);
+
+      // Send subscription data with paymentMethod.id
+      const subscriptionData = {
+        planId,
+        organizationId,
+        sid,
+        planLevel,
+        purchasedNumber: number.toString().trim(),
+        numberOfAgents: formData.agentCount,
+        paymentMethodId: paymentMethod.id,
+      };
+
+      const createdSubscriptionResponse = await fetch(
+        process.env.NEXT_PUBLIC_API_URL + "/subscriptions/create-subscription",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `${auth.token}`,
+          },
+          body: JSON.stringify(subscriptionData),
+        }
+      );
+
+      const createdSubscription = await createdSubscriptionResponse.json();
+
+      if (!createdSubscriptionResponse.ok) {
+        throw new Error(
+          createdSubscription.message || "Failed to create subscription"
+        );
+      }
+
+      // Handle 3D Secure if needed
+      if (
+        createdSubscription.status === "incomplete" &&
+        createdSubscription.latest_invoice?.payment_intent?.client_secret
+      ) {
+        const { error: confirmError } = await stripe.confirmCardPayment(
+          createdSubscription.latest_invoice.payment_intent.client_secret,
+          {
+            payment_method: paymentMethod.id,
+          }
+        );
+
+        if (confirmError) {
+          throw new Error(confirmError.message);
+        }
+      }
+
+      console.log("Created subscription:", createdSubscription);
+      alert("Subscription created successfully!");
     } catch (err: any) {
-      console.error(err);
-      alert(err.message || "Failed to create PaymentMethod");
+      console.error("Error:", err);
+      alert(err.message || "Failed to process subscription");
     } finally {
       setIsLoading(false);
     }
