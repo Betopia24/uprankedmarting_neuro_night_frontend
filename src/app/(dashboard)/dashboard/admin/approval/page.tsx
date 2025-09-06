@@ -1,51 +1,9 @@
 import { getServerAuth } from "@/lib/auth";
 import AgentsList from "@/features/organization/agent-management/AgentsList";
-
-// -----------------------------
-// Types
-// -----------------------------
-export interface AgentUser {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  bio: string;
-  image: string;
-  Agent: Agent;
-}
-
-export interface Agent {
-  AgentFeedbacks: Record<string, string>[];
-  skills: string[];
-  totalCalls: number;
-  isAvailable: boolean;
-  status: string;
-  assignTo: string;
-  assignments: Assignment[];
-  organization: Organization;
-  avgRating: number;
-  totalFeedbacks: number;
-}
-
-export interface Assignment {
-  id: string;
-  status: string;
-}
-
-export interface Organization {
-  id: string;
-  name: string;
-  industry: string;
-}
-
-export interface Metadata {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-}
-
-export type ViewType = "unassigned" | "my-agents";
+import {
+  AgentUser,
+  Metadata,
+} from "@/features/organization/agent-management/types";
 
 interface AgentsApiSuccess {
   data: {
@@ -65,16 +23,10 @@ interface AgentsResult {
 }
 
 type Props = {
-  searchParams: Promise<{ view?: ViewType; limit?: string }>;
+  searchParams: Promise<{ limit?: string }>;
 };
 
-// -----------------------------
-// Safe Fetcher
-// -----------------------------
-async function fetchAgents(
-  view: ViewType,
-  limit?: number
-): Promise<AgentsResult> {
+async function approvalRequest(limit?: number): Promise<AgentsResult> {
   const auth = await getServerAuth();
   if (!auth?.accessToken) {
     return {
@@ -94,12 +46,11 @@ async function fetchAgents(
   }
 
   const query = new URLSearchParams();
-  query.set("viewType", view);
   if (limit && limit > 0) query.set("limit", String(limit));
 
   let response: Response;
   try {
-    response = await fetch(`${apiBase}/agents?${query.toString()}`, {
+    response = await fetch(`${apiBase}/agents/get-all-assignments-request`, {
       headers: { Authorization: `${auth.accessToken}` },
       cache: "no-store",
     });
@@ -153,14 +104,17 @@ async function fetchAgents(
 
 export default async function AgentManagementPage({ searchParams }: Props) {
   const params = await searchParams;
-  const viewParam: ViewType = params.view ?? "unassigned";
   const limit = params.limit ? parseInt(params.limit, 10) : 10;
 
-  const { users, metadata, error } = await fetchAgents(viewParam, limit);
+  const { users, metadata, error } = await approvalRequest(limit);
+
+  console.log(users);
 
   if (error) {
     throw new Error(error);
   }
 
-  return <AgentsList users={users} viewParam={viewParam} metadata={metadata} />;
+  return;
+
+  // return <AgentsList users={users} metadata={metadata} />;
 }

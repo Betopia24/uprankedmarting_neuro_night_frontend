@@ -1,8 +1,7 @@
 import Image from "next/image";
-import { AgentUser } from "../page";
+import { AgentUser } from "./types";
 import Heading from "@/components/Heading";
 import RatingViewer from "@/components/RatingViewer";
-import Button from "@/components/Button";
 
 export default function AgentProfileCard({
   user,
