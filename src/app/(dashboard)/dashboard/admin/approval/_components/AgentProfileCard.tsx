@@ -1,17 +1,9 @@
 import Image from "next/image";
-import { AgentUser } from "./types";
+import { AgentUser } from "@/types/agent";
 import Heading from "@/components/Heading";
 import RatingViewer from "@/components/RatingViewer";
 
-export default function AgentProfileCard({
-  user,
-  isSelected,
-  action,
-}: {
-  user: AgentUser;
-  isSelected: boolean;
-  action: React.ReactNode;
-}) {
+export default function AgentProfileCard({ user }: { user: AgentUser }) {
   return (
     <div className="bg-white rounded shadow-xl p-4 overflow-hidden">
       <div className="max-w-84 mx-auto space-y-3 text-center">
@@ -44,7 +36,7 @@ export default function AgentProfileCard({
 
         <p className="text-xs">{user.bio}</p>
 
-        <div className="text-center">{action}</div>
+        {/* <div className="text-center">{action}</div> */}
 
         <div className="flex items-center gap-2 justify-between flex-wrap border-t border-t-gray-200 py-4 px-8">
           <Stats

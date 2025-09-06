@@ -1,9 +1,50 @@
 import { getServerAuth } from "@/lib/auth";
-import AgentsList from "@/features/organization/agent-management/AgentsList";
-import {
-  AgentUser,
-  Metadata,
-} from "@/features/organization/agent-management/types";
+import AgentsList from "./_components/AgentsList";
+import { StatusType } from "@/types/agent";
+
+// -----------------------------
+// Types
+// -----------------------------
+export interface AgentUser {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  bio: string;
+  image: string;
+  Agent: Agent;
+}
+
+export interface Agent {
+  AgentFeedbacks: Record<string, string>[];
+  skills: string[];
+  totalCalls: number;
+  isAvailable: boolean;
+  status: string;
+  assignTo: string;
+  assignments: Assignment[];
+  organization: Organization;
+  avgRating: number;
+  totalFeedbacks: number;
+}
+
+export interface Assignment {
+  id: string;
+  status: string;
+}
+
+export interface Organization {
+  id: string;
+  name: string;
+  industry: string;
+}
+
+export interface Metadata {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
 
 interface AgentsApiSuccess {
   data: {
@@ -23,10 +64,16 @@ interface AgentsResult {
 }
 
 type Props = {
-  searchParams: Promise<{ limit?: string }>;
+  searchParams: Promise<{ status?: StatusType; limit?: string }>;
 };
 
-async function approvalRequest(limit?: number): Promise<AgentsResult> {
+// -----------------------------
+// Safe Fetcher
+// -----------------------------
+async function fetchAgents(
+  view: StatusType,
+  limit?: number
+): Promise<AgentsResult> {
   const auth = await getServerAuth();
   if (!auth?.accessToken) {
     return {
@@ -46,14 +93,18 @@ async function approvalRequest(limit?: number): Promise<AgentsResult> {
   }
 
   const query = new URLSearchParams();
+  query.set("viewType", view);
   if (limit && limit > 0) query.set("limit", String(limit));
 
   let response: Response;
   try {
-    response = await fetch(`${apiBase}/agents/get-all-assignments-request`, {
-      headers: { Authorization: `${auth.accessToken}` },
-      cache: "no-store",
-    });
+    response = await fetch(
+      `${apiBase}/agents/get-all-assignments-request?${query.toString()}`,
+      {
+        headers: { Authorization: `${auth.accessToken}` },
+        cache: "no-store",
+      }
+    );
   } catch (err) {
     return {
       users: [],
@@ -104,17 +155,16 @@ async function approvalRequest(limit?: number): Promise<AgentsResult> {
 
 export default async function AgentManagementPage({ searchParams }: Props) {
   const params = await searchParams;
+  const statusParam: StatusType = params.status ?? "APPROVED";
   const limit = params.limit ? parseInt(params.limit, 10) : 10;
 
-  const { users, metadata, error } = await approvalRequest(limit);
-
-  console.log(users);
+  const { users, metadata, error } = await fetchAgents(statusParam, limit);
 
   if (error) {
     throw new Error(error);
   }
 
-  return;
-
-  // return <AgentsList users={users} metadata={metadata} />;
+  return (
+    <AgentsList users={users} statusParam={statusParam} metadata={metadata} />
+  );
 }

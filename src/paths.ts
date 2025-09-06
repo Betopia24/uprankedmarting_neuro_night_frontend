@@ -25,6 +25,7 @@ export const adminOrganizationManagementPath = () =>
   `${adminDashboardPath()}/organization-management`;
 export const adminNumberManagementPath = () =>
   `${adminDashboardPath()}/number-management`;
+export const adminApprovalPath = () => `${adminDashboardPath()}/approval`;
 
 // organization dashboard paths
 export const organizationDashboardPath = () =>

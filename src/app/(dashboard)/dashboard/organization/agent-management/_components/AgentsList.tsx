@@ -1,24 +1,25 @@
 "use client";
 
-import { AgentUser } from "../page";
 import SearchBar from "./SearchBar";
 import Tabs from "./Tabs";
 import AgentProfileCard from "./AgentProfileCard";
 import { useState } from "react";
-import {
-  RemoveAgentButton,
-  SelectAgentButton,
-} from "@/features/organization/agent-management/AgentButton";
+import { RemoveAgentButton, SelectAgentButton } from "@/components/AgentButton";
+import { AgentUser, ViewType } from "@/types/agent";
 
-export default function AgentsList({ users, viewParam }: any) {
+export default function AgentsList({
+  users,
+  viewParam,
+  metadata,
+}: {
+  users: AgentUser[];
+  viewParam: ViewType;
+  metadata: { page: number; limit: number; total: number; totalPages: number };
+}) {
   const [search, setSearch] = useState("");
-  const filteredUsers = users
-    .filter((user: AgentUser) => {
-      return user.name.toLowerCase().includes(search.toLowerCase());
-    })
-    .filter((user: AgentUser) => {
-      return user.Agent?.assignments[0]?.status !== "REJECTED";
-    });
+  const filteredUsers = users.filter((user: AgentUser) => {
+    return user.name.toLowerCase().includes(search.toLowerCase());
+  });
 
   return (
     <div className="space-y-4">
@@ -33,7 +34,6 @@ export default function AgentsList({ users, viewParam }: any) {
             <AgentProfileCard
               key={user.id}
               user={user}
-              isSelected={viewParam === "my-agents"}
               action={
                 viewParam === "my-agents" ? (
                   <RemoveAgentButton

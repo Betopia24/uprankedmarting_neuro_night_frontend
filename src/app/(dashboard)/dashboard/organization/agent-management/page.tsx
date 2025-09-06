@@ -1,5 +1,5 @@
 import { getServerAuth } from "@/lib/auth";
-import AgentsList from "@/features/organization/agent-management/AgentsList";
+import AgentsList from "@/app/(dashboard)/dashboard/organization/agent-management/_components/AgentsList";
 
 // -----------------------------
 // Types

@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { ViewType } from "../page";
+import { ViewType } from "@/types/agent";
 
 export default function Tabs({ selectedTab }: { selectedTab: ViewType }) {
   return (
