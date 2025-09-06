@@ -3,60 +3,87 @@
 import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Button, InputField } from "@/components";
-import { AgentFormInput, agentSchema } from "./utils/validation";
-import { useEffect, useState } from "react";
-import { env } from "@/env";
+import { Button, InputField, SelectDropdown } from "@/components";
 import { toast } from "sonner";
+import { env } from "@/env";
+import { useEffect } from "react";
+import { z } from "zod";
 
-const genderOptions = [
-  { label: "Male", value: "male" },
-  { label: "Female", value: "female" },
-  { label: "Other", value: "other" },
-];
+// --- Options ---
+const genderOptions = ["male", "female", "others"] as const;
+const employmentTypes = ["full_time", "part_time", "contract"] as const;
 
-const employmentTypeOptions = [
-  { label: "Full-time", value: "full_time" },
-  { label: "Part-time", value: "part_time" },
-  { label: "Contract", value: "contract" },
-];
+// --- Zod Schema ---
+const agentSchema = z.object({
+  userData: z.object({
+    name: z.string().trim().min(2).max(80),
+    email: z.string().email(),
+    password: z
+      .string()
+      .min(12)
+      .refine(
+        (val) =>
+          /[A-Z]/.test(val) &&
+          /[a-z]/.test(val) &&
+          /\d/.test(val) &&
+          /[!@#$%^&*(),.?":{}|<>]/.test(val),
+        {
+          message:
+            "Password must be at least 12 characters, include uppercase, lowercase, number, and special character",
+        }
+      ),
+    phone: z.string().min(5).max(20),
+  }),
+  agentData: z.object({
+    dateOfBirth: z.string(),
+    sip_domain: z.string().min(5).max(100),
+    sip_password: z.string().min(12).max(100),
+    gender: z.enum(genderOptions),
+    address: z.string().trim().min(5).max(200),
+    emergencyPhone: z.string().min(5).max(20),
+    ssn: z.string().trim().min(3).max(64),
+    skills: z.string(),
+    jobTitle: z.string().trim().min(2).max(80),
+    employmentType: z.enum(employmentTypes),
+    department: z.string().trim().min(2).max(80),
+    officeHours: z.number().default(8),
+    isAvailable: z.boolean().default(true),
+  }),
+});
 
-const departmentOptions = [
-  { label: "Engineering", value: "Engineering" },
-  { label: "Sales", value: "Sales" },
-  { label: "Support", value: "Support" },
-  { label: "HR", value: "HR" },
-];
+// --- Types ---
+type AgentFormSchema = z.infer<typeof agentSchema>;
+type AgentFormInput = z.input<typeof agentSchema>;
 
-const jobTitleOptions = [
-  { label: "Software Engineer", value: "Software Engineer" },
-  { label: "Customer Support", value: "Customer Support" },
-  { label: "Sales Associate", value: "Sales Associate" },
-  { label: "Manager", value: "Manager" },
-];
+// --- Helpers ---
+function generateStrongSipPassword() {
+  return "Aa1!" + Math.random().toString(36).slice(2, 10) + "X!";
+}
 
-export const defaultValues: AgentFormInput = {
-  userData: {
-    name: "John Doe",
-    email: "johndoe@example.com",
-    phone: "+14155552671",
-  },
+function parseSkills(skills: string): string[] {
+  return skills
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+// --- Default Values ---
+const defaultValues: AgentFormInput = {
+  userData: { name: "", email: "", password: "", phone: "" },
   agentData: {
-    dateOfBirth: "1995-05-15",
-    sip_domain: "test-sip-sajjad.sip.twilio.com",
-    sip_password: "StrongPass123!",
+    dateOfBirth: "",
+    sip_domain: "",
+    sip_password: "",
     gender: "male",
-    address: "123 Main St, New York, NY 10001",
-    emergencyPhone: "+13105551234",
-    ssn: "123-45-6789",
-    skills: "customer service",
-    jobTitle: "Software Engineer",
+    address: "",
+    emergencyPhone: "",
+    ssn: "",
+    skills: "",
+    jobTitle: "",
     employmentType: "full_time",
-    department: "Engineering",
-    workStartTime: "09:00",
-    workEndTime: "17:00",
-    startWorkDateTime: "2025-08-23T09:00",
-    endWorkDateTime: "2025-08-23T17:00",
+    department: "",
+    officeHours: 8,
+    isAvailable: true,
   },
 };
 
@@ -67,119 +94,38 @@ export default function AgentForm() {
     defaultValues,
   });
 
-  const { watch, setValue, setError, clearErrors } = form;
-  const startTime = watch("agentData.workStartTime");
-  const endTime = watch("agentData.workEndTime");
-
-  // Auto-suggest End Time = Start + 8 hours
-  useEffect(() => {
-    if (startTime && !endTime) {
-      const [h, m] = startTime.split(":").map(Number);
-      const end = new Date();
-      end.setHours(h + 8, m, 0);
-      const hh = String(end.getHours()).padStart(2, "0");
-      const mm = String(end.getMinutes()).padStart(2, "0");
-      setValue("agentData.workEndTime", `${hh}:${mm}`);
-    }
-  }, [startTime, endTime, setValue]);
-
-  // Live validation for 8-hour shift
-  useEffect(() => {
-    if (startTime && endTime) {
-      const [sh, sm] = startTime.split(":").map(Number);
-      const [eh, em] = endTime.split(":").map(Number);
-      const startMinutes = sh * 60 + sm;
-      const endMinutes = eh * 60 + em;
-      if (endMinutes - startMinutes < 480) {
-        setError("agentData.workEndTime", {
-          type: "manual",
-          message: "Shift must be at least 8 hours long",
-        });
-      } else {
-        clearErrors("agentData.workEndTime");
-      }
-    }
-  }, [startTime, endTime, setError, clearErrors]);
-
   const onSubmit = async (data: AgentFormInput) => {
     try {
+      const payload = {
+        userData: data.userData,
+        agentData: {
+          ...data.agentData,
+          sip_password:
+            data.agentData.sip_password || generateStrongSipPassword(),
+          skills: parseSkills(data.agentData.skills),
+        },
+      };
+
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/users/register-agent`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
         }
       );
 
-      const result = await response.json();
-
       if (!response.ok) {
-        // If server returns validation errors
-        const message =
-          result?.message || "Something went wrong. Please try again.";
-        toast.error(message);
+        const err = await response.json();
+        toast.error("Failed to create agent: " + err.message);
         return;
       }
 
-      // Success toast
-      toast.success("Agent registered successfully!");
-      console.log("Registered agent:", result);
-
-      // Optionally, reset form after success
-      // form.reset();
-    } catch (error) {
-      console.error("Error registering agent:", error);
-      toast.error("Network error. Please try again later.");
+      toast.success("Agent created successfully!");
+      form.reset(); // optional: reset form
+    } catch (err: any) {
+      toast.error("Server error: " + err.message);
     }
-  };
-
-  // Tailwind-only select dropdown
-  const SelectField = ({
-    label,
-    name,
-    options,
-  }: {
-    label: string;
-    name: string;
-    options: { label: string; value: string }[];
-  }) => {
-    const value = watch(name as any);
-    const [open, setOpen] = useState(false);
-
-    const handleSelect = (val: string) => {
-      setValue(name as any, val, { shouldValidate: true });
-      setOpen(false);
-    };
-
-    return (
-      <div className="relative w-full">
-        <label className="block text-sm font-medium mb-1">{label}</label>
-        <button
-          type="button"
-          onClick={() => setOpen((o) => !o)}
-          className="w-full border rounded px-3 py-2 text-left flex justify-between items-center focus:outline-none focus:ring"
-        >
-          {value || "Select..."}
-          <span className="ml-2">▾</span>
-        </button>
-        {open && (
-          <ul className="absolute z-50 mt-1 w-full bg-white border rounded shadow max-h-60 overflow-auto">
-            {options.map((opt) => (
-              <li
-                key={opt.value}
-                className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                onClick={() => handleSelect(opt.value)}
-              >
-                {opt.label}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    );
   };
 
   return (
@@ -187,7 +133,7 @@ export default function AgentForm() {
       <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
         {/* User Info */}
         <FormGroup title="User Information">
-          <div className="grid md:grid-cols-2 gap-4 overflow-visible">
+          <div className="grid md:grid-cols-2 gap-4">
             <InputField label="Full Name" name="userData.name" type="text" />
             <InputField
               label="Email"
@@ -196,20 +142,14 @@ export default function AgentForm() {
               placeholder="example@domain.com"
             />
             <InputField
+              label="Password"
+              name="userData.password"
+              type="password"
+              placeholder="Strong password"
+            />
+            <InputField
               label="Phone"
               name="userData.phone"
-              type="tel"
-              placeholder="+14155552671"
-            />
-            <InputField
-              label="SIP Domain"
-              name="agentData.sip_domain"
-              type="tel"
-              placeholder="+14155552671"
-            />
-            <InputField
-              label="SIP Password"
-              name="agentData.sip_password"
               type="tel"
               placeholder="+14155552671"
             />
@@ -218,16 +158,20 @@ export default function AgentForm() {
 
         {/* Agent Info */}
         <FormGroup title="Agent Information">
-          <div className="grid md:grid-cols-2 gap-4 overflow-visible">
+          <div className="grid md:grid-cols-2 gap-4">
             <InputField
               label="Date of Birth"
               name="agentData.dateOfBirth"
               type="date"
             />
-            <SelectField
+            <SelectDropdown
               label="Gender"
               name="agentData.gender"
-              options={genderOptions}
+              options={[
+                { label: "Male", value: "male" },
+                { label: "Female", value: "female" },
+                { label: "Other", value: "others" },
+              ]}
             />
             <InputField
               label="Address"
@@ -247,56 +191,44 @@ export default function AgentForm() {
               type="text"
               placeholder="123-45-6789"
             />
-            <SelectField
-              label="Skills"
+            <InputField
+              label="Skills (comma separated)"
               name="agentData.skills"
-              options={[
-                { label: "Customer Service", value: "customer service" },
-                { label: "Sales", value: "sales" },
-                { label: "Technical Support", value: "technical support" },
-                { label: "Management", value: "management" },
-              ]}
+              type="text"
+              placeholder="customer service, sales"
             />
-          </div>
-        </FormGroup>
-
-        {/* Employment Info */}
-        <FormGroup title="Employment Information">
-          <div className="grid md:grid-cols-2 gap-4 overflow-visible">
-            <SelectField
+            <InputField
+              label="SIP Domain"
+              name="agentData.sip_domain"
+              type="text"
+              placeholder="test-sip.sip.twilio.com"
+            />
+            <InputField
+              label="SIP Password"
+              name="agentData.sip_password"
+              type="text"
+              placeholder="Strong password"
+            />
+            <InputField
               label="Job Title"
               name="agentData.jobTitle"
-              options={jobTitleOptions}
+              type="text"
+              placeholder="Software Engineer"
             />
-            <SelectField
+            <SelectDropdown
               label="Employment Type"
               name="agentData.employmentType"
-              options={employmentTypeOptions}
+              options={[
+                { label: "Full-time", value: "full_time" },
+                { label: "Part-time", value: "part_time" },
+                { label: "Contract", value: "contract" },
+              ]}
             />
-            <SelectField
+            <InputField
               label="Department"
               name="agentData.department"
-              options={departmentOptions}
-            />
-            <InputField
-              label="Work Start Time"
-              name="agentData.workStartTime"
-              type="time"
-            />
-            <InputField
-              label="Work End Time"
-              name="agentData.workEndTime"
-              type="time"
-            />
-            <InputField
-              label="Start Work DateTime"
-              name="agentData.startWorkDateTime"
-              type="datetime-local"
-            />
-            <InputField
-              label="End Work DateTime"
-              name="agentData.endWorkDateTime"
-              type="datetime-local"
+              type="text"
+              placeholder="Engineering"
             />
           </div>
         </FormGroup>
@@ -309,13 +241,9 @@ export default function AgentForm() {
   );
 }
 
-function FormGroup({
-  children,
-  title,
-}: {
-  children: React.ReactNode;
-  title: string;
-}) {
+// --- FormGroup Component ---
+type FormGroupProps = { children: React.ReactNode; title: string };
+function FormGroup({ children, title }: FormGroupProps) {
   return (
     <fieldset className="space-y-2">
       <legend className="text-lg md:text-xl lg:text-2xl font-medium">
