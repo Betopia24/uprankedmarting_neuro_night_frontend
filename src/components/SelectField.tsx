@@ -70,7 +70,7 @@ export default function SelectField({
               <SelectTrigger className="rounded-2xl w-full">
                 <SelectValue placeholder={placeholder} />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent position="popper">
                 {options.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
                     {opt.label}
