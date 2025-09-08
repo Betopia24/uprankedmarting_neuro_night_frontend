@@ -1,3 +1,9 @@
+import TwilioInboundAgent from "@/components/TwilioClient";
+
 export default function AgentDashboardPage() {
-  return <div>AgentDashboardPage</div>;
+  return (
+    <div>
+      <TwilioInboundAgent />
+    </div>
+  );
 }
