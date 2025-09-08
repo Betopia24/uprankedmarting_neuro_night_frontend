@@ -40,4 +40,4 @@ export interface Metadata {
 }
 
 export type ViewType = "unassigned" | "my-agents";
-export type StatusType = "APPROVED" | "REJECTED";
+export type StatusType = "approval" | "removal" | "all";

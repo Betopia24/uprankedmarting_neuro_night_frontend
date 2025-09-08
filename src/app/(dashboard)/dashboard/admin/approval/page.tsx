@@ -1,168 +1,86 @@
 import { getServerAuth } from "@/lib/auth";
 import AgentsList from "./_components/AgentsList";
 import { StatusType } from "@/types/agent";
-
-// -----------------------------
-// Types
-// -----------------------------
-export interface AgentUser {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  bio: string;
-  image: string;
-  Agent: Agent;
-}
-
-export interface Agent {
-  AgentFeedbacks: Record<string, string>[];
-  skills: string[];
-  totalCalls: number;
-  isAvailable: boolean;
-  status: string;
-  assignTo: string;
-  assignments: Assignment[];
-  organization: Organization;
-  avgRating: number;
-  totalFeedbacks: number;
-}
-
-export interface Assignment {
-  id: string;
-  status: string;
-}
-
-export interface Organization {
-  id: string;
-  name: string;
-  industry: string;
-}
-
-export interface Metadata {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-}
-
-interface AgentsApiSuccess {
-  data: {
-    users: AgentUser[];
-    metadata: Metadata;
-  };
-}
-
-interface AgentsApiError {
-  error: string;
-}
-
-interface AgentsResult {
-  users: AgentUser[];
-  metadata: Metadata;
-  error: string | null;
-}
+import type { AgentUser, Metadata } from "@/types/agent"; // reuse your existing types
 
 type Props = {
   searchParams: Promise<{ status?: StatusType; limit?: string }>;
 };
 
+const queryDict: Record<StatusType, string> = {
+  approval: "PENDING",
+  removal: "REMOVAL_REQUESTED",
+  all: "",
+};
+
+interface BackendResponse {
+  success: boolean;
+  message: string;
+  data: {
+    meta: Metadata;
+    data: AgentUser[];
+  };
+}
+
 // -----------------------------
-// Safe Fetcher
+// Fetcher
 // -----------------------------
 async function fetchAgents(
-  view: StatusType,
+  status: StatusType,
   limit?: number
-): Promise<AgentsResult> {
+): Promise<{ users: AgentUser[]; metadata: Metadata }> {
   const auth = await getServerAuth();
-  if (!auth?.accessToken) {
-    return {
-      users: [],
-      metadata: { page: 1, limit: 0, total: 0, totalPages: 0 },
-      error: "Missing access token",
-    };
-  }
+  if (!auth?.accessToken) throw new Error("Missing access token");
 
   const apiBase = process.env.API_BASE_URL;
-  if (!apiBase) {
-    return {
-      users: [],
-      metadata: { page: 1, limit: 0, total: 0, totalPages: 0 },
-      error: "Missing API_BASE_URL",
-    };
-  }
+  if (!apiBase) throw new Error("Missing API_BASE_URL");
 
+  const dictStatus = queryDict[status];
   const query = new URLSearchParams();
-  query.set("viewType", view);
+  if (dictStatus) query.set("viewType", dictStatus);
   if (limit && limit > 0) query.set("limit", String(limit));
 
-  let response: Response;
-  try {
-    response = await fetch(
-      `${apiBase}/agents/get-all-assignments-request?${query.toString()}`,
-      {
-        headers: { Authorization: `${auth.accessToken}` },
-        cache: "no-store",
-      }
-    );
-  } catch (err) {
-    return {
-      users: [],
-      metadata: { page: 1, limit: 0, total: 0, totalPages: 0 },
-      error: `Network error: ${(err as Error).message}`,
-    };
-  }
+  const response = await fetch(
+    `${apiBase}/agents/all-agent-assignment-request?${query.toString()}`,
+    {
+      headers: { Authorization: auth.accessToken },
+      cache: "no-store",
+    }
+  );
 
   if (!response.ok) {
     const text = await response.text().catch(() => "");
-    return {
-      users: [],
-      metadata: { page: 1, limit: 0, total: 0, totalPages: 0 },
-      error: `Failed to fetch agents. Status: ${response.status}. Body: ${text}`,
-    };
+    throw new Error(
+      `Failed to fetch agents. Status: ${response.status}. Body: ${text}`
+    );
   }
 
-  let json: AgentsApiSuccess | AgentsApiError;
-  try {
-    json = (await response.json()) as AgentsApiSuccess | AgentsApiError;
-  } catch {
-    return {
-      users: [],
-      metadata: { page: 1, limit: 0, total: 0, totalPages: 0 },
-      error: "Invalid JSON response from API",
-    };
-  }
+  const json = (await response.json()) as BackendResponse;
+  console.log("Raw backend response:", json);
 
-  if ("error" in json) {
-    return {
-      users: [],
-      metadata: { page: 1, limit: 0, total: 0, totalPages: 0 },
-      error: json.error,
-    };
-  }
-
+  // Reshape backend to match your existing types
   return {
-    users: Array.isArray(json.data.users) ? json.data.users : [],
-    metadata: json.data.metadata ?? {
+    users: json.data.data ?? [],
+    metadata: json.data.meta ?? {
       page: 1,
       limit: limit ?? 10,
       total: 0,
       totalPages: 0,
     },
-    error: null,
   };
 }
 
+// -----------------------------
+// Page Component
+// -----------------------------
 export default async function AgentManagementPage({ searchParams }: Props) {
   const params = await searchParams;
-  const statusParam: StatusType = params.status ?? "APPROVED";
+  const statusParam: StatusType = params.status ?? "all";
   const limit = params.limit ? parseInt(params.limit, 10) : 10;
 
-  const { users, metadata, error } = await fetchAgents(statusParam, limit);
+  const { users, metadata } = await fetchAgents(statusParam, limit);
 
-  if (error) {
-    throw new Error(error);
-  }
+  console.log("users", users);
 
   return (
     <AgentsList users={users} statusParam={statusParam} metadata={metadata} />

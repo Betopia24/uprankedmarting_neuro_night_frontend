@@ -136,3 +136,18 @@ export function RemoveAgentButton({
     </Button>
   );
 }
+
+function AdminApprovalActionButtons({
+  status,
+}: {
+  status: "approval" | "removal";
+}) {
+  const approvalEndpoint = "";
+  const removalEndpoint = "";
+  return (
+    <>
+      <Button size="sm">Approve</Button>
+      <Button size="sm">Reject</Button>
+    </>
+  );
+}

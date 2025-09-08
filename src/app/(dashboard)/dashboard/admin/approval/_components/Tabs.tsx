@@ -8,21 +8,30 @@ export default function Tabs({ selectedTab }: { selectedTab: StatusType }) {
       <Link
         className={cn(
           "px-3 py-1 rounded-tl rounded-bl border border-gray-300",
-          selectedTab === "APPROVED" && "bg-primary text-white"
+          (selectedTab === "all" || !selectedTab) && "bg-primary text-white"
         )}
-        href={{ pathname: "approval", query: { status: "APPROVED" } }}
+        href={{ pathname: "approval", query: { status: "all" } }}
       >
-        Approved
+        All
+      </Link>
+      <Link
+        className={cn(
+          "px-3 py-1 rounded-tl rounded-bl border border-gray-300",
+          selectedTab === "approval" && "bg-primary text-white"
+        )}
+        href={{ pathname: "approval", query: { status: "approval" } }}
+      >
+        Approval
       </Link>
 
       <Link
         className={cn(
           "px-3 py-1 rounded-tr rounded-br border border-gray-300",
-          selectedTab === "REJECTED" && "bg-primary text-white"
+          selectedTab === "removal" && "bg-primary text-white"
         )}
-        href={{ pathname: "approval", query: { status: "REJECTED" } }}
+        href={{ pathname: "approval", query: { status: "removal" } }}
       >
-        Rejected
+        Removal
       </Link>
     </div>
   );

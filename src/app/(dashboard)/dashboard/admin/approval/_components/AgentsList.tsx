@@ -25,6 +25,8 @@ export default function AgentsList({
       return user.Agent?.assignments[0]?.status !== "REJECTED";
     });
 
+  console.log("filteredUsers", filteredUsers);
+
   return (
     <div className="space-y-4">
       <SearchBar search={search} setSearch={setSearch} />
