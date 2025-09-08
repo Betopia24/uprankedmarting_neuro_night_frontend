@@ -8,7 +8,7 @@ import React, {
   useMemo,
 } from "react";
 import { Device, Call } from "@twilio/voice-sdk";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/components/AuthProvider";
 import {
   Phone,
   PhoneCall,

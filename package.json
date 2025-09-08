@@ -20,6 +20,7 @@
     "@stripe/react-stripe-js": "^4.0.0",
     "@stripe/stripe-js": "^7.9.0",
     "@t3-oss/env-nextjs": "^0.13.8",
+    "@twilio/voice-sdk": "^2.15.0",
     "axios": "^1.11.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
