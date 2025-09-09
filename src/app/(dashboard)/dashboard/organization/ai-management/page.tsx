@@ -1,3 +1,5 @@
+import AgentForm from "./_components/Form";
+
 export default function AIManagement() {
-  return <div>AIManagement</div>;
+  return <AgentForm orgId={""} />;
 }
