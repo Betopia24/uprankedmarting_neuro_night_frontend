@@ -39,6 +39,8 @@ export const organizationCallLogsPath = () =>
   `${organizationDashboardPath()}/call-manage-and-logs`;
 export const organizationAgentManagementPath = () =>
   `${organizationDashboardPath()}/agent-management`;
+export const organizationAIManagementPath = () =>
+  `${organizationDashboardPath()}/ai-management`;
 export const organizationVoiceUpload = () =>
   `${organizationDashboardPath()}/voice-upload`;
 export const organizationDocumentsPath = () =>

@@ -46,6 +46,11 @@ export const dashboardNavigation = {
       href: paths.organizationAgentManagementPath(),
     },
     {
+      name: "AI Management",
+      icon: "userCog",
+      href: paths.organizationAIManagementPath(),
+    },
+    {
       name: "Document Upload",
       icon: "fileUp",
       href: paths.organizationDocumentsPath(),

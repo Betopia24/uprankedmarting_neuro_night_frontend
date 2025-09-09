@@ -162,5 +162,9 @@ export default async function AgentManagementPage({ searchParams }: Props) {
     throw new Error(error);
   }
 
+  console.log(await fetchAgents(viewParam, limit));
+
+  return;
+
   return <AgentsList users={users} viewParam={viewParam} metadata={metadata} />;
 }
