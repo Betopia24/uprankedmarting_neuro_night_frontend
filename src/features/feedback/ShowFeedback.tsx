@@ -11,6 +11,9 @@ import {
 } from "@/components/ui/select";
 import { env } from "@/env";
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import { Button, Heading } from "@/components";
+import { LucideTrash2 } from "lucide-react";
 
 type Mode = "agent" | "service";
 
@@ -19,18 +22,25 @@ interface Feedback {
   feedbackText: string;
   rating?: number;
   createdAt?: string;
+  client: {
+    id: string;
+    name: string;
+    email: string;
+    image: string;
+  };
 }
 
 interface ApiResponse<T> {
   success: boolean;
   message?: string;
-  result?: {
+  data?: {
     meta?: {
       page: number;
       limit: number;
       total: number;
       totalPages: number;
     };
+
     data: T[];
   };
 }
@@ -53,8 +63,8 @@ export default function ShowFeedback() {
   const auth = useAuth();
   const token = auth?.token;
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [ratings, setRatings] = useState<{ averageRating: number }>();
 
   const getFeedbackUrl = () => CONFIG[selected].get();
 
@@ -63,7 +73,6 @@ export default function ShowFeedback() {
 
     const fetchFeedbacks = async () => {
       try {
-        setLoading(true);
         setError(null);
 
         const res = await fetch(getFeedbackUrl(), {
@@ -78,12 +87,13 @@ export default function ShowFeedback() {
         }
 
         const json: ApiResponse<Feedback> = await res.json();
-        setFeedbacks(json?.result.data ?? []);
+        console.log(json);
+
+        setFeedbacks(json?.data?.data ?? []);
       } catch (err) {
         setError((err as Error).message);
         setFeedbacks([]);
       } finally {
-        setLoading(false);
       }
     };
 
@@ -93,8 +103,7 @@ export default function ShowFeedback() {
   return (
     <div className="p-4">
       <FeedBackMode selected={selected} setSelected={setSelected} />
-      <FeedbackStat />
-      {loading && <p>Loading feedback...</p>}
+      <FeedbackStat averageRating={2} />
       {error && <p className="text-red-500">Error: {error}</p>}
       <Review
         key={selected}
@@ -128,11 +137,11 @@ export function FeedBackMode({
   );
 }
 
-function FeedbackStat() {
+function FeedbackStat({ averageRating }: { averageRating: number }) {
   return (
     <div className="p-4">
       <div className="bg-blue-500 text-white rounded-3xl aspect-square max-w-40 mx-auto flex flex-col gap-1 items-center justify-center">
-        <span className="text-2xl font-bold">4.8</span>
+        <span className="text-2xl font-bold">{averageRating}</span>
         <RatingViewer rating={3} size={24} />
         <span>2005 Rating</span>
       </div>
@@ -159,8 +168,6 @@ function Review({
 
   const handleDelete = async (id: string) => {
     if (!token) return;
-
-    // Optimistic update
     const prevReviews = reviews;
     setReviews((current) => current.filter((r) => r.id !== id));
 
@@ -176,21 +183,48 @@ function Review({
         throw new Error(`Failed with status ${res.status}`);
       }
     } catch (err) {
-      console.error(err);
-      // Rollback
       setReviews(prevReviews);
     }
   };
 
   return (
-    <div className="p-2">
+    <div className="-mx-1">
       {reviews.map((review) => (
         <div
           key={review.id}
-          className="p-4 border border-gray-200 rounded-3xl shadow-lg mb-4 cursor-pointer hover:bg-red-50"
-          onClick={() => handleDelete(review.id)}
+          className="px-2 py-2 border border-gray-200 rounded shadow-lg mb-1 cursor-pointer hover:bg-red-50"
         >
-          {review.feedbackText}
+          <div className="flex justify-between items-center gap-4">
+            <div className="shrink-0">
+              {review.client.image ? (
+                <Image
+                  className="w-8 h-8 rounded-full"
+                  width={32}
+                  height={32}
+                  src={review?.client?.image}
+                  alt={review.client.name}
+                />
+              ) : (
+                <span className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white">
+                  {review.client.name.slice(0, 1).toUpperCase()}
+                </span>
+              )}
+            </div>
+
+            <div className="text-xs flex flex-col flex-1">
+              <span className="font-semibold">{review.client.name}</span>
+              <span>{review.feedbackText.slice(0, 24)}...</span>
+              <RatingViewer size={10} rating={review.rating || 0} />
+            </div>
+            <Button
+              onClick={() => handleDelete(review.id)}
+              variant="secondary"
+              size="icon"
+              className="shrink-0 hover:bg-rose-400"
+            >
+              <LucideTrash2 />
+            </Button>
+          </div>
         </div>
       ))}
     </div>
