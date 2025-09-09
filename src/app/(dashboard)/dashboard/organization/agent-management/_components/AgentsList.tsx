@@ -21,6 +21,8 @@ export default function AgentsList({
     return user.name.toLowerCase().includes(search.toLowerCase());
   });
 
+  console.log(users);
+
   return (
     <div className="space-y-4">
       <SearchBar search={search} setSearch={setSearch} />
