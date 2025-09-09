@@ -43,9 +43,6 @@ export default function AiCallExperienceSection() {
             </div>
             <div className="text-center mt-10 space-y-0.5">
               <ButtonWithIcon size="sm">Get Started</ButtonWithIcon>
-              <span className="block text-xs text-gray-600">
-                No credit card required*
-              </span>
             </div>
           </StaggerFadeUp>
         </ParallaxEffect>

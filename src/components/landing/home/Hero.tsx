@@ -46,8 +46,7 @@ export default function Hero() {
                 of the cost.
               </p>
               <div className="space-y-2">
-                <ButtonWithIcon>Get Started For Free</ButtonWithIcon>
-                <div className="block text-xs">No credit card required*</div>
+                <ButtonWithIcon>Get Started</ButtonWithIcon>
               </div>
             </div>
 

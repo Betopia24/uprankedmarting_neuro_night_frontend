@@ -127,7 +127,7 @@ const AppointmentManagement = () => {
 
       <div className="mt-4 text-center">
         <button className="bg-gray-500 text-white px-4 py-2 rounded-lg text-sm font-medium">
-          Get Started for Free →
+          Subscribe →
         </button>
       </div>
     </div>
