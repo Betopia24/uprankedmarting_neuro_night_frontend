@@ -1,3 +1,4 @@
+import { getErrorMessage } from "@/lib/getErrorMessage";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -48,11 +49,14 @@ export async function POST(req: Request) {
       }),
       { status: 200, headers: { "Content-Type": "application/json" } }
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Stripe error:", err);
-    return new Response(
-      JSON.stringify({ error: err.message || "Something went wrong" }),
-      { status: 400, headers: { "Content-Type": "application/json" } }
-    );
+
+    const message = getErrorMessage(err, "Something went wrong");
+
+    return new Response(JSON.stringify({ error: message }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }

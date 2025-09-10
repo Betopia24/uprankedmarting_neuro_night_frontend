@@ -50,7 +50,7 @@ export async function POST() {
     });
 
     return nextResponse;
-  } catch (error) {
+  } catch {
     return Response.json({ error: "Refresh failed" }, { status: 500 });
   }
 }

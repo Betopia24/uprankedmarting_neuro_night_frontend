@@ -26,6 +26,7 @@ import {
   Clock,
   Signal,
 } from "lucide-react";
+import { getErrorMessage } from "@/lib/getErrorMessage";
 
 // Configuration constants
 const CONFIG = {
@@ -369,7 +370,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
           wsRef.current.send(
             JSON.stringify({
               type: "status_update",
-              data: { agent_id: user.id, status: "free" },
+              data: { agent_id: user?.id, status: "free" },
             })
           );
         }
@@ -438,7 +439,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         setCallState((prev) => ({ ...prev, quality: "good" }));
       });
     },
-    [updateStatusMessage, startCallQualityMonitoring, user.id]
+    [updateStatusMessage, startCallQualityMonitoring, user?.id]
   );
 
   // Device initialization and management
@@ -596,7 +597,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         if (isMountedRef.current) {
           try {
             const newToken = await fetchToken();
-            deviceRef.current.updateToken(newToken);
+            deviceRef?.current?.updateToken(newToken);
             await registerDevice();
           } catch (retryErr) {
             console.error("Retry registration failed:", retryErr);
@@ -844,7 +845,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         wsRef.current.send(
           JSON.stringify({
             type: "status_update",
-            data: { agent_id: user.id, status: "free" },
+            data: { agent_id: user?.id, status: "free" },
           })
         );
       }
@@ -894,7 +895,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       const accessToken = await fetchToken();
 
       updateStatusMessage("Initializing device...");
-      const device = await initializeDevice(accessToken);
+      await initializeDevice(accessToken);
 
       updateStatusMessage("Registering device...");
       await registerDevice();
@@ -904,9 +905,11 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       if ("Notification" in window && Notification.permission === "default") {
         await Notification.requestPermission();
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("System initialization failed:", err);
-      updateStatusMessage(`Initialization failed: ${err.message}`, "error");
+
+      const message = getErrorMessage(err, "System initialization failed");
+      updateStatusMessage(`Initialization failed: ${message}`, "error");
     }
   }, [
     initializeAudioMonitoring,

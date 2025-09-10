@@ -114,7 +114,7 @@ export default function ServiceFeedbackForm() {
 
       try {
         data = await res.json();
-      } catch (parseError) {
+      } catch {
         throw new Error("Invalid response format from server");
       }
 

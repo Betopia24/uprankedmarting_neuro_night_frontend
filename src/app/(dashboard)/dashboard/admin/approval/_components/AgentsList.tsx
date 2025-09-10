@@ -4,7 +4,6 @@ import SearchBar from "./SearchBar";
 import Tabs from "./Tabs";
 import AgentProfileCard from "./AgentProfileCard";
 import { useState } from "react";
-import { RemoveAgentButton, SelectAgentButton } from "@/components/AgentButton";
 import { AgentUser, StatusType } from "@/types/agent";
 
 export default function AgentsList({

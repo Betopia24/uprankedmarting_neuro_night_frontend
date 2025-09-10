@@ -24,7 +24,7 @@ export interface TableData {
   purchasedAt: string;
   createdAt: string;
   updatedAt: string;
-  purchasedByOrganizationId: any;
+  purchasedByOrganizationId: string;
 }
 
 export interface Capabilities {

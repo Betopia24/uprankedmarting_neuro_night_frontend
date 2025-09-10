@@ -12,7 +12,7 @@ export interface Plan {
   currency: string;
   interval: string;
   intervalCount: number;
-  freeTrialDays: any;
+  freeTrialDays: string | number;
   productId: string;
   priceId: string;
   active: boolean;

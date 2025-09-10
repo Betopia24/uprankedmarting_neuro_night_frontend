@@ -188,9 +188,20 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
       console.log("Created subscription:", created?.data?.subscription);
 
       alert("Subscription created and payment confirmed successfully!");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error:", err);
-      alert(err?.message || "Failed to process subscription");
+
+      let message = "Failed to process subscription";
+
+      if (err instanceof Error) {
+        message = err.message;
+      } else if (typeof err === "string") {
+        message = err;
+      } else if (typeof err === "object" && err && "message" in err) {
+        message = String((err as { message: unknown }).message);
+      }
+
+      alert(message);
     } finally {
       setIsLoading(false);
     }

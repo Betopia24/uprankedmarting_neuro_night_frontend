@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { env } from "@/env";
 import { useEffect } from "react";
 import { z } from "zod";
+import { getErrorMessage } from "@/lib/getErrorMessage";
 
 // --- Options ---
 const genderOptions = ["male", "female", "others"] as const;
@@ -123,8 +124,9 @@ export default function AgentForm() {
 
       toast.success("Agent created successfully!");
       form.reset(); // optional: reset form
-    } catch (err: any) {
-      toast.error("Server error: " + err.message);
+    } catch (err: unknown) {
+      const message = getErrorMessage(err, "Server error");
+      toast.error("Server error: " + message);
     }
   };
 
