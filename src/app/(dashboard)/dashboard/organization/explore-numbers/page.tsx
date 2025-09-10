@@ -61,19 +61,20 @@ export default async function CallManageAndLogsPage({
   searchParams,
 }: TableProps) {
   const auth = await getServerAuth();
-
   const orgId = auth?.data?.ownedOrganization?.id;
 
-  const activeNumbers = await fetch(`${env.API_BASE_URL}/active-numbers`, {
+  const activeNumbersRes = await fetch(`${env.API_BASE_URL}/active-numbers`, {
     headers: {
       Authorization: `${auth?.accessToken}`,
     },
   });
 
-  const data = await activeNumbers.json();
-  if (!activeNumbers.ok) throw new Error("Failed to fetch active numbers");
+  if (!activeNumbersRes.ok) throw new Error("Failed to fetch active numbers");
 
-  const { data: tableData }: { data: TableData[] } = data || { data: [] };
+  const activeNumbersJson = await activeNumbersRes.json();
+  const tableData: TableData[] = Array.isArray(activeNumbersJson?.data)
+    ? activeNumbersJson.data
+    : [];
 
   const queryParams = await searchParams;
   const page = Number(queryParams.page) || DEFAULT_PAGE;
@@ -81,7 +82,6 @@ export default async function CallManageAndLogsPage({
   const [sortField, sortDirection = ""] = (
     queryParams.sort || DEFAULT_SORT
   ).split(":");
-
   const searchQuery = queryParams.query || "";
 
   const allowedKeys = [
@@ -93,18 +93,19 @@ export default async function CallManageAndLogsPage({
     "isPurchased",
   ];
 
-  const tableHeader = allowedKeys.filter((key) =>
-    Object.keys(tableData[0]).includes(key)
-  );
+  // ✅ Safe: check tableData[0] exists
+  const tableHeader =
+    tableData.length > 0
+      ? allowedKeys.filter((key) => Object.keys(tableData[0]).includes(key))
+      : [];
 
-  // Calculate pagination info based on filtered data
+  // Pagination info
   const totalItems = tableData.length;
   const totalPages = Math.ceil(totalItems / limit);
   const hasNextPage = page < totalPages;
   const hasPrevPage = page > 1;
 
   const paginatedData = paginateData(tableData, page, limit);
-
   const sortedPaginatedData = sortData(
     paginatedData as unknown as Record<string, string | number>[],
     sortField,
@@ -113,89 +114,98 @@ export default async function CallManageAndLogsPage({
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-4 justify-between">
-        <SearchField basePath={config.basePath} defaultQuery={searchQuery} />
-      </div>
-      <table className="table-auto border-collapse border border-gray-200 w-full text-gray-800">
-        <thead>
-          <tr className="bg-gray-100">
-            {tableHeader.map((field) => (
-              <TableHeaderItem
-                key={field}
-                field={field}
-                currentSort={sortField}
-                sortDirection={sortDirection}
-                currentPage={page}
-                limit={limit}
-                searchQuery={searchQuery}
-                basePath={config.basePath}
-              />
-            ))}
-            <th className="border border-gray-300 text-left cursor-pointer">
-              Action
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {sortedPaginatedData.map((item) => (
-            <tr key={item.id}>
-              {tableHeader.map((key) => {
-                const value = item[key as keyof typeof item];
-                if (
-                  key === "capabilities" &&
-                  typeof value === "object" &&
-                  value !== null
-                ) {
-                  const caps = value as Capabilities;
+      {totalItems > 0 && (
+        <div className="flex gap-4 justify-between">
+          <SearchField basePath={config.basePath} defaultQuery={searchQuery} />
+        </div>
+      )}
+
+      {tableData.length === 0 ? (
+        <p className="text-center text-gray-500">No numbers available.</p>
+      ) : (
+        <table className="table-auto border-collapse border border-gray-200 w-full text-gray-800">
+          <thead>
+            <tr className="bg-gray-100">
+              {tableHeader.map((field) => (
+                <TableHeaderItem
+                  key={field}
+                  field={field}
+                  currentSort={sortField}
+                  sortDirection={sortDirection}
+                  currentPage={page}
+                  limit={limit}
+                  searchQuery={searchQuery}
+                  basePath={config.basePath}
+                />
+              ))}
+              <th className="border border-gray-300 text-left cursor-pointer">
+                Action
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedPaginatedData.map((item) => (
+              <tr key={item.id}>
+                {tableHeader.map((key) => {
+                  const value = item[key as keyof typeof item];
+                  if (
+                    key === "capabilities" &&
+                    typeof value === "object" &&
+                    value !== null
+                  ) {
+                    const caps = value as Capabilities;
+                    return (
+                      <td
+                        key={key}
+                        className="border border-gray-200 p-2 flex gap-2"
+                      >
+                        {Object.entries(caps).map(([capKey, enabled]) => (
+                          <span
+                            key={capKey}
+                            className={`px-1 rounded text-white text-xs ${
+                              enabled ? "bg-green-500" : "bg-gray-400"
+                            }`}
+                            title={capKey}
+                          >
+                            {capKey.toUpperCase()}
+                          </span>
+                        ))}
+                      </td>
+                    );
+                  }
                   return (
-                    <td
-                      key={key}
-                      className="border border-gray-200 p-2 flex gap-2"
-                    >
-                      {Object.entries(caps).map(([capKey, enabled]) => (
-                        <span
-                          key={capKey}
-                          className={`px-1 rounded text-white text-xs ${
-                            enabled ? "bg-green-500" : "bg-gray-400"
-                          }`}
-                          title={capKey}
-                        >
-                          {capKey.toUpperCase()}
-                        </span>
-                      ))}
+                    <td key={key} className="border border-gray-200 p-2">
+                      {String(value)}
                     </td>
                   );
-                }
-                return (
-                  <td key={key} className="border border-gray-200 p-2">
-                    {String(value)}
-                  </td>
-                );
-              })}
-              <td>
-                <Link
-                  href={`${organizationBuyNumberPath()}?ts=${
-                    item.sid
-                  }&ci=${orgId}&np=${item.phoneNumber}`}
-                >
-                  Buy
-                </Link>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                })}
+                <td>
+                  <Link
+                    href={`${organizationBuyNumberPath()}?ts=${
+                      item.sid
+                    }&ci=${orgId}&np=${item.phoneNumber}`}
+                  >
+                    Buy
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
 
-      <Pagination
-        currentPage={page}
-        totalPages={totalPages}
-        hasNextPage={hasNextPage}
-        hasPrevPage={hasPrevPage}
-        limit={limit}
-        sortField={sortField}
-        sortDirection={sortDirection}
-        basePath={config.basePath}
-      />
+      {totalItems > 0 && (
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          hasNextPage={hasNextPage}
+          hasPrevPage={hasPrevPage}
+          limit={limit}
+          sortField={sortField}
+          sortDirection={sortDirection}
+          basePath={config.basePath}
+        />
+      )}
     </div>
   );
 }
