@@ -19,6 +19,7 @@ export default function QuestionList() {
 
   const handleAdd = (question: string) => {
     setQuestions([...questions, question]);
+    console.log("questions", questions);
     setShowForm(false);
   };
 
