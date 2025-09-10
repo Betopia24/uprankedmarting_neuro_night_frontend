@@ -239,9 +239,8 @@ export default function AgentForm({
 }: AgentFormProps) {
   const [loading, setLoading] = useState(false);
   const [knowledgeBases, setKnowledgeBases] = useState<KnowledgeBase[]>([]);
-  const { user } = useAuth() || {};
 
-  console.log({ user });
+  console.log("Line 244", { orgId, agentId });
 
   const form = useForm<AgentForm>({
     resolver: zodResolver(agentSchema),
@@ -261,11 +260,9 @@ export default function AgentForm({
   // Fetch knowledge bases
   useEffect(() => {
     const fetchKnowledgeBases = async () => {
-      if (!user?.ownedOrganization?.id) return;
-
       try {
         const response = await fetch(
-          `${env.NEXT_PUBLIC_API_BASE_URL_AI}/organization-knowledge/knowledge-base/${user.ownedOrganization.id}`
+          `${env.NEXT_PUBLIC_API_BASE_URL_AI}/organization-knowledge/knowledge-base/${orgId}`
         );
 
         if (response.ok) {
@@ -293,9 +290,7 @@ export default function AgentForm({
     };
 
     fetchKnowledgeBases();
-  }, [user?.ownedOrganization?.id]);
-
-  console.log(knowledgeBases);
+  }, [orgId]);
 
   // Fetch agent data for editing
   useEffect(() => {
@@ -327,7 +322,7 @@ export default function AgentForm({
     try {
       const url = agentId
         ? `${env.NEXT_PUBLIC_API_BASE_URL_AI}/organizations/${orgId}/agents/${agentId}`
-        : `${env.NEXT_PUBLIC_API_BASE_URL_AI}/organizations/create/${user?.ownedOrganization?.id}`;
+        : `${env.NEXT_PUBLIC_API_BASE_URL_AI}/organizations/create/${orgId}`;
 
       const response = await fetch(url, {
         method: agentId ? "PATCH" : "POST",
