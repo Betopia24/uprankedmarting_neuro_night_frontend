@@ -30,7 +30,7 @@ export default function QuestionForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       <div>
-        {/* Display message under the input field */}
+
         {message && (
           <div className={`my-2 text-sm ${message.type === 'success'
             ? 'text-green-600 bg-green-50 border border-green-200'

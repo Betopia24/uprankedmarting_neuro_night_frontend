@@ -46,21 +46,21 @@ export default function QuestionList() {
   const orgId = user?.ownedOrganization?.id;
   const orgName = user?.ownedOrganization?.name;
 
-  // Clear form message when showing/hiding form
+
   useEffect(() => {
     if (!showForm) {
       setFormMessage(null);
     }
   }, [showForm]);
 
-  // Clear edit form message when editing changes
+
   useEffect(() => {
     if (editingIndex === null) {
       setEditFormMessage(null);
     }
   }, [editingIndex]);
 
-  // Fetch questions on component mount
+
   useEffect(() => {
     const fetchQuestions = async () => {
       if (!orgId) return;
@@ -90,7 +90,7 @@ export default function QuestionList() {
 
   const handleAdd = async (question: string) => {
     console.log({ orgId });
-    setFormMessage(null); // Clear previous messages
+    setFormMessage(null);
 
     try {
       if (!orgId || !orgName) {
@@ -103,17 +103,16 @@ export default function QuestionList() {
       const responseData = await res.json();
 
       if (!res.ok || !responseData.accepted) {
-        // Handle backend error response
+
         const errorMessage = responseData.reason || "Failed to add question";
         setFormMessage({ type: 'error', text: errorMessage });
         return;
       }
 
-      // Handle success response
+
       const successMessage = responseData.message || "Question added successfully";
       setFormMessage({ type: 'success', text: successMessage });
 
-      // Refetch questions to get the latest data with IDs
       const fetchRes = await getOrganizationQuestions(orgId);
       if (fetchRes.ok) {
         const updatedQuestions = await fetchRes.json();
@@ -121,7 +120,7 @@ export default function QuestionList() {
         toast.success(successMessage);
         console.log("Questions after add:", updatedQuestions);
 
-        // Close form after successful add (optional - you can remove this if you want to keep it open)
+
         setTimeout(() => {
           setShowForm(false);
         }, 2000);
@@ -138,7 +137,7 @@ export default function QuestionList() {
     const questionToUpdate = questions[editingIndex];
     if (!questionToUpdate) return;
 
-    setEditFormMessage(null); // Clear previous messages
+    setEditFormMessage(null);
 
     try {
       const res = await updateOrganizationQuestion(
@@ -150,17 +149,16 @@ export default function QuestionList() {
       const responseData = await res.json();
 
       if (!res.ok || !responseData.accepted) {
-        // Handle backend error response
+
         const errorMessage = responseData.reason || "Failed to update question";
         setEditFormMessage({ type: 'error', text: errorMessage });
         return;
       }
 
-      // Handle success response
       const successMessage = responseData.message || "Question updated successfully";
       setEditFormMessage({ type: 'success', text: successMessage });
 
-      // Update local state
+
       const updated = [...questions];
       updated[editingIndex] = {
         ...questionToUpdate,
@@ -171,7 +169,6 @@ export default function QuestionList() {
       console.log("Updated Questions: ", updated);
       toast.success(successMessage);
 
-      // Close edit form after successful update (optional)
       setTimeout(() => {
         setEditingIndex(null);
       }, 2000);
@@ -195,7 +192,7 @@ export default function QuestionList() {
         throw new Error(errorText || "Failed to delete question");
       }
 
-      // Update local state
+
       setQuestions(prev => {
         const updated = prev.filter((_, i) => i !== index);
         console.log("Questions after delete:", updated);
@@ -216,21 +213,20 @@ export default function QuestionList() {
         return;
       }
 
-      // Call backend
+
       const res = await createOrganizationQuestion(orgId, orgName, question);
       const responseData = await res.json();
 
       if (!res.ok || !responseData.accepted) {
-        // Handle backend error response
+
         const errorMessage = responseData.reason || "Failed to add question";
         toast.error(errorMessage);
         return;
       }
 
-      // Handle success response
       const successMessage = responseData.message || "Question added successfully";
 
-      // Refetch questions to get the latest data
+
       const fetchRes = await getOrganizationQuestions(orgId);
       if (fetchRes.ok) {
         const updatedQuestions = await fetchRes.json();
