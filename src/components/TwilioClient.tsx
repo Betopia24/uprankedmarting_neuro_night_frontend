@@ -402,7 +402,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         }
       });
 
-      call.on("error", (err: any) => {
+      call.on("error", (err: { message: string }) => {
         if (!isMountedRef.current) return;
 
         console.error("Call error:", err);
@@ -428,7 +428,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         }));
       });
 
-      call.on("warning", (name: string, data: any) => {
+      call.on("warning", (name: string, data: { message: string }) => {
         console.warn("Call quality warning:", name, data);
         setCallState((prev) => ({ ...prev, quality: "poor" }));
         updateStatusMessage(`Call quality warning: ${name}`, "warning");
@@ -493,7 +493,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         }, CONFIG.DEVICE_REGISTRATION_RETRY_INTERVAL);
       });
 
-      device.on("error", (err: any) => {
+      device.on("error", (err: { message: string }) => {
         if (!isMountedRef.current) return;
 
         console.error("Device error:", err);
@@ -748,7 +748,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
   }, []);
 
   const handleWebSocketMessage = useCallback(
-    (message: any) => {
+    (message: { type: string; data: { message?: string } }) => {
       console.log("WebSocket message:", message);
 
       switch (message.type) {
@@ -868,7 +868,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       if (callAcceptTimeoutRef.current)
         clearTimeout(callAcceptTimeoutRef.current);
     }
-  }, [updateStatusMessage, user.id]);
+  }, [updateStatusMessage, user?.id]);
 
   const toggleMute = useCallback(async () => {
     if (!currentCallRef.current) return;
