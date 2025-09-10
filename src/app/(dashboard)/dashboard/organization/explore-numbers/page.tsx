@@ -57,6 +57,48 @@ const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 5;
 const DEFAULT_SORT = "";
 
+// Helper function to filter data based on search query
+function filterData(data: TableData[], searchQuery: string): TableData[] {
+  if (!searchQuery.trim()) {
+    return data;
+  }
+
+  const query = searchQuery.toLowerCase().trim();
+
+  return data.filter((item) => {
+    // Search in string fields
+    const searchableFields = [
+      item.sid,
+      item.phoneNumber,
+      item.friendlyName,
+      item.countryCode,
+    ];
+
+    // Check if any searchable field contains the query
+    const matchesStringFields = searchableFields.some((field) =>
+      field?.toLowerCase().includes(query)
+    );
+
+    // Search in capabilities
+    const matchesCapabilities = Object.entries(item.capabilities).some(
+      ([key, value]) => {
+        return (
+          key.toLowerCase().includes(query) ||
+          (value && query.includes("true")) ||
+          (!value && query.includes("false"))
+        );
+      }
+    );
+
+    // Search in boolean fields
+    const matchesBooleanFields =
+      (item.isPurchased && query.includes("purchased")) ||
+      (item.beta && query.includes("beta"));
+
+    return matchesStringFields || matchesCapabilities || matchesBooleanFields;
+  });
+}
+
 export default async function CallManageAndLogsPage({
   searchParams,
 }: TableProps) {
@@ -72,7 +114,7 @@ export default async function CallManageAndLogsPage({
   if (!activeNumbersRes.ok) throw new Error("Failed to fetch active numbers");
 
   const activeNumbersJson = await activeNumbersRes.json();
-  const tableData: TableData[] = Array.isArray(activeNumbersJson?.data)
+  const rawTableData: TableData[] = Array.isArray(activeNumbersJson?.data)
     ? activeNumbersJson.data
     : [];
 
@@ -84,6 +126,9 @@ export default async function CallManageAndLogsPage({
   ).split(":");
   const searchQuery = queryParams.query || "";
 
+  // Apply search filter first
+  const filteredData = filterData(rawTableData, searchQuery);
+
   const allowedKeys = [
     "sid",
     "phoneNumber",
@@ -93,19 +138,19 @@ export default async function CallManageAndLogsPage({
     "isPurchased",
   ];
 
-  // ✅ Safe: check tableData[0] exists
+  // ✅ Safe: check filteredData[0] exists
   const tableHeader =
-    tableData.length > 0
-      ? allowedKeys.filter((key) => Object.keys(tableData[0]).includes(key))
+    filteredData.length > 0
+      ? allowedKeys.filter((key) => Object.keys(filteredData[0]).includes(key))
       : [];
 
-  // Pagination info
-  const totalItems = tableData.length;
+  // Pagination info based on filtered data
+  const totalItems = filteredData.length;
   const totalPages = Math.ceil(totalItems / limit);
   const hasNextPage = page < totalPages;
   const hasPrevPage = page > 1;
 
-  const paginatedData = paginateData(tableData, page, limit);
+  const paginatedData = paginateData(filteredData, page, limit);
   const sortedPaginatedData = sortData(
     paginatedData as unknown as Record<string, string | number>[],
     sortField,
@@ -114,14 +159,29 @@ export default async function CallManageAndLogsPage({
 
   return (
     <div className="space-y-4">
-      {totalItems > 0 && (
+      {rawTableData.length > 0 && (
         <div className="flex gap-4 justify-between">
           <SearchField basePath={config.basePath} defaultQuery={searchQuery} />
         </div>
       )}
 
-      {tableData.length === 0 ? (
-        <p className="text-center text-gray-500">No numbers available.</p>
+      {/* Show search results info */}
+      {searchQuery && (
+        <div className="text-sm text-gray-600">
+          {totalItems > 0
+            ? `Found ${totalItems} result${
+                totalItems === 1 ? "" : "s"
+              } for "${searchQuery}"`
+            : `No results found for "${searchQuery}"`}
+        </div>
+      )}
+
+      {filteredData.length === 0 ? (
+        <p className="text-center text-gray-500">
+          {searchQuery
+            ? "No numbers match your search."
+            : "No numbers available."}
+        </p>
       ) : (
         <table className="table-auto border-collapse border border-gray-200 w-full text-gray-800">
           <thead>
