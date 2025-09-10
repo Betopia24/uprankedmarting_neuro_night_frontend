@@ -6,6 +6,7 @@ export const env = createEnv({
     API_BASE_URL: z.url(),
     API_BASE_URL_2: z.url(),
     API_BASE_URL_AI: z.url(),
+    API_BASE_URL_AI_LOCAL: z.url(),
   },
   client: {
     NEXT_PUBLIC_API_URL: z.url(),
@@ -14,6 +15,7 @@ export const env = createEnv({
     NEXT_PUBLIC_APP_ENV: z.enum(["development", "production", "test"]),
     NEXT_PUBLIC_APP_URL: z.url().min(1),
     NEXT_PUBLIC_API_BASE_URL_AI: z.url(),
+    NEXT_PUBLIC_API_BASE_URL_AI_LOCAL: z.url(),
   },
   runtimeEnv: {
     API_BASE_URL: process.env.API_BASE_URL,
@@ -25,5 +27,8 @@ export const env = createEnv({
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     API_BASE_URL_AI: process.env.API_BASE_URL_AI,
     NEXT_PUBLIC_API_BASE_URL_AI: process.env.NEXT_PUBLIC_API_BASE_URL_AI,
+    API_BASE_URL_AI_LOCAL: process.env.API_BASE_URL_AI_LOCAL,
+    NEXT_PUBLIC_API_BASE_URL_AI_LOCAL: process.env
+      .NEXT_PUBLIC_API_BASE_URL_AI_LOCAL,
   },
 });

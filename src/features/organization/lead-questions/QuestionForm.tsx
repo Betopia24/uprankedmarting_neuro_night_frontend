@@ -37,9 +37,8 @@ export default function QuestionForm({
         type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        className={`border px-3 py-2 rounded w-full ${
-          error ? "border-red-500" : "border-gray-300"
-        }`}
+        className={`border px-3 py-2 rounded w-full ${error ? "border-red-500" : "border-gray-300"
+          }`}
         placeholder="Write your lead question..."
       />
       {error && <p className="text-red-500 text-sm">{error}</p>}
