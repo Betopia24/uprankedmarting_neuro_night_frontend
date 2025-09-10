@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import { Button, InputField, SelectDropdown } from "@/components";
 import { toast } from "sonner";
 import { env } from "@/env";
-import { useEffect } from "react";
 import { z } from "zod";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 
@@ -53,7 +52,6 @@ const agentSchema = z.object({
 });
 
 // --- Types ---
-type AgentFormSchema = z.infer<typeof agentSchema>;
 type AgentFormInput = z.input<typeof agentSchema>;
 
 // --- Helpers ---
