@@ -13,7 +13,7 @@ import {
 import { env } from "@/env";
 import Image from "next/image";
 import { Button, Heading } from "@/components";
-import { LucideTrash2 } from "lucide-react";
+import { LucideStar, LucideTrash2 } from "lucide-react";
 
 type Mode = "agent" | "service";
 
@@ -107,7 +107,7 @@ export default function ShowFeedback() {
   return (
     <div className="p-4">
       <FeedBackMode selected={selected} setSelected={setSelected} />
-      <div className="flex flex-col md:flex-row gap-4">
+      <div className="flex flex-col gap-4">
         <FeedbackStat averageRating={ratingStat.averageRating} />
         <RatingGraph ratingPercentages={ratingStat.ratingPercentages} />
       </div>
@@ -143,7 +143,7 @@ export function FeedBackMode({
 // Average rating card
 function FeedbackStat({ averageRating }: { averageRating: number }) {
   return (
-    <div className="p-4 bg-blue-500 text-white rounded-3xl aspect-square max-w-40 flex flex-col items-center justify-center gap-2">
+    <div className="p-4 bg-blue-500 text-white rounded-3xl aspect-square max-w-60 w-full mx-auto flex flex-col items-center justify-center gap-2">
       <span className="text-2xl font-bold">{averageRating.toFixed(1)}</span>
       <RatingViewer rating={averageRating} size={24} />
       <span>Total Ratings</span>
@@ -162,16 +162,20 @@ function RatingGraph({
       {[5, 4, 3, 2, 1].map((star) => {
         const percent = ratingPercentages[star] ?? 0;
         return (
-          <div key={star} className="flex items-center gap-2">
-            <div className="w-6 text-right text-sm rotate-[-35deg]">{star}</div>
+          <div key={star} className="flex items-center gap-1">
+            <div className="w-5 text-right text-sm rotate-[-35deg] font-semibold flex items-center justify-center">
+              {star}
+            </div>
+            <LucideStar className="w-4 h-4 text-yellow-400" />
             <div className="flex-1 h-4 bg-gray-200 rounded overflow-hidden">
               <div
                 className="h-full bg-yellow-400 rounded"
                 style={{ width: `${percent}%` }}
               ></div>
             </div>
+
             <span className="w-12 text-sm text-right">
-              {percent.toFixed(1)}%
+              {percent.toFixed(0)}%
             </span>
           </div>
         );
@@ -193,7 +197,7 @@ function Review({
   const token = useAuth()?.token;
 
   if (!reviews.length)
-    return <p className="text-gray-500 p-2">No {mode} feedback yet.</p>;
+    return <p className="text-gray-500 p-2 mt-8">No {mode} feedback yet.</p>;
 
   const deleteUrl = (id: string) => CONFIG[mode].delete(id);
 
@@ -218,7 +222,7 @@ function Review({
       {reviews.map((review) => (
         <div
           key={review.id}
-          className="p-2 border rounded shadow flex gap-4 items-center hover:bg-red-50"
+          className="p-2 border border-gray-200 rounded shadow flex gap-4 items-center hover:bg-red-50"
         >
           <div className="shrink-0">
             {review.client.image ? (
@@ -237,7 +241,7 @@ function Review({
           </div>
           <div className="flex-1 flex flex-col text-xs">
             <span className="font-semibold">{review.client.name}</span>
-            <span>
+            <span className="break-all inline-block line-clamp-2 max-w-xs">
               {review.feedbackText.slice(0, 50)}
               {review.feedbackText.length > 50 && "..."}
             </span>
