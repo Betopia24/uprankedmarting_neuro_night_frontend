@@ -1,169 +1,3 @@
-// "use client";
-
-// import { useEffect, useState } from "react";
-// import QuestionItem from "./QuestionItem";
-// import QuestionForm from "./QuestionForm";
-// import { Container } from "@/components";
-// import { useAuth } from "@/components/AuthProvider";
-// import { createOrganizationQuestion, getOrganizationQuestions } from "@/app/auth/organization/organization";
-// import { toast } from "sonner";
-
-// const suggested = [
-//   "What type of service are you looking for?",
-//   "What is your project about, in short?",
-//   "Do you already have an existing website/app/system?",
-//   "What problems are you currently facing in your business?",
-// ];
-
-// export default function QuestionList() {
-//   const [questions, setQuestions] = useState<string[]>([]);
-//   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-//   const [showForm, setShowForm] = useState(false);
-
-//   const { user } = useAuth();
-//   // console.log("user", user);
-//   const orgId = user?.ownedOrganization?.id;
-//   const orgName = user?.ownedOrganization?.name;
-
-
-//   const handleAdd = async (question: string) => {
-//     console.log({ orgId })
-//     try {
-//       if (!orgId || !orgName) {
-//         console.error("Organization not found");
-//         return;
-//       }
-//       const res = await createOrganizationQuestion(orgId, orgName, question);
-
-//       if (!res.ok) {
-//         const errorText = await res.text();
-//         throw new Error(errorText || "Failed to add question");
-//       }
-//       setQuestions((prev) => {
-//         const updated = [...prev, question];
-//         toast.success("Question added successfully");
-//         console.log("Questions:", updated);
-//         return updated;
-//       });
-
-//       setShowForm(false);
-//     } catch (error) {
-//       console.error("Error adding question:", error);
-//     }
-//   };
-
-//   const handleUpdate = (question: string) => {
-//     if (editingIndex === null) return;
-//     const updated = [...questions];
-//     updated[editingIndex] = question;
-//     setQuestions(updated);
-//     console.log("Updated Questions: ", updated);
-//     setEditingIndex(null);
-//   };
-
-//   const handleDelete = (index: number) => {
-//     setQuestions(prev => {
-//       const updated = prev.filter((_, i) => i !== index);
-//       console.log("Questions after delete:", updated);
-//       return updated;
-//     });
-//   };
-
-//   const handleSuggestedSelect = async (question: string) => {
-//     try {
-//       if (!orgId || !orgName) {
-//         console.error("Organization not found");
-//         return;
-//       }
-
-//       // call backend
-//       const res = await createOrganizationQuestion(orgId, orgName, question);
-
-//       if (!res.ok) {
-//         const errorText = await res.text();
-//         throw new Error(errorText || "Failed to add question");
-//       }
-
-//       // update local state
-//       setQuestions(prev => {
-//         const updated = [...prev, question];
-//         toast.success("Question added successfully");
-//         console.log("Questions:", updated);
-//         return updated;
-//       });
-//     } catch (err) {
-//       console.error("Error adding suggested question:", err);
-//     }
-//   };
-
-
-
-//   return (
-//     <Container>
-//       <h1 className="text-xl font-bold mb-4">For Lead Questions</h1>
-
-//       <div className="mb-6">
-//         <p className="text-sm font-semibold mb-2">Select or Add Questions</p>
-//         <div className="flex flex-col gap-2">
-//           {suggested.map((text, idx) => {
-//             const alreadyAdded = questions.includes(text);
-//             return (
-//               <button
-//                 key={idx}
-//                 onClick={() => !alreadyAdded && handleSuggestedSelect(text)}
-//                 disabled={alreadyAdded}
-//                 className={`text-left px-3 py-2 border rounded transition ${alreadyAdded
-//                   ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-//                   : "hover:bg-gray-50 border-gray-300"
-//                   }`}
-//               >
-//                 {text}
-//               </button>
-//             );
-//           })}
-
-//         </div>
-//       </div>
-
-//       <div className="space-y-3 mb-4">
-//         {questions.map((q, i) =>
-//           editingIndex === i ? (
-//             <QuestionForm
-//               key={i}
-//               initialValue={q}
-//               onCancel={() => setEditingIndex(null)}
-//               onSave={handleUpdate}
-//             />
-//           ) : (
-//             <QuestionItem
-//               key={i}
-//               question={q}
-//               index={i}
-//               isActive={false}
-//               onEdit={() => setEditingIndex(i)}
-//               onDelete={() => handleDelete(i)}
-//             />
-//           )
-//         )}
-//       </div>
-
-//       {showForm ? (
-//         <QuestionForm onCancel={() => setShowForm(false)} onSave={handleAdd} />
-//       ) : (
-//         <button
-//           onClick={() => setShowForm(true)}
-//           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-//         >
-//           + Add Question
-//         </button>
-//       )}
-//     </Container>
-//   );
-// }
-
-
-//! Try - 1
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -195,15 +29,36 @@ interface Question {
   updated_at: string | null;
 }
 
+interface FormMessage {
+  type: 'success' | 'error';
+  text: string;
+}
+
 export default function QuestionList() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [formMessage, setFormMessage] = useState<FormMessage | null>(null);
+  const [editFormMessage, setEditFormMessage] = useState<FormMessage | null>(null);
 
   const { user } = useAuth();
   const orgId = user?.ownedOrganization?.id;
   const orgName = user?.ownedOrganization?.name;
+
+  // Clear form message when showing/hiding form
+  useEffect(() => {
+    if (!showForm) {
+      setFormMessage(null);
+    }
+  }, [showForm]);
+
+  // Clear edit form message when editing changes
+  useEffect(() => {
+    if (editingIndex === null) {
+      setEditFormMessage(null);
+    }
+  }, [editingIndex]);
 
   // Fetch questions on component mount
   useEffect(() => {
@@ -235,33 +90,45 @@ export default function QuestionList() {
 
   const handleAdd = async (question: string) => {
     console.log({ orgId });
+    setFormMessage(null); // Clear previous messages
+
     try {
       if (!orgId || !orgName) {
         console.error("Organization not found");
-        toast.error("Organization not found");
+        setFormMessage({ type: 'error', text: 'Organization not found' });
         return;
       }
 
       const res = await createOrganizationQuestion(orgId, orgName, question);
+      const responseData = await res.json();
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(errorText || "Failed to add question");
+      if (!res.ok || !responseData.accepted) {
+        // Handle backend error response
+        const errorMessage = responseData.reason || "Failed to add question";
+        setFormMessage({ type: 'error', text: errorMessage });
+        return;
       }
+
+      // Handle success response
+      const successMessage = responseData.message || "Question added successfully";
+      setFormMessage({ type: 'success', text: successMessage });
 
       // Refetch questions to get the latest data with IDs
       const fetchRes = await getOrganizationQuestions(orgId);
       if (fetchRes.ok) {
         const updatedQuestions = await fetchRes.json();
         setQuestions(updatedQuestions);
-        toast.success("Question added successfully");
+        toast.success(successMessage);
         console.log("Questions after add:", updatedQuestions);
-      }
 
-      setShowForm(false);
+        // Close form after successful add (optional - you can remove this if you want to keep it open)
+        setTimeout(() => {
+          setShowForm(false);
+        }, 2000);
+      }
     } catch (error) {
       console.error("Error adding question:", error);
-      toast.error("Failed to add question");
+      setFormMessage({ type: 'error', text: 'Failed to add question' });
     }
   };
 
@@ -271,6 +138,8 @@ export default function QuestionList() {
     const questionToUpdate = questions[editingIndex];
     if (!questionToUpdate) return;
 
+    setEditFormMessage(null); // Clear previous messages
+
     try {
       const res = await updateOrganizationQuestion(
         orgId,
@@ -278,10 +147,18 @@ export default function QuestionList() {
         questionText
       );
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(errorText || "Failed to update question");
+      const responseData = await res.json();
+
+      if (!res.ok || !responseData.accepted) {
+        // Handle backend error response
+        const errorMessage = responseData.reason || "Failed to update question";
+        setEditFormMessage({ type: 'error', text: errorMessage });
+        return;
       }
+
+      // Handle success response
+      const successMessage = responseData.message || "Question updated successfully";
+      setEditFormMessage({ type: 'success', text: successMessage });
 
       // Update local state
       const updated = [...questions];
@@ -292,11 +169,15 @@ export default function QuestionList() {
       };
       setQuestions(updated);
       console.log("Updated Questions: ", updated);
-      toast.success("Question updated successfully");
-      setEditingIndex(null);
+      toast.success(successMessage);
+
+      // Close edit form after successful update (optional)
+      setTimeout(() => {
+        setEditingIndex(null);
+      }, 2000);
     } catch (error) {
       console.error("Error updating question:", error);
-      toast.error("Failed to update question");
+      setEditFormMessage({ type: 'error', text: 'Failed to update question' });
     }
   };
 
@@ -337,18 +218,24 @@ export default function QuestionList() {
 
       // Call backend
       const res = await createOrganizationQuestion(orgId, orgName, question);
+      const responseData = await res.json();
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(errorText || "Failed to add question");
+      if (!res.ok || !responseData.accepted) {
+        // Handle backend error response
+        const errorMessage = responseData.reason || "Failed to add question";
+        toast.error(errorMessage);
+        return;
       }
+
+      // Handle success response
+      const successMessage = responseData.message || "Question added successfully";
 
       // Refetch questions to get the latest data
       const fetchRes = await getOrganizationQuestions(orgId);
       if (fetchRes.ok) {
         const updatedQuestions = await fetchRes.json();
         setQuestions(updatedQuestions);
-        toast.success("Question added successfully");
+        toast.success(successMessage);
         console.log("Questions after suggested select:", updatedQuestions);
       }
     } catch (err) {
@@ -401,6 +288,7 @@ export default function QuestionList() {
               initialValue={q.question_text}
               onCancel={() => setEditingIndex(null)}
               onSave={handleUpdate}
+              message={editFormMessage}
             />
           ) : (
             <QuestionItem
@@ -423,7 +311,11 @@ export default function QuestionList() {
       )}
 
       {showForm ? (
-        <QuestionForm onCancel={() => setShowForm(false)} onSave={handleAdd} />
+        <QuestionForm
+          onCancel={() => setShowForm(false)}
+          onSave={handleAdd}
+          message={formMessage}
+        />
       ) : (
         <button
           onClick={() => setShowForm(true)}
