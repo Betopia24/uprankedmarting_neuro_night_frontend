@@ -6,8 +6,8 @@ import { useForm } from "react-hook-form";
 import { Button, InputField, SelectDropdown } from "@/components";
 import { toast } from "sonner";
 import { env } from "@/env";
+import { useEffect } from "react";
 import { z } from "zod";
-import { getErrorMessage } from "@/lib/getErrorMessage";
 
 // --- Options ---
 const genderOptions = ["male", "female", "others"] as const;
@@ -52,6 +52,7 @@ const agentSchema = z.object({
 });
 
 // --- Types ---
+type AgentFormSchema = z.infer<typeof agentSchema>;
 type AgentFormInput = z.input<typeof agentSchema>;
 
 // --- Helpers ---
@@ -122,9 +123,8 @@ export default function AgentForm() {
 
       toast.success("Agent created successfully!");
       form.reset(); // optional: reset form
-    } catch (err: unknown) {
-      const message = getErrorMessage(err, "Server error");
-      toast.error("Server error: " + message);
+    } catch (err: any) {
+      toast.error("Server error: " + err.message);
     }
   };
 
