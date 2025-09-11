@@ -10,7 +10,7 @@ import {
   getOrganizationQuestions,
   updateOrganizationQuestion,
   deleteOrganizationQuestion
-} from "@/app/auth/organization/organization";
+} from "@/app/api/organization/organization";
 import { toast } from "sonner";
 import Image from 'next/image';
 
