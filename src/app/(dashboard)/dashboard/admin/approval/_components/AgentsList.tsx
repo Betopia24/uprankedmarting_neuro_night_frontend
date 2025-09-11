@@ -16,13 +16,12 @@ export default function AgentsList({
   metadata: { page: number; limit: number; total: number; totalPages: number };
 }) {
   const [search, setSearch] = useState("");
-  const filteredUsers = users
-    .filter((user: AgentUser) => {
-      return user.name.toLowerCase().includes(search.toLowerCase());
-    })
-    .filter((user: AgentUser) => {
-      return user.Agent?.assignments[0]?.status !== "REJECTED";
-    });
+  const filteredUsers = users.filter((user: AgentUser) => {
+    return user.name.toLowerCase().includes(search.toLowerCase());
+  });
+  // .filter((user: AgentUser) => {
+  //   return user.Agent?.assignments[0]?.status !== "REJECTED";
+  // });
 
   return (
     <div className="space-y-4">

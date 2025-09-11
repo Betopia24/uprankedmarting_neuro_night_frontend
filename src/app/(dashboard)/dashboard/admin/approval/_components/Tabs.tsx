@@ -1,44 +1,57 @@
 "use client";
 
-import Link from "next/link";
-import { StatusType } from "@/types/agent";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { StatusType } from "@/types/agent";
+import { useState, useTransition } from "react";
 
-interface TabsProps {
-  selectedTab: StatusType;
-}
-
-// Define tabs once, outside component to avoid recreating array every render
+// Only approval and removal
 const TAB_ITEMS: { key: StatusType; label: string }[] = [
-  { key: "all", label: "All" },
   { key: "approval", label: "Approval" },
   { key: "removal", label: "Removal" },
 ];
 
-export default function Tabs({ selectedTab }: TabsProps) {
+export default function Tabs({ selectedTab }: { selectedTab: StatusType }) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [activeTab, setActiveTab] = useState<StatusType>(selectedTab);
+
+  const handleTabClick = (tabKey: StatusType) => {
+    if (tabKey === activeTab) return;
+    setActiveTab(tabKey);
+    startTransition(() => {
+      router.push(`?status=${tabKey}`, { scroll: false });
+    });
+  };
+
   return (
-    <div className="flex">
+    <div className="flex items-center gap-2">
       {TAB_ITEMS.map((tab, idx) => {
-        // Determine rounded corners for first and last items
         const roundedClass =
           idx === 0
-            ? "rounded-tl rounded-bl"
+            ? "rounded-l"
             : idx === TAB_ITEMS.length - 1
-            ? "rounded-tr rounded-br"
+            ? "rounded-r"
             : "";
 
         return (
-          <Link
+          <button
             key={tab.key}
-            href={{ pathname: "approval", query: { status: tab.key } }}
+            onClick={() => handleTabClick(tab.key)}
+            disabled={isPending && activeTab === tab.key}
             className={cn(
-              "px-3 py-1 border border-gray-300",
+              "px-4 py-2 border hover:text-blue-500 border-gray-300 flex items-center justify-center gap-2 transition-all duration-300 hover:bg-gray-100",
               roundedClass,
-              selectedTab === tab.key && "bg-primary text-white"
+              selectedTab === tab.key && "bg-primary text-white",
+              isPending && activeTab === tab.key ? "opacity-80 cursor-wait" : ""
             )}
           >
             {tab.label}
-          </Link>
+            {/* Animated Spinner */}
+            {isPending && activeTab === tab.key && (
+              <span className="w-4 h-4 border-2 border-blue-500 border-t-transparent border-b-transparent rounded-full animate-spin"></span>
+            )}
+          </button>
         );
       })}
     </div>

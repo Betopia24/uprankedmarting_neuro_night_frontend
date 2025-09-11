@@ -74,7 +74,7 @@ async function fetchAgents(
 // -----------------------------
 export default async function AgentManagementPage({ searchParams }: Props) {
   const params = await searchParams;
-  const statusParam: StatusType = params.status ?? "all";
+  const statusParam: StatusType = params.status ?? "approval";
   const limit = params.limit ? parseInt(params.limit, 10) : 10;
 
   const { users, metadata } = await fetchAgents(statusParam, limit);
