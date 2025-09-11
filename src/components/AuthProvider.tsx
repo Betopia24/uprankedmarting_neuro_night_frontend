@@ -11,7 +11,7 @@ interface User {
   ownedOrganization: {
     id: string;
     name: string;
-  }
+  } | null;
 }
 
 interface AuthContextType {

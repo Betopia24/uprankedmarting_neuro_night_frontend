@@ -1,38 +1,59 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 import { StatusType } from "@/types/agent";
+import { useState, useTransition } from "react";
+
+// Only approval and removal
+const TAB_ITEMS: { key: StatusType; label: string }[] = [
+  { key: "approval", label: "Approval" },
+  { key: "removal", label: "Removal" },
+];
 
 export default function Tabs({ selectedTab }: { selectedTab: StatusType }) {
-  return (
-    <div className="flex">
-      <Link
-        className={cn(
-          "px-3 py-1 rounded-tl rounded-bl border border-gray-300",
-          (selectedTab === "all" || !selectedTab) && "bg-primary text-white"
-        )}
-        href={{ pathname: "approval", query: { status: "all" } }}
-      >
-        All
-      </Link>
-      <Link
-        className={cn(
-          "px-3 py-1 rounded-tl rounded-bl border border-gray-300",
-          selectedTab === "approval" && "bg-primary text-white"
-        )}
-        href={{ pathname: "approval", query: { status: "approval" } }}
-      >
-        Approval
-      </Link>
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [activeTab, setActiveTab] = useState<StatusType>(selectedTab);
 
-      <Link
-        className={cn(
-          "px-3 py-1 rounded-tr rounded-br border border-gray-300",
-          selectedTab === "removal" && "bg-primary text-white"
-        )}
-        href={{ pathname: "approval", query: { status: "removal" } }}
-      >
-        Removal
-      </Link>
+  const handleTabClick = (tabKey: StatusType) => {
+    if (tabKey === activeTab) return;
+    setActiveTab(tabKey);
+    startTransition(() => {
+      router.push(`?status=${tabKey}`, { scroll: false });
+    });
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      {TAB_ITEMS.map((tab, idx) => {
+        const roundedClass =
+          idx === 0
+            ? "rounded-l"
+            : idx === TAB_ITEMS.length - 1
+            ? "rounded-r"
+            : "";
+
+        return (
+          <button
+            key={tab.key}
+            onClick={() => handleTabClick(tab.key)}
+            disabled={isPending && activeTab === tab.key}
+            className={cn(
+              "px-4 py-2 border hover:text-blue-500 border-gray-300 flex items-center justify-center gap-2 transition-all duration-300 hover:bg-gray-100",
+              roundedClass,
+              selectedTab === tab.key && "bg-primary text-white",
+              isPending && activeTab === tab.key ? "opacity-80 cursor-wait" : ""
+            )}
+          >
+            {tab.label}
+            {/* Animated Spinner */}
+            {isPending && activeTab === tab.key && (
+              <span className="w-4 h-4 border-2 border-blue-500 border-t-transparent border-b-transparent rounded-full animate-spin"></span>
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }

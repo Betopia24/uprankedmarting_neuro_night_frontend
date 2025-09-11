@@ -30,6 +30,7 @@ export interface Agent {
 export interface Assignment {
   id: string;
   status: string;
+  organizationId: string;
 }
 
 export interface Organization {
@@ -162,9 +163,11 @@ export default async function AgentManagementPage({ searchParams }: Props) {
     throw new Error(error);
   }
 
-  console.log(await fetchAgents(viewParam, limit));
-
-  return;
-
-  return <AgentsList users={users} viewParam={viewParam} metadata={metadata} />;
+  return (
+    <AgentsList
+      users={users as AgentUser[]}
+      viewParam={viewParam}
+      metadata={metadata}
+    />
+  );
 }

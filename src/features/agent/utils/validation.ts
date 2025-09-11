@@ -26,49 +26,46 @@ export const agentSchema = z.object({
         }
       ),
   }),
-  agentData: z
-    .object({
-      dateOfBirth: z.string(), // YYYY-MM-DD
-      sip_domain: z.string().min(5).max(100),
-      sip_password: z
-        .string()
-        .min(12)
-        .max(100)
-        .refine(
-          (val) =>
-            /[A-Z]/.test(val) &&
-            /[a-z]/.test(val) &&
-            /\d/.test(val) &&
-            /[!@#$%^&*(),.?":{}|<>]/.test(val),
-          {
-            message:
-              "SIP password must have at least 12 characters, uppercase, lowercase, number and special character",
-          }
-        ),
-      gender: z.enum(genderOptions),
-      address: z.string().trim().min(5).max(200),
-      emergencyPhone: z.string().min(5).max(20),
-      ssn: z.string().trim().min(3).max(64),
-      skills: z
-        .array(z.string().min(1))
-        .min(1, "At least one skill is required"),
-      officeHours: z.number().min(1).max(24).default(8),
-      isAvailable: z.boolean().default(true),
-    })
-    .refine(
-      (data) =>
-        !data.workStartTime ||
-        !data.workEndTime ||
-        (() => {
-          const [sh, sm] = data.workStartTime.split(":").map(Number);
-          const [eh, em] = data.workEndTime.split(":").map(Number);
-          return eh * 60 + em - (sh * 60 + sm) >= 480;
-        })(),
-      {
-        message: "Work interval must be at least 8 hours",
-        path: ["workEndTime"],
-      }
-    ),
+  agentData: z.object({
+    dateOfBirth: z.string(), // YYYY-MM-DD
+    sip_domain: z.string().min(5).max(100),
+    sip_password: z
+      .string()
+      .min(12)
+      .max(100)
+      .refine(
+        (val) =>
+          /[A-Z]/.test(val) &&
+          /[a-z]/.test(val) &&
+          /\d/.test(val) &&
+          /[!@#$%^&*(),.?":{}|<>]/.test(val),
+        {
+          message:
+            "SIP password must have at least 12 characters, uppercase, lowercase, number and special character",
+        }
+      ),
+    gender: z.enum(genderOptions),
+    address: z.string().trim().min(5).max(200),
+    emergencyPhone: z.string().min(5).max(20),
+    ssn: z.string().trim().min(3).max(64),
+    skills: z.array(z.string().min(1)).min(1, "At least one skill is required"),
+    officeHours: z.number().min(1).max(24).default(8),
+    isAvailable: z.boolean().default(true),
+  }),
+  // .refine(
+  //   (data) =>
+  //     !data.workStartTime ||
+  //     !data.workEndTime ||
+  //     (() => {
+  //       const [sh, sm] = data.workStartTime.split(":").map(Number);
+  //       const [eh, em] = data.workEndTime.split(":").map(Number);
+  //       return eh * 60 + em - (sh * 60 + sm) >= 480;
+  //     })(),
+  //   {
+  //     message: "Work interval must be at least 8 hours",
+  //     path: ["workEndTime"],
+  //   }
+  // ),
 });
 
 // --- Types ---

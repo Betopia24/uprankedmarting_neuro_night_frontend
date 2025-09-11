@@ -57,6 +57,8 @@ export default async function CallManageAndLogsPage({
   searchParams,
 }: TableProps) {
   const auth = await getServerAuth();
+
+  // Fetch numbers
   const numbersFetchResponse = await fetch(
     `${env.API_BASE_URL}/active-numbers/get-available-numbers`,
     {
@@ -65,9 +67,9 @@ export default async function CallManageAndLogsPage({
       },
     }
   );
-
   await numbersFetchResponse.json();
   if (!numbersFetchResponse.ok) throw new Error("Failed to fetch numbers");
+
   const activeNumbers = await fetch(`${env.API_BASE_URL}/active-numbers`, {
     headers: {
       Authorization: `${auth?.accessToken}`,
@@ -77,7 +79,7 @@ export default async function CallManageAndLogsPage({
   const data = await activeNumbers.json();
   if (!activeNumbers.ok) throw new Error("Failed to fetch active numbers");
 
-  const { data: tableData }: { data: TableData[] } = data || { data: [] };
+  const { data: tableData = [] }: { data: TableData[] } = data || {};
 
   const queryParams = await searchParams;
   const page = Number(queryParams.page) || DEFAULT_PAGE;
@@ -98,13 +100,15 @@ export default async function CallManageAndLogsPage({
     "isPurchased",
   ];
 
-  const tableHeader = allowedKeys.filter((key) =>
-    Object.keys(tableData[0]).includes(key)
-  );
+  // ✅ Only build tableHeader if data exists
+  const tableHeader =
+    tableData.length > 0
+      ? allowedKeys.filter((key) => Object.keys(tableData[0]).includes(key))
+      : [];
 
-  // Calculate pagination info based on filtered data
+  // Pagination info
   const totalItems = tableData.length;
-  const totalPages = Math.ceil(totalItems / limit);
+  const totalPages = Math.ceil(totalItems / limit) || 1;
   const hasNextPage = page < totalPages;
   const hasPrevPage = page > 1;
 
@@ -118,82 +122,82 @@ export default async function CallManageAndLogsPage({
 
   return (
     <div className="space-y-4">
-      {/* <div className="flex gap-4 justify-between">
-        <SearchField basePath={config.basePath} defaultQuery={searchQuery} />
-      </div> */}
+      {tableData.length === 0 ? (
+        <p className="text-center text-gray-500">No numbers available.</p>
+      ) : (
+        <>
+          <table className="table-auto border-collapse border border-gray-200 w-full text-gray-800">
+            <thead>
+              <tr className="bg-gray-100">
+                {tableHeader.map((field) => (
+                  <TableHeaderItem
+                    key={field}
+                    field={field}
+                    currentSort={sortField}
+                    sortDirection={sortDirection}
+                    currentPage={page}
+                    limit={limit}
+                    searchQuery={searchQuery}
+                    basePath={config.basePath}
+                  />
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {sortedPaginatedData.map((item) => (
+                <tr key={item.id}>
+                  {tableHeader.map((key) => {
+                    const value = item[key as keyof typeof item];
 
-      <table className="table-auto border-collapse border border-gray-200 w-full text-gray-800">
-        <thead>
-          <tr className="bg-gray-100">
-            {tableHeader.map((field) => (
-              <TableHeaderItem
-                key={field}
-                field={field}
-                currentSort={sortField}
-                sortDirection={sortDirection}
-                currentPage={page}
-                limit={limit}
-                searchQuery={searchQuery}
-                basePath={config.basePath}
-              />
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {sortedPaginatedData.map((item) => (
-            <tr key={item.id}>
-              {tableHeader.map((key) => {
-                const value = item[key as keyof typeof item];
-
-                // 🔹 Check if value is capabilities object
-                if (
-                  key === "capabilities" &&
-                  typeof value === "object" &&
-                  value !== null
-                ) {
-                  const caps = value as Capabilities;
-                  return (
-                    <td
-                      key={key}
-                      className="border border-gray-200 p-2 flex gap-2"
-                    >
-                      {Object.entries(caps).map(([capKey, enabled]) => (
-                        <span
-                          key={capKey}
-                          className={`px-1 rounded text-white text-xs ${
-                            enabled ? "bg-green-500" : "bg-gray-400"
-                          }`}
-                          title={capKey}
+                    if (
+                      key === "capabilities" &&
+                      typeof value === "object" &&
+                      value !== null
+                    ) {
+                      const caps = value as Capabilities;
+                      return (
+                        <td
+                          key={key}
+                          className="border border-gray-200 p-2 flex gap-2"
                         >
-                          {capKey.toUpperCase()}
-                        </span>
-                      ))}
-                    </td>
-                  );
-                }
+                          {Object.entries(caps).map(([capKey, enabled]) => (
+                            <span
+                              key={capKey}
+                              className={`px-1 rounded text-white text-xs ${
+                                enabled ? "bg-green-500" : "bg-gray-400"
+                              }`}
+                              title={capKey}
+                            >
+                              {capKey.toUpperCase()}
+                            </span>
+                          ))}
+                        </td>
+                      );
+                    }
 
-                // 🔹 Default for normal values
-                return (
-                  <td key={key} className="border border-gray-200 p-2">
-                    {String(value)}
-                  </td>
-                );
-              })}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                    return (
+                      <td key={key} className="border border-gray-200 p-2">
+                        {String(value)}
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-      <Pagination
-        currentPage={page}
-        totalPages={totalPages}
-        hasNextPage={hasNextPage}
-        hasPrevPage={hasPrevPage}
-        limit={limit}
-        sortField={sortField}
-        sortDirection={sortDirection}
-        basePath={config.basePath}
-      />
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            hasNextPage={hasNextPage}
+            hasPrevPage={hasPrevPage}
+            limit={limit}
+            sortField={sortField}
+            sortDirection={sortDirection}
+            basePath={config.basePath}
+          />
+        </>
+      )}
     </div>
   );
 }
