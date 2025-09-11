@@ -52,7 +52,7 @@ const defaultValues = {
   confirmPassword: "1234zxcvQ!",
   businessName: "1234zxcv",
   industry: "information-technology",
-  website: "http://example.com",
+  website: "",
   address: "11,11,11",
   phoneNumber: "+8801670012716",
   acceptTerms: true,

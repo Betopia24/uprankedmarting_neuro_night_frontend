@@ -15,12 +15,6 @@ export default function AgentProfileCard({
 }) {
   // console.log(user);
   const userId = user.id;
-  const organizationId = user.Agent.assignments.find((assignment) =>
-    status === "approval"
-      ? assignment.status === "PENDING"
-      : assignment.status === "REMOVAL_REQUESTED"
-  )?.organizationId;
-
   const newApprovalOrganizationId = user.Agent.assignments.find((assignment) =>
     status === "approval" ? assignment.status === "PENDING" : ""
   )?.organizationId;

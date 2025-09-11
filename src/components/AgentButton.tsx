@@ -190,48 +190,38 @@ export function AdminApprovalActionButtons({
   );
 
   const organizationId = newApprovalOrganizationId || newRemovalOrganizationId;
-
   const approvalEndpoint = adminEndpoint[status].accept;
   const removalEndpoint = adminEndpoint[status].reject;
 
-  console.log(approvalEndpoint());
-  console.log(removalEndpoint());
-
   const handleAction = async (action: "accept" | "reject") => {
-    const optimisticMessage =
-      action === "accept" ? "Approved successfully!" : "Rejected successfully!";
-    const errorMessage =
-      action === "accept" ? "Failed to approve." : "Failed to reject.";
-
-    // Optimistic feedback
-    toast.loading(`${action === "accept" ? "Approving..." : "Rejecting..."} `);
     setIsProcessing(action);
 
-    try {
-      const endpoint =
-        action === "accept" ? approvalEndpoint() : removalEndpoint();
+    const endpoint =
+      action === "accept" ? approvalEndpoint() : removalEndpoint();
 
-      const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/${endpoint}`, {
+    await toast.promise(
+      fetch(`${env.NEXT_PUBLIC_API_URL}/${endpoint}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `${auth?.token}`,
         },
         body: JSON.stringify({ userId, organizationId }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Request failed");
+      }).then((res) => {
+        if (!res.ok) throw new Error("Request failed");
+        onAgentUpdate(userId);
+      }),
+      {
+        loading: action === "accept" ? "Approving..." : "Rejecting...",
+        success:
+          action === "accept"
+            ? "Approved successfully!"
+            : "Rejected successfully!",
+        error: action === "accept" ? "Failed to approve." : "Failed to reject.",
       }
+    );
 
-      onAgentUpdate(userId);
-      toast.success(optimisticMessage);
-    } catch (err) {
-      // Rollback optimistic state if needed
-      toast.error(errorMessage);
-    } finally {
-      setIsProcessing(null);
-    }
+    setIsProcessing(null);
   };
 
   return (
@@ -249,7 +239,7 @@ export function AdminApprovalActionButtons({
         disabled={isProcessing !== null}
         onClick={() => handleAction("reject")}
       >
-        {isProcessing === "reject" ? "Rejecting..." : "Reject"}
+        {isProcessing === "reject" ? "Ignoring..." : "Ignore"}
       </Button>
     </div>
   );

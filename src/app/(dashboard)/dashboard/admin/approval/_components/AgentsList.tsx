@@ -3,7 +3,7 @@
 import SearchBar from "./SearchBar";
 import Tabs from "./Tabs";
 import AgentProfileCard from "./AgentProfileCard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AgentUser, StatusType } from "@/types/agent";
 
 export default function AgentsList({
@@ -15,16 +15,20 @@ export default function AgentsList({
   statusParam: StatusType;
   metadata: { page: number; limit: number; total: number; totalPages: number };
 }) {
-  // const [agents, setAgents] = useState(users);
+  const [agents, setAgents] = useState(users);
   const [search, setSearch] = useState("");
-  const filteredUsers = users.filter((agent: AgentUser) => {
+  const filteredUsers = agents.filter((agent: AgentUser) => {
     return agent.name.toLowerCase().includes(search.toLowerCase());
   });
 
-  let agents = users;
+  useEffect(() => {
+    setAgents(users);
+  }, [users]);
 
   const handleAgentUpdate = (agentId: string) => {
-    agents = agents.filter((a) => a.id !== agentId);
+    setAgents((prevAgents) =>
+      prevAgents.filter((agent) => agent.id !== agentId)
+    );
   };
 
   // console.log("agents", agents);
