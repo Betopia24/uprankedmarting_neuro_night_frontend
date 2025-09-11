@@ -24,6 +24,7 @@ export interface Agent {
 export interface Assignment {
   id: string;
   status: string;
+  organizationId: string;
 }
 
 export interface Organization {

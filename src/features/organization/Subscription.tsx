@@ -135,10 +135,12 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
         organizationId,
         sid,
         planLevel,
-        purchasedNumber: number.toString().trim(),
+        purchasedNumber: "+" + number.toString().trim(),
         numberOfAgents: formData.agentCount,
         paymentMethodId: paymentMethod.id, // <-- server needs this
       };
+
+      console.log({ subscriptionData });
 
       const createdSubscriptionResponse = await fetch(
         process.env.NEXT_PUBLIC_API_URL + "/subscriptions/create-subscription",

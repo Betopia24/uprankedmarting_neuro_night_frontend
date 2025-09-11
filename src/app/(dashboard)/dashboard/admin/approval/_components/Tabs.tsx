@@ -1,38 +1,46 @@
-import { cn } from "@/lib/utils";
+"use client";
+
 import Link from "next/link";
 import { StatusType } from "@/types/agent";
+import { cn } from "@/lib/utils";
 
-export default function Tabs({ selectedTab }: { selectedTab: StatusType }) {
+interface TabsProps {
+  selectedTab: StatusType;
+}
+
+// Define tabs once, outside component to avoid recreating array every render
+const TAB_ITEMS: { key: StatusType; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "approval", label: "Approval" },
+  { key: "removal", label: "Removal" },
+];
+
+export default function Tabs({ selectedTab }: TabsProps) {
   return (
     <div className="flex">
-      <Link
-        className={cn(
-          "px-3 py-1 rounded-tl rounded-bl border border-gray-300",
-          (selectedTab === "all" || !selectedTab) && "bg-primary text-white"
-        )}
-        href={{ pathname: "approval", query: { status: "all" } }}
-      >
-        All
-      </Link>
-      <Link
-        className={cn(
-          "px-3 py-1 rounded-tl rounded-bl border border-gray-300",
-          selectedTab === "approval" && "bg-primary text-white"
-        )}
-        href={{ pathname: "approval", query: { status: "approval" } }}
-      >
-        Approval
-      </Link>
+      {TAB_ITEMS.map((tab, idx) => {
+        // Determine rounded corners for first and last items
+        const roundedClass =
+          idx === 0
+            ? "rounded-tl rounded-bl"
+            : idx === TAB_ITEMS.length - 1
+            ? "rounded-tr rounded-br"
+            : "";
 
-      <Link
-        className={cn(
-          "px-3 py-1 rounded-tr rounded-br border border-gray-300",
-          selectedTab === "removal" && "bg-primary text-white"
-        )}
-        href={{ pathname: "approval", query: { status: "removal" } }}
-      >
-        Removal
-      </Link>
+        return (
+          <Link
+            key={tab.key}
+            href={{ pathname: "approval", query: { status: tab.key } }}
+            className={cn(
+              "px-3 py-1 border border-gray-300",
+              roundedClass,
+              selectedTab === tab.key && "bg-primary text-white"
+            )}
+          >
+            {tab.label}
+          </Link>
+        );
+      })}
     </div>
   );
 }

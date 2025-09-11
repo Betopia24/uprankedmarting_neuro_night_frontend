@@ -24,8 +24,6 @@ export default function AgentsList({
       return user.Agent?.assignments[0]?.status !== "REJECTED";
     });
 
-  console.log("filteredUsers", filteredUsers);
-
   return (
     <div className="space-y-4">
       <SearchBar search={search} setSearch={setSearch} />
@@ -36,7 +34,7 @@ export default function AgentsList({
         )}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
           {filteredUsers.map((user: AgentUser) => (
-            <AgentProfileCard key={user.id} user={user} />
+            <AgentProfileCard key={user.id} user={user} status={statusParam} />
           ))}
         </div>
       </div>

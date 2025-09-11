@@ -137,17 +137,54 @@ export function RemoveAgentButton({
   );
 }
 
-function AdminApprovalActionButtons({
+const adminEndpoint = {
+  approval: {
+    accept: (agentId: string) => "agents/approve-agent-assignment",
+    reject: (agentId: string) => "agents/reject",
+  },
+  removal: {
+    accept: (agentId: string) => `agents/${agentId}/approve-agent-removal`,
+    reject: (agentId: string) => `agents/${agentId}/reject-agent-removal`,
+  },
+};
+
+export function AdminApprovalActionButtons({
   status,
+  userId,
+  agentId,
 }: {
   status: "approval" | "removal";
+  userId: string;
+  agentId: string;
 }) {
-  const approvalEndpoint = "";
-  const removalEndpoint = "";
+  const auth = useAuth();
+  const approvalEndpoint = adminEndpoint[status].accept;
+  const removalEndpoint = adminEndpoint[status].reject;
+
+  const handleApprovalAction = async () => {
+    try {
+      const response = await fetch(
+        `${env.NEXT_PUBLIC_API_URL}/${approvalEndpoint(userId)}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `${auth?.token}`,
+          },
+          body: JSON.stringify({ userId, organizationId: agentId }),
+        }
+      );
+    } catch (error) {}
+  };
+
   return (
-    <>
-      <Button size="sm">Approve</Button>
-      <Button size="sm">Reject</Button>
-    </>
+    <div className="flex gap-2 justify-center">
+      <Button onClick={handleApprovalAction} size="sm">
+        Approve
+      </Button>
+      <Button variant="destructive" size="sm">
+        Reject
+      </Button>
+    </div>
   );
 }

@@ -1,9 +1,24 @@
 import Image from "next/image";
-import { AgentUser } from "@/types/agent";
+import { AgentUser, StatusType } from "@/types/agent";
 import Heading from "@/components/Heading";
 import RatingViewer from "@/components/RatingViewer";
+import { AdminApprovalActionButtons } from "@/components/AgentButton";
 
-export default function AgentProfileCard({ user }: { user: AgentUser }) {
+export default function AgentProfileCard({
+  user,
+  status,
+}: {
+  user: AgentUser;
+  status: StatusType;
+}) {
+  // console.log(user);
+  const userId = user.id;
+  const agentId = user.Agent.assignments.find((assignment) =>
+    status === "approval"
+      ? assignment.status === "PENDING"
+      : assignment.status === "APPROVED"
+  )?.organizationId;
+
   return (
     <div className="bg-white rounded shadow-xl p-4 overflow-hidden">
       <div className="max-w-84 mx-auto space-y-3 text-center">
@@ -37,6 +52,12 @@ export default function AgentProfileCard({ user }: { user: AgentUser }) {
         <p className="text-xs">{user.bio}</p>
 
         {/* <div className="text-center">{action}</div> */}
+
+        <AdminApprovalActionButtons
+          status="approval"
+          userId={userId}
+          agentId={agentId || ""}
+        />
 
         <div className="flex items-center gap-2 justify-between flex-wrap border-t border-t-gray-200 py-4 px-8">
           <Stats
