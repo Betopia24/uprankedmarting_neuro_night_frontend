@@ -10,7 +10,7 @@ interface User {
   image: string;
   ownedOrganization: {
     id: string;
-  };
+  } | null;
 }
 
 interface AuthContextType {

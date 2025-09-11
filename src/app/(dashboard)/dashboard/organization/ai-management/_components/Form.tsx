@@ -9,7 +9,6 @@ import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 
 import { env } from "@/env";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/components/AuthProvider";
 
 // UI Components
 import {
@@ -64,7 +63,11 @@ const agentSchema = z.object({
   knowledge_base_ids: z.array(z.string()).default([]).optional(),
   max_duration_seconds: z.number().int().min(1).max(3600),
   daily_limit: z.number().int().min(1).max(10000),
-  llm: z.string().default("gemini-2.5-flash"),
+  llm: z
+    .string()
+    .default("gemini-2.5-flash")
+    .catch("gemini-2.5-flash")
+    .optional(),
   stability: z.number().min(0).max(1),
   speed: z.number().min(0.7).max(1.2),
   similarity_boost: z.number().min(0).max(1),
@@ -239,8 +242,6 @@ export default function AgentForm({
 }: AgentFormProps) {
   const [loading, setLoading] = useState(false);
   const [knowledgeBases, setKnowledgeBases] = useState<KnowledgeBase[]>([]);
-
-  console.log("Line 244", { orgId, agentId });
 
   const form = useForm<AgentForm>({
     resolver: zodResolver(agentSchema),

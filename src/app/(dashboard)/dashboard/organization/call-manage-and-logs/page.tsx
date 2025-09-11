@@ -13,7 +13,7 @@ import {
 import Filter, { FilterField } from "@/components/table/components/Filter";
 
 // Dummy table data
-export const tableData = [
+const tableData = [
   {
     id: 1,
     name: "John",
