@@ -7,10 +7,16 @@ import { Button } from "@/components/ui/button"
 import { Camera, X } from "lucide-react"
 import { toast } from "sonner"
 
+// interface ImageUploadProps {
+//   currentImage?: string
+//   onImageChange: (file: File | null) => void
+//   className?: string
+// }
+
 interface ImageUploadProps {
-  currentImage?: string
-  onImageChange: (file: File | null) => void
-  className?: string
+  currentImage?: string | null | undefined;
+  onImageChange: (file: File | null) => void;
+  className?: string;
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({ currentImage, onImageChange, className = "" }) => {

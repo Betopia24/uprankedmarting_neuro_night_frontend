@@ -24,20 +24,18 @@ export const updateProfileSettings = async (
 ): Promise<Response> => {
   const headers: Record<string, string> = {}
   if (token) {
-    // 'Bearer ' প্রিফিক্স থাকা উচিত
+    
     headers.Authorization = `${token}`
   }
 
-  // যদি ফাইল থাকে
   if (profileImage) {
     const formData = new FormData()
-    // ✅ ব্যাকএন্ড যেটা আশা করছে সেটাই দাও:
     formData.append("data", JSON.stringify(payload))
-    formData.append("file", profileImage) // 👈 multerUpload.single("file")
+    formData.append("file", profileImage) 
 
     return fetch(`${env.NEXT_PUBLIC_API_URL}/users/update`, {
       method: "PATCH",
-      headers, // FormData হলে content-type সেট কোরো না
+      headers, 
       body: formData,
     })
   } else {
@@ -50,3 +48,17 @@ export const updateProfileSettings = async (
   }
 }
 
+export const getProfileInfo = async (
+  id: string,            
+  token: string | null
+): Promise<Response> => {
+  const headers: Record<string, string> = {}
+  if (token) {
+    headers.Authorization = `${token}`
+  }
+
+  return fetch(`${env.NEXT_PUBLIC_API_URL}/auth/get-user/${id}`, {
+    method: "GET",
+    headers,
+  })
+}
