@@ -21,7 +21,7 @@ type RemoveAgentButtonProps = WithChildren & {
 export function SelectAgentButton({
   children,
   agentId,
-  pending,
+  pending = false,
 }: SelectAgentButtonProps) {
   const auth = useAuth();
   const token = auth?.token;
@@ -38,6 +38,8 @@ export function SelectAgentButton({
       return;
     }
 
+    setIsPending(true); // optimistic update
+
     try {
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/agents/request/${agentId}`,
@@ -51,26 +53,37 @@ export function SelectAgentButton({
       );
 
       const data = await response.json();
+
       if (!response.ok) {
+        setIsPending(false); // revert on error
         throw new Error(data?.message || "Failed to send request.");
       }
 
-      // 🔑 Optimistic update
-      setIsPending(true);
-
       toast.success("Agent request sent successfully!");
-      router.refresh(); // re-fetch server data
+      router.refresh();
       return data;
     } catch (error: unknown) {
+      setIsPending(false); // revert
       console.error("Agent selection error:", error);
-      const message =
-        error instanceof Error ? error.message : "Something went wrong.";
-      toast.error(message);
+      toast.error(
+        error instanceof Error ? error.message : "Something went wrong."
+      );
     }
   };
 
   return (
-    <Button size="sm" onClick={handleClick} disabled={isPending}>
+    <Button
+      size="sm"
+      onClick={handleClick}
+      disabled={isPending}
+      className={cn(
+        "flex items-center justify-center",
+        isPending && "opacity-70 cursor-wait"
+      )}
+    >
+      {isPending && (
+        <span className="w-4 h-4 border-2 border-white border-t-transparent border-b-transparent rounded-full animate-spin mr-2" />
+      )}
       {isPending ? "Pending" : children}
     </Button>
   );
@@ -79,10 +92,11 @@ export function SelectAgentButton({
 export function RemoveAgentButton({
   children,
   agentId,
-  pending,
+  pending = false,
 }: RemoveAgentButtonProps) {
   const auth = useAuth();
   const token = auth?.token;
+  const router = useRouter();
   const [isPending, setIsPending] = useState(pending);
 
   const handleClick = async () => {
@@ -94,6 +108,8 @@ export function RemoveAgentButton({
       toast.error("You must be logged in to remove an agent.");
       return;
     }
+
+    setIsPending(true); // optimistic update
 
     try {
       const response = await fetch(
@@ -108,20 +124,21 @@ export function RemoveAgentButton({
       );
 
       const data = await response.json();
+
       if (!response.ok) {
+        setIsPending(false); // revert
         throw new Error(data?.message || "Failed to request agent removal.");
       }
 
-      // 🔑 Optimistic update
-      setIsPending(true);
-
       toast.success("Agent removal request sent successfully!");
+      router.refresh();
       return data;
     } catch (error: unknown) {
+      setIsPending(false); // revert
       console.error("Agent removal error:", error);
-      const message =
-        error instanceof Error ? error.message : "Something went wrong.";
-      toast.error(message);
+      toast.error(
+        error instanceof Error ? error.message : "Something went wrong."
+      );
     }
   };
 
@@ -129,9 +146,15 @@ export function RemoveAgentButton({
     <Button
       size="sm"
       onClick={handleClick}
-      className={cn("bg-orange-500 hover:bg-orange-500/80")}
       disabled={isPending}
+      className={cn(
+        "bg-orange-500 hover:bg-orange-500/80 flex items-center justify-center",
+        isPending && "opacity-70 cursor-wait"
+      )}
     >
+      {isPending && (
+        <span className="w-4 h-4 border-2 border-white border-t-transparent border-b-transparent rounded-full animate-spin mr-2" />
+      )}
       {isPending ? "Pending" : children}
     </Button>
   );

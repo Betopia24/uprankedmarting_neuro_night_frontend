@@ -43,7 +43,7 @@ export default function AgentProfileCard({
 
         <p className="text-xs">{user.bio}</p>
 
-        <div className="text-center">{action}</div>
+        <div className="flex justify-center">{action}</div>
 
         <div className="flex items-center gap-2 justify-between flex-wrap border-t border-t-gray-200 py-4 px-8">
           <Stats
