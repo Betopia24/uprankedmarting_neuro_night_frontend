@@ -10,7 +10,6 @@ type Props = {
 const queryDict: Record<StatusType, string> = {
   approval: "PENDING",
   removal: "REMOVAL_REQUESTED",
-  all: "",
 };
 
 interface BackendResponse {

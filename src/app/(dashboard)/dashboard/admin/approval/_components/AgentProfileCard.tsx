@@ -7,17 +7,30 @@ import { AdminApprovalActionButtons } from "@/components/AgentButton";
 export default function AgentProfileCard({
   user,
   status,
+  onAgentUpdate,
 }: {
   user: AgentUser;
   status: StatusType;
+  onAgentUpdate: (agentId: string) => void;
 }) {
   // console.log(user);
   const userId = user.id;
-  const agentId = user.Agent.assignments.find((assignment) =>
+  const organizationId = user.Agent.assignments.find((assignment) =>
     status === "approval"
       ? assignment.status === "PENDING"
-      : assignment.status === "APPROVED"
+      : assignment.status === "REMOVAL_REQUESTED"
   )?.organizationId;
+
+  const newApprovalOrganizationId = user.Agent.assignments.find((assignment) =>
+    status === "approval" ? assignment.status === "PENDING" : ""
+  )?.organizationId;
+
+  const newRemovalOrganizationId = user.Agent.assignments.find((assignment) =>
+    status === "removal" ? assignment.status === "REMOVAL_REQUESTED" : ""
+  )?.organizationId;
+
+  console.log("newApprovalOrganizationId", newApprovalOrganizationId);
+  console.log("newRemovalOrganizationId", newRemovalOrganizationId);
 
   return (
     <div className="bg-white rounded shadow-xl p-4 overflow-hidden">
@@ -54,9 +67,11 @@ export default function AgentProfileCard({
         {/* <div className="text-center">{action}</div> */}
 
         <AdminApprovalActionButtons
-          status="approval"
+          status={status}
           userId={userId}
-          agentId={agentId || ""}
+          newApprovalOrganizationId={newApprovalOrganizationId || ""}
+          newRemovalOrganizationId={newRemovalOrganizationId || ""}
+          onAgentUpdate={onAgentUpdate}
         />
 
         <div className="flex items-center gap-2 justify-between flex-wrap border-t border-t-gray-200 py-4 px-8">

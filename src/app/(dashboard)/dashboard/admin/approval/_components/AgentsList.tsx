@@ -15,13 +15,19 @@ export default function AgentsList({
   statusParam: StatusType;
   metadata: { page: number; limit: number; total: number; totalPages: number };
 }) {
+  // const [agents, setAgents] = useState(users);
   const [search, setSearch] = useState("");
-  const filteredUsers = users.filter((user: AgentUser) => {
-    return user.name.toLowerCase().includes(search.toLowerCase());
+  const filteredUsers = users.filter((agent: AgentUser) => {
+    return agent.name.toLowerCase().includes(search.toLowerCase());
   });
-  // .filter((user: AgentUser) => {
-  //   return user.Agent?.assignments[0]?.status !== "REJECTED";
-  // });
+
+  let agents = users;
+
+  const handleAgentUpdate = (agentId: string) => {
+    agents = agents.filter((a) => a.id !== agentId);
+  };
+
+  // console.log("agents", agents);
 
   return (
     <div className="space-y-4">
@@ -33,7 +39,12 @@ export default function AgentsList({
         )}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
           {filteredUsers.map((user: AgentUser) => (
-            <AgentProfileCard key={user.id} user={user} status={statusParam} />
+            <AgentProfileCard
+              key={user.id}
+              user={user}
+              status={statusParam}
+              onAgentUpdate={handleAgentUpdate}
+            />
           ))}
         </div>
       </div>

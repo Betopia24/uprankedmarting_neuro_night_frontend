@@ -162,51 +162,94 @@ export function RemoveAgentButton({
 
 const adminEndpoint = {
   approval: {
-    accept: (agentId: string) => "agents/approve-agent-assignment",
-    reject: (agentId: string) => "agents/reject",
+    accept: () => "agents/approve-agent-assignment",
+    reject: () => "agents/reject-agent-assignment",
   },
   removal: {
-    accept: (agentId: string) => `agents/${agentId}/approve-agent-removal`,
-    reject: (agentId: string) => `agents/${agentId}/reject-agent-removal`,
+    accept: () => `agents/approve-agent-removal`,
+    reject: () => `agents/reject-agent-removal`,
   },
 };
 
 export function AdminApprovalActionButtons({
   status,
   userId,
-  agentId,
+  newApprovalOrganizationId,
+  newRemovalOrganizationId,
+  onAgentUpdate,
 }: {
   status: "approval" | "removal";
   userId: string;
-  agentId: string;
+  newApprovalOrganizationId: string;
+  newRemovalOrganizationId: string;
+  onAgentUpdate: (agentId: string) => void;
 }) {
   const auth = useAuth();
+  const [isProcessing, setIsProcessing] = useState<"accept" | "reject" | null>(
+    null
+  );
+
+  const organizationId = newApprovalOrganizationId || newRemovalOrganizationId;
+
   const approvalEndpoint = adminEndpoint[status].accept;
   const removalEndpoint = adminEndpoint[status].reject;
 
-  const handleApprovalAction = async () => {
+  console.log(approvalEndpoint());
+  console.log(removalEndpoint());
+
+  const handleAction = async (action: "accept" | "reject") => {
+    const optimisticMessage =
+      action === "accept" ? "Approved successfully!" : "Rejected successfully!";
+    const errorMessage =
+      action === "accept" ? "Failed to approve." : "Failed to reject.";
+
+    // Optimistic feedback
+    toast.loading(`${action === "accept" ? "Approving..." : "Rejecting..."} `);
+    setIsProcessing(action);
+
     try {
-      const response = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/${approvalEndpoint(userId)}`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `${auth?.token}`,
-          },
-          body: JSON.stringify({ userId, organizationId: agentId }),
-        }
-      );
-    } catch (error) {}
+      const endpoint =
+        action === "accept" ? approvalEndpoint() : removalEndpoint();
+
+      const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/${endpoint}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `${auth?.token}`,
+        },
+        body: JSON.stringify({ userId, organizationId }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Request failed");
+      }
+
+      onAgentUpdate(userId);
+      toast.success(optimisticMessage);
+    } catch (err) {
+      // Rollback optimistic state if needed
+      toast.error(errorMessage);
+    } finally {
+      setIsProcessing(null);
+    }
   };
 
   return (
     <div className="flex gap-2 justify-center">
-      <Button onClick={handleApprovalAction} size="sm">
-        Approve
+      <Button
+        size="sm"
+        disabled={isProcessing !== null}
+        onClick={() => handleAction("accept")}
+      >
+        {isProcessing === "accept" ? "Approving..." : "Approve"}
       </Button>
-      <Button variant="destructive" size="sm">
-        Reject
+      <Button
+        size="sm"
+        variant="destructive"
+        disabled={isProcessing !== null}
+        onClick={() => handleAction("reject")}
+      >
+        {isProcessing === "reject" ? "Rejecting..." : "Reject"}
       </Button>
     </div>
   );

@@ -21,6 +21,8 @@ export default function AgentsList({
     return user.name.toLowerCase().includes(search.toLowerCase());
   });
 
+  console.log("filteredUsers", filteredUsers);
+
   return (
     <div className="space-y-4">
       <SearchBar search={search} setSearch={setSearch} />
@@ -30,36 +32,40 @@ export default function AgentsList({
           <p className="text-center">No agents found</p>
         )}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
-          {filteredUsers.map((user: AgentUser) => (
-            <AgentProfileCard
-              key={user.id}
-              user={user}
-              action={
-                viewParam === "my-agents" ? (
-                  <RemoveAgentButton
-                    agentId={user.id}
-                    pending={
-                      user?.Agent?.assignments[0]?.status ===
-                      "REMOVAL_REQUESTED"
-                    }
-                  >
-                    {user?.Agent?.assignments[0]?.status === "REMOVAL_REQUESTED"
-                      ? "Pending"
-                      : "Remove"}
-                  </RemoveAgentButton>
-                ) : (
-                  <SelectAgentButton
-                    agentId={user.id}
-                    pending={user?.Agent?.assignments[0]?.status === "PENDING"}
-                  >
-                    {user?.Agent?.assignments[0]?.status === "PENDING"
-                      ? "Pending"
-                      : "Select"}
-                  </SelectAgentButton>
-                )
-              }
-            />
-          ))}
+          {filteredUsers.map((user: AgentUser) => {
+            const approvalPending =
+              user.Agent.assignments.filter((assignment) => {
+                return assignment.status === "PENDING";
+              }).length === 1;
+
+            const removalPending =
+              user.Agent.assignments.filter((assignment) => {
+                return assignment.status === "REMOVAL_REQUESTED";
+              }).length === 1;
+            return (
+              <AgentProfileCard
+                key={user.id}
+                user={user}
+                action={
+                  viewParam === "my-agents" ? (
+                    <RemoveAgentButton
+                      agentId={user.id}
+                      pending={removalPending}
+                    >
+                      {removalPending ? "Pending" : "Remove"}
+                    </RemoveAgentButton>
+                  ) : (
+                    <SelectAgentButton
+                      agentId={user.id}
+                      pending={approvalPending}
+                    >
+                      {approvalPending ? "Pending" : "Select"}
+                    </SelectAgentButton>
+                  )
+                }
+              />
+            );
+          })}
         </div>
       </div>
     </div>
