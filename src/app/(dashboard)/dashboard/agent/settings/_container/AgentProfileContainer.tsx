@@ -9,7 +9,7 @@ import { toast } from "sonner"
 import ImageUpload from "./image-upload"
 import { getProfileInfo, updateProfileSettings } from "@/app/api/profile-settings/profile-settings"
 
-const ProfileContainerPage = () => {
+const AgentProfileContainerPage = () => {
   const auth = useAuth()
   const token = auth?.token
 
@@ -209,4 +209,4 @@ const ProfileContainerPage = () => {
   )
 }
 
-export default ProfileContainerPage
+export default AgentProfileContainerPage
