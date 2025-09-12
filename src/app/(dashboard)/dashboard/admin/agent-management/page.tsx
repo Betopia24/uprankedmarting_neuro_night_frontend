@@ -3,7 +3,7 @@ import SearchField from "@/components/table/components/SearchField";
 import TableHeaderItem from "@/components/table/components/TableHeaderItem";
 import { sortData } from "@/components/table/utils/sortData";
 import paginateData from "@/components/table/utils/paginateData";
-
+import type { AgentsApiResponse } from "@/types/admin-agent-management";
 import { adminAgentManagementPath } from "@/paths";
 import {
   applyFilters,
@@ -11,10 +11,38 @@ import {
   parseFilters,
 } from "@/components/table/utils/filters";
 import Filter, { FilterField } from "@/components/table/components/Filter";
+import { env } from "@/env";
+import { getServerAuth } from "@/lib/auth";
 
 const config = {
   basePath: adminAgentManagementPath(),
 };
+
+async function getAgents(): Promise<AgentsApiResponse | null> {
+  const auth = await getServerAuth();
+  if (!auth?.accessToken) return null;
+
+  try {
+    const res = await fetch(
+      `${env.API_BASE_URL}/agents/agents-management-info`,
+      {
+        headers: { Authorization: auth.accessToken },
+        cache: "no-store",
+      }
+    );
+
+    if (!res.ok) throw new Error(`Network error: ${res.status}`);
+
+    const json: AgentsApiResponse = await res.json();
+
+    if (!json.data?.data?.length) return null;
+
+    return json;
+  } catch (err) {
+    console.error("Server fetch error:", err);
+    return null;
+  }
+}
 
 export interface TableSearchParams {
   page?: number;
@@ -32,8 +60,13 @@ interface TableProps {
 }
 
 const DEFAULT_PAGE = 1;
-const DEFAULT_LIMIT = 5;
+const DEFAULT_LIMIT = 10;
 const DEFAULT_SORT = "";
+const PICKED_HEADER = [
+  {
+    name: "Agent Name",
+  },
+];
 
 const filterFields: FilterField[] = [
   {
@@ -69,17 +102,42 @@ const filterFields: FilterField[] = [
 export default async function CallManageAndLogsPage({
   searchParams,
 }: TableProps) {
-  return;
-  const data = tableData || [];
+  const response = await getAgents();
+
+  if (!response || !response.data?.data?.length) {
+    return (
+      <div className="py-8 text-center text-gray-500">No agents available.</div>
+    );
+  }
+
+  const data = response?.data?.data || [];
+
+  const normalaized = data.map((agent) => {
+    const { employeeId, workStartTime, workEndTime } = agent.Agent;
+    return {
+      id: agent.id,
+      "Agent Name": agent.name,
+      "Employee ID": agent.Agent.employeeId,
+      "Office Hour": "",
+      "Success Call": "",
+      "Dropped Call": "",
+      Performance: "",
+    };
+  });
+
+  console.log(normalaized);
+
   const queryParams = await searchParams;
   const page = Number(queryParams.page) || DEFAULT_PAGE;
   const limit = Number(queryParams.limit) || DEFAULT_LIMIT;
+
   const [sortField, sortDirection = ""] = (
     queryParams.sort || DEFAULT_SORT
   ).split(":");
+
   const searchQuery = queryParams.query || "";
 
-  const tableHeader = Object.keys(tableData[0]);
+  const tableHeader = Object.keys(data[0]);
 
   // Parse filters from URL
   const currentFilters = parseFilters(queryParams);
@@ -87,11 +145,11 @@ export default async function CallManageAndLogsPage({
   // Apply filtering (but not sorting or pagination yet)
   let filteredData = [...data];
 
-  // Apply search filter
-  filteredData = filterData(filteredData, searchQuery);
+  // // Apply search filter
+  // filteredData = filterData(filteredData, searchQuery);
 
-  // Apply field filters
-  filteredData = applyFilters(filteredData, currentFilters);
+  // // Apply field filters
+  // filteredData = applyFilters(filteredData, currentFilters);
 
   // Calculate pagination info based on filtered data
   const totalItems = filteredData.length;
@@ -101,7 +159,7 @@ export default async function CallManageAndLogsPage({
 
   const paginatedData = paginateData(data, page, limit);
 
-  const sortedPaginatedData = sortData(paginatedData, sortField, sortDirection);
+  // const sortedPaginatedData = sortData(paginatedData, sortField, sortDirection);
 
   return (
     <div className="space-y-4">
@@ -138,7 +196,7 @@ export default async function CallManageAndLogsPage({
             ))}
           </tr>
         </thead>
-        <tbody>
+        {/* <tbody>
           {sortedPaginatedData.map((item) => {
             const fields = Object.values(item);
             return (
@@ -151,7 +209,7 @@ export default async function CallManageAndLogsPage({
               </tr>
             );
           })}
-        </tbody>
+        </tbody> */}
       </table>
 
       <Pagination

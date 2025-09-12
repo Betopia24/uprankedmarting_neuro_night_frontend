@@ -5,7 +5,7 @@ export default function DashboardHeaderTitle({
 }: React.PropsWithChildren) {
   return (
     <Heading as="h2" size="h5" className="capitalize">
-      <div className="truncate w-30 md:w-40 lg:w-fit">{children}</div>
+      <div className="truncate w-30 md:w-52 lg:w-fit">{children}</div>
     </Heading>
   );
 }

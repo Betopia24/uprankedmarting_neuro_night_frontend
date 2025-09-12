@@ -23,8 +23,10 @@ export default function AgentProfileCard({
     status === "removal" ? assignment.status === "REMOVAL_REQUESTED" : ""
   );
 
-  const newApprovalOrganizationId = approvalRequest?.organizationId;
-  const newRemovalOrganizationId = removalRequest?.organizationId;
+  const newApprovalOrganizationId = approvalRequest?.organization.id;
+  const newRemovalOrganizationId = removalRequest?.organization.id;
+
+  console.log({ user });
 
   const organizationInformation = approvalRequest || removalRequest;
 
