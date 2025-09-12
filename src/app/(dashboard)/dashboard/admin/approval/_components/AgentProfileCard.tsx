@@ -26,8 +26,6 @@ export default function AgentProfileCard({
   const newApprovalOrganizationId = approvalRequest?.organization.id;
   const newRemovalOrganizationId = removalRequest?.organization.id;
 
-  console.log({ user });
-
   const organizationInformation = approvalRequest || removalRequest;
 
   return (
