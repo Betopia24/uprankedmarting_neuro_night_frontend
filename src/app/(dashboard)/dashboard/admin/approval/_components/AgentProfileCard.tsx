@@ -13,18 +13,20 @@ export default function AgentProfileCard({
   status: StatusType;
   onAgentUpdate: (agentId: string) => void;
 }) {
-  // console.log(user);
   const userId = user.id;
-  const newApprovalOrganizationId = user.Agent.assignments.find((assignment) =>
+
+  const approvalRequest = user.Agent.assignments.find((assignment) =>
     status === "approval" ? assignment.status === "PENDING" : ""
-  )?.organizationId;
+  );
 
-  const newRemovalOrganizationId = user.Agent.assignments.find((assignment) =>
+  const removalRequest = user.Agent.assignments.find((assignment) =>
     status === "removal" ? assignment.status === "REMOVAL_REQUESTED" : ""
-  )?.organizationId;
+  );
 
-  console.log("newApprovalOrganizationId", newApprovalOrganizationId);
-  console.log("newRemovalOrganizationId", newRemovalOrganizationId);
+  const newApprovalOrganizationId = approvalRequest?.organizationId;
+  const newRemovalOrganizationId = removalRequest?.organizationId;
+
+  const organizationInformation = approvalRequest || removalRequest;
 
   return (
     <div className="bg-white rounded shadow-xl p-4 overflow-hidden">
@@ -44,10 +46,10 @@ export default function AgentProfileCard({
         )}
 
         <div>
-          <Heading size="h4" as="h4">
+          <Heading size="h4" as="h4" className="truncate px-4">
             {user.name}
           </Heading>
-          <span className="text-xs text-black/70 leading-none capitalize truncate">
+          <span className="text-xs text-black/70 leading-none capitalize truncate px-4">
             {user.Agent.skills.slice(0, 2).join(", ")}
           </span>
         </div>
@@ -56,9 +58,7 @@ export default function AgentProfileCard({
           <RatingViewer rating={user.Agent.avgRating} />
         </div>
 
-        <p className="text-xs">{user.bio}</p>
-
-        {/* <div className="text-center">{action}</div> */}
+        <p className="text-xs line-clamp-3">{user.bio || "No bio"}</p>
 
         <AdminApprovalActionButtons
           status={status}
@@ -68,27 +68,16 @@ export default function AgentProfileCard({
           onAgentUpdate={onAgentUpdate}
         />
 
-        <div className="flex items-center gap-2 justify-between flex-wrap border-t border-t-gray-200 py-4 px-8">
-          <Stats
-            progress={user.Agent.AgentFeedbacks.length}
-            label="Feedbacks"
-          />
-          <Stats progress={user.Agent.totalCalls} label="Total Calls" />
+        <div className="flex flex-col gap-1 text-xs border-t border-t-gray-200 py-4 px-8">
+          <strong>By</strong>
+          <strong className="text-gray-500 block capitalize">
+            {organizationInformation?.organization?.name}
+          </strong>
+          <span className="text-gray-500 block">
+            {organizationInformation?.organization?.id}
+          </span>
         </div>
       </div>
-    </div>
-  );
-}
-
-// -----------------------------
-// Stats
-// -----------------------------
-
-function Stats({ progress, label }: { progress: number; label: string }) {
-  return (
-    <div className="flex flex-col text-center">
-      <span className="text-base font-semibold">{progress}</span>
-      <span className="text-gray-500 text-xs">{label}</span>
     </div>
   );
 }

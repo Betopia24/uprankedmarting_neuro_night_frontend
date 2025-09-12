@@ -25,6 +25,7 @@ export interface Assignment {
   id: string;
   status: string;
   organizationId: string;
+  organization: Organization;
 }
 
 export interface Organization {
