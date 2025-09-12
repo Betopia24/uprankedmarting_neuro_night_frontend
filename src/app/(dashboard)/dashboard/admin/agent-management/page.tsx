@@ -1,18 +1,14 @@
 import Pagination from "@/components/table/components/Pagination";
 import SearchField from "@/components/table/components/SearchField";
 import TableHeaderItem from "@/components/table/components/TableHeaderItem";
-import { sortData } from "@/components/table/utils/sortData";
 import paginateData from "@/components/table/utils/paginateData";
 import type { AgentsApiResponse } from "@/types/admin-agent-management";
 import { adminAgentManagementPath } from "@/paths";
-import {
-  applyFilters,
-  filterData,
-  parseFilters,
-} from "@/components/table/utils/filters";
-import Filter, { FilterField } from "@/components/table/components/Filter";
+import { parseFilters } from "@/components/table/utils/filters";
 import { env } from "@/env";
 import { getServerAuth } from "@/lib/auth";
+import Link from "next/link";
+import { toAmPm } from "@/lib/ampm";
 
 const config = {
   basePath: adminAgentManagementPath(),
@@ -62,42 +58,6 @@ interface TableProps {
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 10;
 const DEFAULT_SORT = "";
-const PICKED_HEADER = [
-  {
-    name: "Agent Name",
-  },
-];
-
-const filterFields: FilterField[] = [
-  {
-    key: "status",
-    label: "Status",
-    type: "multi-select",
-    options: [
-      { label: "Active", value: "active" },
-      { label: "Inactive", value: "inactive" },
-    ],
-  },
-  {
-    key: "role",
-    label: "Role",
-    type: "select",
-    options: [
-      { label: "User", value: "user" },
-      { label: "Admin", value: "admin" },
-    ],
-  },
-  // {
-  //   key: "earning_range",
-  //   label: "Earning Range",
-  //   type: "select",
-  //   options: [
-  //     { label: "Under $3,000", value: "under_3000" },
-  //     { label: "$3,000 - $5,000", value: "3000_5000" },
-  //     { label: "Above $5,000", value: "above_5000" },
-  //   ],
-  // },
-];
 
 export default async function CallManageAndLogsPage({
   searchParams,
@@ -110,22 +70,26 @@ export default async function CallManageAndLogsPage({
     );
   }
 
-  const data = response?.data?.data || [];
+  const data = response?.data?.data.map((agent) => {
+    const {
+      employeeId,
+      workStartTime,
+      workEndTime,
+      successCalls,
+      droppedCalls,
+    } = agent.Agent;
+    const totalCalls = successCalls + droppedCalls;
 
-  const normalaized = data.map((agent) => {
-    const { employeeId, workStartTime, workEndTime } = agent.Agent;
     return {
       id: agent.id,
       "Agent Name": agent.name,
-      "Employee ID": agent.Agent.employeeId,
-      "Office Hour": "",
-      "Success Call": "",
-      "Dropped Call": "",
-      Performance: "",
+      "Employee ID": employeeId,
+      "Office Hour": toAmPm(workStartTime) + " - " + toAmPm(workEndTime),
+      "Success Call": successCalls,
+      "Dropped Call": droppedCalls,
+      Performance: ((successCalls / totalCalls || 0) * 100).toFixed(0) + "%",
     };
   });
-
-  console.log(normalaized);
 
   const queryParams = await searchParams;
   const page = Number(queryParams.page) || DEFAULT_PAGE;
@@ -142,40 +106,24 @@ export default async function CallManageAndLogsPage({
   // Parse filters from URL
   const currentFilters = parseFilters(queryParams);
 
-  // Apply filtering (but not sorting or pagination yet)
-  let filteredData = [...data];
-
-  // // Apply search filter
-  // filteredData = filterData(filteredData, searchQuery);
-
-  // // Apply field filters
-  // filteredData = applyFilters(filteredData, currentFilters);
-
   // Calculate pagination info based on filtered data
-  const totalItems = filteredData.length;
+  const totalItems = data.length;
   const totalPages = Math.ceil(totalItems / limit);
   const hasNextPage = page < totalPages;
   const hasPrevPage = page > 1;
 
   const paginatedData = paginateData(data, page, limit);
 
-  // const sortedPaginatedData = sortData(paginatedData, sortField, sortDirection);
+  const filteredData = paginatedData.filter(
+    (d) =>
+      d["Agent Name"].toLowerCase().includes(searchQuery.toLowerCase()) ||
+      d.id.includes(searchQuery)
+  );
 
   return (
     <div className="space-y-4">
       <div className="flex gap-4 justify-between">
         <SearchField basePath={config.basePath} defaultQuery={searchQuery} />
-
-        <Filter
-          filterFields={filterFields}
-          currentFilters={currentFilters}
-          searchQuery={searchQuery}
-          currentPage={page}
-          limit={limit}
-          sortField={sortField}
-          sortDirection={sortDirection}
-          basePath={config.basePath}
-        />
       </div>
 
       <table className="table-auto border-collapse border border-gray-200 w-full text-gray-800">
@@ -196,20 +144,20 @@ export default async function CallManageAndLogsPage({
             ))}
           </tr>
         </thead>
-        {/* <tbody>
-          {sortedPaginatedData.map((item) => {
+        <tbody>
+          {filteredData.map((item) => {
             const fields = Object.values(item);
             return (
               <tr key={item.id}>
                 {fields.map((field, index) => (
                   <td key={index} className="border border-gray-200 p-2">
-                    {field}
+                    <Link href="#">{field}</Link>
                   </td>
                 ))}
               </tr>
             );
           })}
-        </tbody> */}
+        </tbody>
       </table>
 
       <Pagination
