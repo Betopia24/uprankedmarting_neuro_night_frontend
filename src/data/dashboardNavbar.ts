@@ -18,7 +18,7 @@ export const dashboardNavigation = {
       href: paths.adminAgentManagementPath(),
     },
     {
-      name: "Organization Management",
+      name: "Orgs Management",
       icon: "users",
       href: paths.adminOrganizationManagementPath(),
     },
