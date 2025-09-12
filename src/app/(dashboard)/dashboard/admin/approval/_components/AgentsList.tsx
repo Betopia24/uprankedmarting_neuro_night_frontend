@@ -9,7 +9,7 @@ import { AgentUser, StatusType } from "@/types/agent";
 export default function AgentsList({
   users,
   statusParam,
-  metadata,
+  // metadata,
 }: {
   users: AgentUser[];
   statusParam: StatusType;

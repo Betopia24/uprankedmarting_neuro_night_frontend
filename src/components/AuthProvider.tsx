@@ -10,6 +10,7 @@ interface User {
   image: string;
   ownedOrganization: {
     id: string;
+    name: string;
   } | null;
 }
 
