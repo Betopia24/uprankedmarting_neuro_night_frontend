@@ -41,7 +41,12 @@ export default function DashboardLayout({
           {header && <DashboardHeader />}
         </div>
         <div className="px-4">
-          <div className="bg-gray-50 min-h-screen border-l border-l-gray-100 shadow-xs p-4">
+          <div
+            style={{
+              minHeight: "calc(100vh - var(--_sidebar-header-height))",
+            }}
+            className="bg-gray-50  border-l border-l-gray-100 shadow-xs p-4"
+          >
             <Container className="px-0">{children}</Container>
           </div>
         </div>
