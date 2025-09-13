@@ -41,5 +41,42 @@ export interface Metadata {
   totalPages: number;
 }
 
+export type UpdateAgentUser = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  bio: string;
+  status: string;
+  role: string;
+  createdAt: string;
+  updatedAt: string;
+  Agent: {
+    id: string;
+    userId: string;
+    status: string;
+    sip_address: string;
+    sip_username: string;
+    sip_password: string;
+    dateOfBirth: string;
+    gender: string;
+    address: string;
+    emergencyPhone: string;
+    ssn: string;
+    skills: string[];
+    employeeId: string;
+    isAvailable: boolean;
+    jobTitle: string;
+    employmentType: string;
+    department: string;
+    workEndTime: string;
+    workStartTime: string;
+    startWorkDateTime: string;
+    endWorkDateTime: string | null;
+    successCalls: number;
+    droppedCalls: number;
+  } | null;
+};
+
 export type ViewType = "unassigned" | "my-agents";
 export type StatusType = "approval" | "removal";
