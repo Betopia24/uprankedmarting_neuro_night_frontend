@@ -62,3 +62,32 @@ export const getProfileInfo = async (
     headers,
   })
 }
+
+//! AGENT Profile settings
+
+export const uploadAgentProfileImage = async (file: File, token: string) => {
+  const formData = new FormData();
+  formData.append("image", file);
+
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/agents/profile`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `${token}`,
+    },
+    body: formData,
+  });
+
+  if (!res.ok) throw new Error("Image upload failed");
+  return res.json();
+};
+
+export const getAgentInfo = async (token: string) => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+    headers: {
+      Authorization: `${token}`,
+    },
+  });
+
+  if (!res.ok) throw new Error("Failed to fetch user info");
+  return res.json();
+};
