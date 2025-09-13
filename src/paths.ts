@@ -21,6 +21,10 @@ const DASHBOARD_PREFIX = "/dashboard";
 export const adminDashboardPath = () => `${DASHBOARD_PREFIX}/admin`;
 export const adminAgentManagementPath = () =>
   `${adminDashboardPath()}/agent-management`;
+export const adminAgentDetailsPath = (agentId: string) =>
+  `${adminDashboardPath()}/agent-management/${agentId}`;
+export const adminAgentCreatePath = () =>
+  `${adminDashboardPath()}/agent-management/create-agent`;
 export const adminOrganizationManagementPath = () =>
   `${adminDashboardPath()}/organization-management`;
 export const adminNumberManagementPath = () =>

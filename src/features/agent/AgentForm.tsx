@@ -246,9 +246,7 @@ type FormGroupProps = { children: React.ReactNode; title: string };
 function FormGroup({ children, title }: FormGroupProps) {
   return (
     <fieldset className="space-y-2">
-      <legend className="text-lg md:text-xl lg:text-2xl font-medium">
-        {title}
-      </legend>
+      <legend className="text-lg md:text-xl font-semibold">{title}</legend>
       {children}
     </fieldset>
   );

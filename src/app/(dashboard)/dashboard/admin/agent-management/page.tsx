@@ -3,12 +3,17 @@ import SearchField from "@/components/table/components/SearchField";
 import TableHeaderItem from "@/components/table/components/TableHeaderItem";
 import paginateData from "@/components/table/utils/paginateData";
 import type { AgentsApiResponse } from "@/types/admin-agent-management";
-import { adminAgentManagementPath } from "@/paths";
+import {
+  adminAgentCreatePath,
+  adminAgentDetailsPath,
+  adminAgentManagementPath,
+} from "@/paths";
 import { parseFilters } from "@/components/table/utils/filters";
 import { env } from "@/env";
 import { getServerAuth } from "@/lib/auth";
 import Link from "next/link";
 import { toAmPm } from "@/lib/ampm";
+import { Button } from "@/components";
 
 const config = {
   basePath: adminAgentManagementPath(),
@@ -90,7 +95,7 @@ export default async function CallManageAndLogsPage({
       Performance: ((successCalls / totalCalls || 0) * 100).toFixed(0) + "%",
     };
   });
-
+  console.log(response?.data?.data);
   const queryParams = await searchParams;
   const page = Number(queryParams.page) || DEFAULT_PAGE;
   const limit = Number(queryParams.limit) || DEFAULT_LIMIT;
@@ -124,6 +129,9 @@ export default async function CallManageAndLogsPage({
     <div className="space-y-4">
       <div className="flex gap-4 justify-between">
         <SearchField basePath={config.basePath} defaultQuery={searchQuery} />
+        <Button>
+          <Link href={adminAgentCreatePath()}>Create Agent</Link>
+        </Button>
       </div>
 
       <table className="table-auto border-collapse border border-gray-200 w-full text-gray-800">
@@ -151,7 +159,9 @@ export default async function CallManageAndLogsPage({
               <tr key={item.id}>
                 {fields.map((field, index) => (
                   <td key={index} className="border border-gray-200 p-2">
-                    <Link href="#">{field}</Link>
+                    <Link href={`${adminAgentDetailsPath(item.id)}`}>
+                      {field}
+                    </Link>
                   </td>
                 ))}
               </tr>
