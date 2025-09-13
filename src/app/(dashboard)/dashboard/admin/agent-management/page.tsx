@@ -28,7 +28,7 @@ async function getAgents(): Promise<AgentsApiResponse | null> {
       `${env.API_BASE_URL}/agents/agents-management-info`,
       {
         headers: { Authorization: auth.accessToken },
-        cache: "no-store",
+        cache: "no-cache",
       }
     );
 
@@ -75,6 +75,8 @@ export default async function CallManageAndLogsPage({
     );
   }
 
+  console.log(response?.data?.data);
+
   const data = response?.data?.data.map((agent) => {
     const {
       employeeId,
@@ -88,14 +90,14 @@ export default async function CallManageAndLogsPage({
     return {
       id: agent.id,
       "Agent Name": agent.name,
-      "Employee ID": employeeId,
+      "Employee ID": employeeId || "N/A",
       "Office Hour": toAmPm(workStartTime) + " - " + toAmPm(workEndTime),
       "Success Call": successCalls,
       "Dropped Call": droppedCalls,
       Performance: ((successCalls / totalCalls || 0) * 100).toFixed(0) + "%",
     };
   });
-  console.log(response?.data?.data);
+
   const queryParams = await searchParams;
   const page = Number(queryParams.page) || DEFAULT_PAGE;
   const limit = Number(queryParams.limit) || DEFAULT_LIMIT;
