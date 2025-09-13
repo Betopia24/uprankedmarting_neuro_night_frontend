@@ -12,6 +12,7 @@ import { z } from "zod";
 // --- Options ---
 const genderOptions = ["male", "female", "others"] as const;
 const employmentTypes = ["full_time", "part_time", "contract"] as const;
+export const shiftTypes = ["morning", "evening", "night"] as const;
 
 // --- Zod Schema ---
 const agentSchema = z.object({
@@ -48,6 +49,14 @@ const agentSchema = z.object({
     department: z.string().trim().min(2).max(80),
     officeHours: z.number().default(8),
     isAvailable: z.boolean().default(true),
+    shift: z.enum(shiftTypes).default("morning"),
+    startWorkDateTime: z.string().refine(
+      (val) => {
+        const date = new Date(val);
+        return !isNaN(date.getTime()) && date >= new Date();
+      },
+      { message: "Work start time cannot be in the past" }
+    ),
   }),
 });
 
@@ -67,23 +76,57 @@ function parseSkills(skills: string): string[] {
     .filter(Boolean);
 }
 
+const shiftTimeMap: Record<
+  (typeof shiftTypes)[number],
+  { start: string; end: string; label: string }
+> = {
+  morning: { start: "06:00:00", end: "14:00:00", label: "06:00 AM – 02:00 PM" },
+  evening: { start: "14:00:00", end: "22:00:00", label: "02:00 PM – 10:00 PM" },
+  night: { start: "22:00:00", end: "06:00:00", label: "10:00 PM – 06:00 AM" },
+};
+
+function getShiftTime(shift: (typeof shiftTypes)[number]) {
+  return shiftTimeMap[shift].label;
+}
+
+function getShiftStartEnd(shift: (typeof shiftTypes)[number]) {
+  return shiftTimeMap[shift];
+}
+
+export function generateUSPhoneNumber(): string {
+  const areaCode = Math.floor(Math.random() * 800) + 200; // 200-999
+  const centralOffice = Math.floor(Math.random() * 800) + 200; // 200-999
+  const lineNumber = Math.floor(Math.random() * 10000); // 0-9999
+
+  return `+1${areaCode}${centralOffice}${lineNumber
+    .toString()
+    .padStart(4, "0")}`;
+}
+
 // --- Default Values ---
 const defaultValues: AgentFormInput = {
-  userData: { name: "", email: "", password: "", phone: "" },
+  userData: {
+    name: "Agent 2",
+    email: "anonymous2@agent.com",
+    password: "12345678901234Q!a",
+    phone: generateUSPhoneNumber(),
+  },
   agentData: {
     dateOfBirth: "",
-    sip_domain: "",
-    sip_password: "",
+    sip_domain: "test-uprank.sip.twilio.com",
+    sip_password: "Securepassword123",
     gender: "male",
-    address: "",
-    emergencyPhone: "",
-    ssn: "",
-    skills: "",
-    jobTitle: "",
+    address: "456 Agent Street",
+    emergencyPhone: "01623998934",
+    ssn: "123-45-6723-934-34",
+    skills: "Marketing, Sales, Customer Service",
+    jobTitle: "Software Engineer",
     employmentType: "full_time",
-    department: "",
+    department: "Software Development",
     officeHours: 8,
     isAvailable: true,
+    shift: "evening",
+    startWorkDateTime: "",
   },
 };
 
@@ -100,11 +143,15 @@ export default function AgentForm() {
         userData: data.userData,
         agentData: {
           ...data.agentData,
+          workStartTime: getShiftStartEnd(data.agentData.shift ?? "morning")
+            .start,
+          workEndTime: getShiftStartEnd(data.agentData.shift ?? "morning").end,
           sip_password:
             data.agentData.sip_password || generateStrongSipPassword(),
           skills: parseSkills(data.agentData.skills),
         },
       };
+      delete payload.agentData.shift;
 
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/users/register-agent`,
@@ -122,7 +169,7 @@ export default function AgentForm() {
       }
 
       toast.success("Agent created successfully!");
-      form.reset(); // optional: reset form
+      form.reset();
     } catch (err: any) {
       toast.error("Server error: " + err.message);
     }
@@ -229,6 +276,21 @@ export default function AgentForm() {
               name="agentData.department"
               type="text"
               placeholder="Engineering"
+            />
+            <SelectDropdown
+              label="Work Shift"
+              name="agentData.shift"
+              options={[
+                { label: "Morning (06:00 AM – 02:00 PM)", value: "morning" },
+                { label: "Evening (02:00 PM – 10:00 PM)", value: "evening" },
+                { label: "Night (10:00 PM – 06:00 AM)", value: "night" },
+              ]}
+            />
+            <InputField
+              label="Start Work Date"
+              name="agentData.startWorkDateTime"
+              type="date"
+              className="flex-1"
             />
           </div>
         </FormGroup>
