@@ -29,7 +29,6 @@ const ProfileContainerPage = () => {
 
     const fetchProfile = async () => {
       try {
-        // getProfileInfo এর প্যারামিটার হিসেবে ইউজার আইডি আর টোকেন পাঠাও
         const res = await getProfileInfo(auth?.user?.id || "", token)
         if (!res.ok) throw new Error("Failed to load profile")
         const data = await res.json()
@@ -38,7 +37,6 @@ const ProfileContainerPage = () => {
 
         const user = data.data
 
-        // ডেটা state-এ বসানো
         setFormData({
           fullName: user.name || "",
           serviceName: user.ownedOrganization?.name || "",
