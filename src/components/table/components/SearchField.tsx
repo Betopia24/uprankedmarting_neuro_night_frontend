@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 interface SearchFieldProps {
@@ -16,28 +16,41 @@ export default function SearchField({
 }: SearchFieldProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  // Extract stable string from searchParams
+  const searchParamsString = useMemo(
+    () => searchParams.toString(),
+    [searchParams]
+  );
+
   const [query, setQuery] = useState(defaultQuery);
 
-  // Sync input with URL on mount
+  // Sync input with URL on mount & when URL changes
   useEffect(() => {
-    const initialQuery = searchParams.get("query") || defaultQuery;
+    const initialQuery =
+      new URLSearchParams(searchParamsString).get("query") || defaultQuery;
     setQuery(initialQuery);
-  }, [searchParams, defaultQuery]);
+  }, [searchParamsString, defaultQuery]);
 
+  // Push URL updates when query changes
   useEffect(() => {
     const handler = setTimeout(() => {
-      const params = new URLSearchParams();
+      const params = new URLSearchParams(searchParamsString);
 
       if (query.trim()) {
         params.set("query", query);
+      } else {
+        params.delete("query");
       }
-      // Do NOT copy any pagination params; this resets pagination
+
+      // Reset pagination on new search
+      params.delete("page");
 
       router.push(`${basePath}?${params.toString()}`);
     }, debounceTime);
 
     return () => clearTimeout(handler);
-  }, [query, debounceTime, router]);
+  }, [query, debounceTime, router, basePath, searchParamsString]);
 
   return (
     <input

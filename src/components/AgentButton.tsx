@@ -63,8 +63,7 @@ export function SelectAgentButton({
       router.refresh();
       return data;
     } catch (error: unknown) {
-      setIsPending(false); // revert
-      console.error("Agent selection error:", error);
+      setIsPending(false);
       toast.error(
         error instanceof Error ? error.message : "Something went wrong."
       );
@@ -134,8 +133,7 @@ export function RemoveAgentButton({
       router.refresh();
       return data;
     } catch (error: unknown) {
-      setIsPending(false); // revert
-      console.error("Agent removal error:", error);
+      setIsPending(false);
       toast.error(
         error instanceof Error ? error.message : "Something went wrong."
       );

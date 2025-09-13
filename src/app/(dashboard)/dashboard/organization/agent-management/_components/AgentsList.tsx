@@ -6,6 +6,7 @@ import AgentProfileCard from "./AgentProfileCard";
 import { useState } from "react";
 import { RemoveAgentButton, SelectAgentButton } from "@/components/AgentButton";
 import { AgentUser, ViewType } from "@/types/agent";
+import { useAuth } from "@/components/AuthProvider";
 
 export default function AgentsList({
   users,
@@ -16,12 +17,11 @@ export default function AgentsList({
   viewParam: ViewType;
   metadata: { page: number; limit: number; total: number; totalPages: number };
 }) {
+  const auth = useAuth();
   const [search, setSearch] = useState("");
   const filteredUsers = users.filter((user: AgentUser) => {
     return user.name.toLowerCase().includes(search.toLowerCase());
   });
-
-  console.log("filteredUsers", filteredUsers);
 
   return (
     <div className="space-y-4">
@@ -33,10 +33,18 @@ export default function AgentsList({
         )}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
           {filteredUsers.map((user: AgentUser) => {
-            const approvalPending =
-              user.Agent.assignments.filter((assignment) => {
+            const approveInformation = user.Agent.assignments.filter(
+              (assignment) => {
                 return assignment.status === "PENDING";
-              }).length === 1;
+              }
+            );
+
+            const approveInformationOrgId =
+              approveInformation[0]?.organizationId;
+
+            const approvalPending =
+              approveInformation.length === 1 &&
+              approveInformationOrgId === auth.user?.id;
 
             const removalPending =
               user.Agent.assignments.filter((assignment) => {

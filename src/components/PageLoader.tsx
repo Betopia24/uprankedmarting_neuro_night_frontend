@@ -6,7 +6,7 @@ export default function PageLoader() {
       style={{
         height: "calc(100vh - var(--_sidebar-header-height))",
       }}
-      className="grid place-items-center -mt-12"
+      className="grid place-items-center -mt-20"
     >
       <Loading />
     </div>

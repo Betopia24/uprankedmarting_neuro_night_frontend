@@ -23,8 +23,8 @@ export default function AgentProfileCard({
     status === "removal" ? assignment.status === "REMOVAL_REQUESTED" : ""
   );
 
-  const newApprovalOrganizationId = approvalRequest?.organizationId;
-  const newRemovalOrganizationId = removalRequest?.organizationId;
+  const newApprovalOrganizationId = approvalRequest?.organization.id;
+  const newRemovalOrganizationId = removalRequest?.organization.id;
 
   const organizationInformation = approvalRequest || removalRequest;
 
@@ -68,9 +68,9 @@ export default function AgentProfileCard({
           onAgentUpdate={onAgentUpdate}
         />
 
-        <div className="flex flex-col gap-1 text-xs border-t border-t-gray-200 py-4 px-8">
-          <strong>By</strong>
-          <strong className="text-gray-500 block capitalize">
+        <div className="flex flex-col gap-0.5 text-xs border-t border-t-gray-200 py-4 px-8">
+          <strong className="text-gray-500 text-xs">Requested By</strong>
+          <strong className="text-gray-700 text-base block capitalize">
             {organizationInformation?.organization?.name}
           </strong>
           <span className="text-gray-500 block">
