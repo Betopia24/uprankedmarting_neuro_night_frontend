@@ -15,16 +15,17 @@ const genderOptions = ["male", "female", "others"] as const;
 const employmentTypes = ["full_time", "part_time", "contract"] as const;
 const shiftTypes = ["morning", "evening", "night"] as const;
 
+// --- Helper Functions ---
 function inferShiftFromTimes(
-  start: string,
-  end: string
+  start?: string,
+  end?: string
 ): (typeof shiftTypes)[number] {
   if (start === "06:00:00" && end === "14:00:00") return "morning";
   if (start === "14:00:00" && end === "22:00:00") return "evening";
   return "night";
 }
 
-function getShiftTimes(shift: (typeof shiftTypes)[number]) {
+function getShiftTimes(shift?: (typeof shiftTypes)[number]) {
   switch (shift) {
     case "morning":
       return { workStartTime: "06:00:00", workEndTime: "14:00:00" };
@@ -36,27 +37,31 @@ function getShiftTimes(shift: (typeof shiftTypes)[number]) {
   }
 }
 
-// --- Schema ---
+// --- Zod Schema (all optional) ---
 const agentUpdateSchema = z.object({
-  userData: z.object({
-    name: z.string().trim().min(2).max(80),
-    phone: z.string().min(5).max(20),
-    bio: z.string().optional(),
-  }),
-  agentData: z.object({
-    dateOfBirth: z.string(),
-    gender: z.enum(genderOptions),
-    address: z.string().trim().min(5).max(200),
-    emergencyPhone: z.string().min(5).max(20),
-    ssn: z.string().trim().min(3).max(64),
-    skills: z.string(), // input as string, parse later
-    jobTitle: z.string().trim().min(2).max(80),
-    employmentType: z.enum(employmentTypes),
-    department: z.string().trim().min(2).max(80),
-    shift: z.enum(shiftTypes),
-    startWorkDateTime: z.string(),
-    endWorkDateTime: z.string().nullable().optional(),
-  }),
+  userData: z
+    .object({
+      name: z.string().trim().min(2).max(80).optional(),
+      phone: z.string().min(5).max(20).optional(),
+      bio: z.string().optional().nullable(),
+    })
+    .optional(),
+  agentData: z
+    .object({
+      dateOfBirth: z.string().optional(),
+      gender: z.enum(genderOptions).optional(),
+      address: z.string().trim().min(5).max(200).optional(),
+      emergencyPhone: z.string().min(5).max(20).optional(),
+      ssn: z.string().trim().min(3).max(64).optional(),
+      skills: z.string().optional(),
+      jobTitle: z.string().trim().min(2).max(80).optional(),
+      employmentType: z.enum(employmentTypes).optional(),
+      department: z.string().trim().min(2).max(80).optional(),
+      shift: z.enum(shiftTypes).optional(),
+      startWorkDateTime: z.string().optional(),
+      endWorkDateTime: z.string().nullable().optional(),
+    })
+    .optional(),
 });
 
 type AgentUpdateFormInput = z.input<typeof agentUpdateSchema>;
@@ -72,6 +77,7 @@ type ApiResponse<T = unknown> = {
   data?: T | null;
 };
 
+// --- Component ---
 export default function UpdateAgentForm({
   agent,
   agentId,
@@ -86,28 +92,28 @@ export default function UpdateAgentForm({
       dateOfBirth: agent.agentData?.dateOfBirth
         ? agent.agentData.dateOfBirth.split("T")[0]
         : "",
-      gender:
-        (agent.agentData?.gender?.toLowerCase() as (typeof genderOptions)[number]) ??
-        "male",
+      gender: agent.agentData?.gender?.toLowerCase() as
+        | (typeof genderOptions)[number]
+        | undefined,
       address: agent.agentData?.address ?? "",
       emergencyPhone: agent.agentData?.emergencyPhone ?? "",
       ssn: agent.agentData?.ssn ?? "",
       skills: agent.agentData?.skills?.join(", ") ?? "",
       jobTitle: agent.agentData?.jobTitle ?? "",
-      employmentType:
-        (agent.agentData?.employmentType as (typeof employmentTypes)[number]) ??
-        "full_time",
+      employmentType: agent.agentData?.employmentType as
+        | (typeof employmentTypes)[number]
+        | undefined,
       department: agent.agentData?.department ?? "",
       shift: inferShiftFromTimes(
-        agent.agentData?.workStartTime ?? "",
-        agent.agentData?.workEndTime ?? ""
+        agent.agentData?.workStartTime,
+        agent.agentData?.workEndTime
       ),
       startWorkDateTime: agent.agentData?.startWorkDateTime
         ? agent.agentData.startWorkDateTime.split("T")[0]
         : "",
       endWorkDateTime: agent.agentData?.endWorkDateTime
         ? agent.agentData.endWorkDateTime.split("T")[0]
-        : null,
+        : "",
     },
   };
 
@@ -121,32 +127,33 @@ export default function UpdateAgentForm({
 
   const onSubmit = async (values: AgentUpdateFormInput) => {
     const { workStartTime, workEndTime } = getShiftTimes(
-      values.agentData.shift
+      values.agentData?.shift
     );
 
     const payload: UpdateAgentUser = {
       userData: {
-        name: values.userData.name,
-        bio: values.userData.bio ?? "",
-        phone: values.userData.phone,
+        name: values.userData?.name ?? "",
+        bio: values.userData?.bio ?? "",
+        phone: values.userData?.phone ?? "",
       },
       agentData: {
-        dateOfBirth: values.agentData.dateOfBirth,
-        gender: values.agentData.gender,
-        address: values.agentData.address,
-        emergencyPhone: values.agentData.emergencyPhone,
-        ssn: values.agentData.ssn,
-        skills: values.agentData.skills
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
-        jobTitle: values.agentData.jobTitle,
-        employmentType: values.agentData.employmentType,
-        department: values.agentData.department,
+        dateOfBirth: values.agentData?.dateOfBirth ?? "",
+        gender: values.agentData?.gender ?? "male",
+        address: values.agentData?.address ?? "",
+        emergencyPhone: values.agentData?.emergencyPhone ?? "",
+        ssn: values.agentData?.ssn ?? "",
+        skills:
+          values.agentData?.skills
+            ?.split(",")
+            .map((s) => s.trim())
+            .filter(Boolean) ?? [],
+        jobTitle: values.agentData?.jobTitle ?? "",
+        employmentType: values.agentData?.employmentType ?? "full_time",
+        department: values.agentData?.department ?? "",
         workStartTime,
         workEndTime,
-        startWorkDateTime: values.agentData.startWorkDateTime,
-        endWorkDateTime: values.agentData.endWorkDateTime || null,
+        startWorkDateTime: values.agentData?.startWorkDateTime ?? "",
+        endWorkDateTime: values.agentData?.endWorkDateTime ?? null,
       },
     };
 
