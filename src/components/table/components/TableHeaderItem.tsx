@@ -79,15 +79,13 @@ export default function TableHeaderItem({
       <div
         onClick={handleSort}
         className={cn(
-          "flex items-center p-2 select-none transition-colors duration-200 rounded hover:bg-gray-50",
+          "flex items-center justify-between p-2 select-none transition-colors duration-200 rounded hover:bg-gray-50",
           isActive ? "bg-gray-100 font-semibold" : ""
         )}
       >
-        <span className="inline-flex items-center gap-1 relative">
+        <span className="flex items-center gap-1">
           {camelCaseToTitle(field)}
-          {isSorting ? (
-            <LucideLoader className="w-4 h-4 ml-1 animate-spin text-gray-500" />
-          ) : (
+          {!isSorting && (
             <LucideChevronDown
               size={14}
               className={cn(
@@ -98,6 +96,14 @@ export default function TableHeaderItem({
             />
           )}
         </span>
+
+        {/* Loader */}
+        {isSorting && (
+          <LucideLoader
+            className="w-4 h-4 text-gray-500 animate-spin ml-2 flex-shrink-0"
+            style={{ pointerEvents: "none" }}
+          />
+        )}
       </div>
     </th>
   );

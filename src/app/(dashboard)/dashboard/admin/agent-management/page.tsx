@@ -1,7 +1,10 @@
 import Pagination from "@/components/table/components/Pagination";
 import SearchField from "@/components/table/components/SearchField";
 import TableHeaderItem from "@/components/table/components/TableHeaderItem";
-import type { AgentsApiResponse } from "@/types/admin-agent-management";
+import type {
+  AgentsApiResponse,
+  AgentInfo,
+} from "@/types/admin-agent-management";
 import {
   adminAgentCreatePath,
   adminAgentDetailsPath,
@@ -33,6 +36,16 @@ interface TableProps {
   searchParams: Promise<TableSearchParams>;
 }
 
+interface TableRow {
+  id: string;
+  "Agent Name": string;
+  "Employee ID": string;
+  "Office Hour": string;
+  "Success Call": number;
+  "Dropped Call": number;
+  Performance: string;
+}
+
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 10;
 const DEFAULT_SORT = "";
@@ -47,14 +60,12 @@ async function getAgents(
   const {
     page = DEFAULT_PAGE,
     limit = DEFAULT_LIMIT,
-    sort = "",
     query = "",
   } = queryParams;
 
   const url = new URL(`${env.API_BASE_URL}/agents/agents-management-info`);
   url.searchParams.set("page", String(page));
   url.searchParams.set("limit", String(limit));
-  if (sort) url.searchParams.set("sort", sort);
   if (query) url.searchParams.set("searchTerm", query);
 
   try {
@@ -62,7 +73,6 @@ async function getAgents(
       headers: { Authorization: auth.accessToken },
       cache: "no-cache",
     });
-
     if (!res.ok) throw new Error(`Network error: ${res.status}`);
     return res.json();
   } catch (err) {
@@ -71,13 +81,43 @@ async function getAgents(
   }
 }
 
+// Client-side sort function
+function sortData<T>(
+  data: T[],
+  field: keyof T,
+  direction: "asc" | "desc"
+): T[] {
+  if (!field) return data;
+  return [...data].sort((a, b) => {
+    const aValue = a[field];
+    const bValue = b[field];
+
+    if (typeof aValue === "number" && typeof bValue === "number") {
+      return direction === "asc" ? aValue - bValue : bValue - aValue;
+    }
+
+    return direction === "asc"
+      ? String(aValue).localeCompare(String(bValue))
+      : String(bValue).localeCompare(String(aValue));
+  });
+}
+
+// Client-side filter function
+function filterData(data: TableRow[], query: string): TableRow[] {
+  if (!query) return data;
+  return data.filter(
+    (item) =>
+      item["Agent Name"].toLowerCase().includes(query.toLowerCase()) ||
+      item["Employee ID"].toLowerCase().includes(query.toLowerCase())
+  );
+}
+
 export default async function CallManageAndLogsPage({
   searchParams,
 }: TableProps) {
   const queryParams = await searchParams;
   const response = await getAgents(queryParams);
 
-  // If response is null (auth fail or fetch error)
   if (!response) {
     return (
       <div className="py-16 text-center text-gray-500 bg-white shadow-sm rounded-lg">
@@ -88,20 +128,17 @@ export default async function CallManageAndLogsPage({
 
   const { data: agents, meta } = response.data;
 
-  // Validate page value against backend meta
   const currentPage = Math.max(1, Math.min(meta.page, meta.totalPages));
   const totalPages = meta.totalPages;
 
-  // extract sort
-  const [sortField, sortDirection = ""] = (
-    queryParams.sort || DEFAULT_SORT
-  ).split(":");
-
-  // Parse filters (if any extra)
   const currentFilters = parseFilters(queryParams);
 
+  const [sortField, sortDirection = "asc"] = (queryParams.sort || "").split(
+    ":"
+  );
+
   // Map agent data to table rows
-  const tableData = agents.map((agent) => {
+  const tableData: TableRow[] = agents.map((agent) => {
     const {
       employeeId,
       workStartTime,
@@ -110,7 +147,6 @@ export default async function CallManageAndLogsPage({
       droppedCalls,
     } = agent.Agent;
     const totalCalls = successCalls + droppedCalls;
-
     return {
       id: agent.id,
       "Agent Name": agent.name,
@@ -122,10 +158,17 @@ export default async function CallManageAndLogsPage({
     };
   });
 
-  // Always render headers (even if no rows)
+  // Apply client-side filtering and sorting
+  const filteredData = filterData(tableData, queryParams.query || "");
+  const sortedData = sortData(
+    filteredData,
+    sortField as keyof TableRow,
+    sortDirection as "asc" | "desc"
+  );
+
   const tableHeader =
-    tableData.length > 0
-      ? Object.keys(tableData[0])
+    sortedData.length > 0
+      ? Object.keys(sortedData[0])
       : [
           "Agent Name",
           "Employee ID",
@@ -169,30 +212,27 @@ export default async function CallManageAndLogsPage({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {tableData.length > 0 ? (
-              tableData.map((item) => {
-                const fields = Object.values(item);
-                return (
-                  <tr
-                    key={item.id}
-                    className="hover:bg-gray-50 transition-colors cursor-pointer"
-                  >
-                    {fields.map((field, index) => (
-                      <td
-                        key={index}
-                        className="px-4 py-3 border border-gray-200"
+            {sortedData.length > 0 ? (
+              sortedData.map((item) => (
+                <tr
+                  key={item.id}
+                  className="hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  {Object.values(item).map((field, index) => (
+                    <td
+                      key={index}
+                      className="px-4 py-3 border border-gray-200"
+                    >
+                      <Link
+                        href={adminAgentDetailsPath(item.id)}
+                        className="hover:text-blue-600 font-medium"
                       >
-                        <Link
-                          href={adminAgentDetailsPath(item.id)}
-                          className="hover:text-blue-600 font-medium"
-                        >
-                          {field}
-                        </Link>
-                      </td>
-                    ))}
-                  </tr>
-                );
-              })
+                        {field}
+                      </Link>
+                    </td>
+                  ))}
+                </tr>
+              ))
             ) : (
               <tr>
                 <td
