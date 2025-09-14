@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button, InputField, SelectDropdown } from "@/components";
 import { z } from "zod";
-import { UpdateAgentUser } from "@/types/agent";
+import { AgentUpdateFormData, UpdateAgentUser } from "@/types/agent";
 import { env } from "@/env";
 import { useAuth } from "@/components/AuthProvider";
 import { toast } from "sonner";
@@ -128,7 +128,7 @@ export default function UpdateAgentForm({
       values.agentData?.shift
     );
 
-    const payload: UpdateAgentUser = {
+    const payload: AgentUpdateFormData = {
       userData: {
         name: values.userData?.name ?? "",
         bio: values.userData?.bio ?? "",

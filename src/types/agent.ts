@@ -108,7 +108,7 @@ export type AgentUpdateFormData = {
     address: string;
     emergencyPhone: string;
     ssn: string;
-    skills: string[]; // converted from comma-separated string
+    skills: string[];
     jobTitle: string;
     employmentType: "full_time" | "part_time" | "contract";
     department: string;
