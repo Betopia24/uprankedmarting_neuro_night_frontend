@@ -53,7 +53,7 @@ export default async function AgentDetailsPage({ params }: Props) {
     <div className="p-4">
       <h1 className="text-xl font-semibold mb-4">Agent Details</h1>
       {agent ? (
-        <UpdateAgentForm agent={agent} />
+        <UpdateAgentForm agent={agent} agentId={agentId} />
       ) : (
         <p className="text-gray-500">No agent data available</p>
       )}

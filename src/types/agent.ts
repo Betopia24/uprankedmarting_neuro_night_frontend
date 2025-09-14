@@ -42,40 +42,26 @@ export interface Metadata {
 }
 
 export type UpdateAgentUser = {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  bio: string;
-  status: string;
-  role: string;
-  createdAt: string;
-  updatedAt: string;
-  Agent: {
-    id: string;
-    userId: string;
-    status: string;
-    sip_address: string;
-    sip_username: string;
-    sip_password: string;
+  userData: {
+    name: string;
+    bio: string;
+    phone: string;
+  };
+  agentData: {
     dateOfBirth: string;
-    gender: string;
+    gender: "male" | "female" | "others";
     address: string;
     emergencyPhone: string;
     ssn: string;
     skills: string[];
-    employeeId: string;
-    isAvailable: boolean;
     jobTitle: string;
-    employmentType: string;
+    employmentType: "full_time" | "part_time" | "contract";
     department: string;
-    workEndTime: string;
     workStartTime: string;
+    workEndTime: string;
     startWorkDateTime: string;
     endWorkDateTime: string | null;
-    successCalls: number;
-    droppedCalls: number;
-  } | null;
+  };
 };
 
 export type ViewType = "unassigned" | "my-agents";
