@@ -39,9 +39,6 @@ export interface TableSearchParams {
   limit?: number;
   sort?: string;
   query?: string;
-  status?: string | string[];
-  role?: string | string[];
-  earning_range?: string;
   [key: string]: string | string[] | undefined | number;
 }
 
@@ -87,7 +84,6 @@ export default async function CallManageAndLogsPage({
   const [sortField, sortDirection = ""] = (
     queryParams.sort || DEFAULT_SORT
   ).split(":");
-
   const searchQuery = queryParams.query || "";
 
   const allowedKeys = [
@@ -100,20 +96,26 @@ export default async function CallManageAndLogsPage({
     "isPurchased",
   ];
 
-  // ✅ Only build tableHeader if data exists
   const tableHeader =
     tableData.length > 0
       ? allowedKeys.filter((key) => Object.keys(tableData[0]).includes(key))
-      : [];
+      : allowedKeys;
 
-  // Pagination info
-  const totalItems = tableData.length;
+  // Filter by searchQuery if exists
+  const filteredData = tableData.filter((item) => {
+    if (!searchQuery) return true;
+    return (
+      item.phoneNumber.includes(searchQuery) ||
+      item.friendlyName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  });
+
+  const totalItems = filteredData.length;
   const totalPages = Math.ceil(totalItems / limit) || 1;
   const hasNextPage = page < totalPages;
   const hasPrevPage = page > 1;
 
-  const paginatedData = paginateData(tableData, page, limit);
-
+  const paginatedData = paginateData(filteredData, page, limit);
   const sortedPaginatedData = sortData(
     paginatedData as unknown as Record<string, string | number>[],
     sortField,
@@ -121,39 +123,45 @@ export default async function CallManageAndLogsPage({
   );
 
   return (
-    <div className="space-y-4">
-      {tableData.length === 0 ? (
-        <p className="text-center text-gray-500">No numbers available.</p>
-      ) : (
-        <>
-          <SearchField basePath={config.basePath} />
-          <table className="table-auto border-collapse border border-gray-200 w-full text-gray-800">
-            <thead>
-              <tr className="bg-gray-100">
-                {tableHeader.map((field) => (
-                  <TableHeaderItem
-                    key={field}
-                    field={field}
-                    currentSort={sortField}
-                    sortDirection={sortDirection}
-                    currentPage={page}
-                    limit={limit}
-                    searchQuery={searchQuery}
-                    basePath={config.basePath}
-                  />
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {sortedPaginatedData.map((item) => (
-                <tr key={item.id}>
+    <div className="space-y-6">
+      {/* Top bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <SearchField basePath={config.basePath} defaultQuery={searchQuery} />
+      </div>
+
+      {/* Table container */}
+      <div className="overflow-x-auto bg-white shadow rounded-lg border border-gray-200">
+        <table className="min-w-full text-sm text-left text-gray-700 border-collapse">
+          <thead className="bg-gray-50 text-gray-900 text-sm font-medium border-b border-gray-200">
+            <tr>
+              {tableHeader.map((field) => (
+                <TableHeaderItem
+                  key={field}
+                  field={field}
+                  currentSort={sortField}
+                  sortDirection={sortDirection}
+                  currentPage={page}
+                  limit={limit}
+                  searchQuery={searchQuery}
+                  basePath={config.basePath}
+                />
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {sortedPaginatedData.length > 0 ? (
+              sortedPaginatedData.map((item) => (
+                <tr
+                  key={item.id}
+                  className="hover:bg-gray-50 transition-colors cursor-pointer"
+                >
                   {tableHeader.map((key) => {
                     const value = item[key as keyof typeof item];
 
                     if (
                       key === "capabilities" &&
-                      typeof value === "object" &&
-                      value !== null
+                      value &&
+                      typeof value === "object"
                     ) {
                       const caps = value as Capabilities;
                       return (
@@ -176,29 +184,59 @@ export default async function CallManageAndLogsPage({
                       );
                     }
 
+                    if (key === "isPurchased") {
+                      return (
+                        <td
+                          key={key}
+                          className="border border-gray-200 px-3 py-2"
+                        >
+                          <span
+                            className={`px-2 py-1 rounded text-xs font-semibold text-white ${
+                              value ? "bg-green-500" : "bg-gray-400"
+                            }`}
+                          >
+                            {value ? "Purchased" : "Available"}
+                          </span>
+                        </td>
+                      );
+                    }
+
                     return (
-                      <td key={key} className="border border-gray-200 p-2">
+                      <td
+                        key={key}
+                        className="border border-gray-200 px-3 py-2"
+                      >
                         {String(value)}
                       </td>
                     );
                   })}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan={tableHeader.length}
+                  className="px-4 py-10 text-center text-gray-500 border border-gray-200"
+                >
+                  No numbers found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
-          <Pagination
-            currentPage={page}
-            totalPages={totalPages}
-            hasNextPage={hasNextPage}
-            hasPrevPage={hasPrevPage}
-            limit={limit}
-            sortField={sortField}
-            sortDirection={sortDirection}
-            basePath={config.basePath}
-          />
-        </>
-      )}
+      {/* Pagination */}
+      <Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        hasNextPage={hasNextPage}
+        hasPrevPage={hasPrevPage}
+        limit={limit}
+        sortField={sortField}
+        sortDirection={sortDirection}
+        basePath={config.basePath}
+      />
     </div>
   );
 }

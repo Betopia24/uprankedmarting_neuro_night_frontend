@@ -1,6 +1,9 @@
+"use client";
+
 import { cn } from "@/lib/utils";
-import { LucideChevronDown } from "lucide-react";
-import Link from "next/link";
+import { LucideChevronDown, LucideLoader } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
 
 interface TableHeaderItemProps {
   field: string;
@@ -13,6 +16,13 @@ interface TableHeaderItemProps {
   basePath: string;
 }
 
+function camelCaseToTitle(str: string) {
+  return str
+    .replace(/([A-Z])/g, " $1")
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+    .trim();
+}
+
 export default function TableHeaderItem({
   field,
   currentSort,
@@ -23,41 +33,72 @@ export default function TableHeaderItem({
   currentFilters,
   basePath,
 }: TableHeaderItemProps) {
-  const isActive = currentSort === field;
-  const nextDirection =
-    !isActive || !sortDirection ? "asc" : sortDirection === "asc" ? "desc" : "";
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const urlParams = new URLSearchParams();
-  urlParams.set("page", currentPage.toString());
-  urlParams.set("limit", limit.toString());
-  if (searchQuery) urlParams.set("query", searchQuery);
-  if (nextDirection) urlParams.set("sort", `${field}:${nextDirection}`);
+  const [localSortDirection, setLocalSortDirection] = useState<string | null>(
+    currentSort === field ? sortDirection : null
+  );
+  const [isSorting, setIsSorting] = useState(false);
 
-  // Preserve current filters
-  Object.entries(currentFilters || {}).forEach(([key, value]) => {
-    if (Array.isArray(value) && value.length > 0) {
-      urlParams.set(key, value.join(","));
-    } else if (typeof value === "string" && value) {
-      urlParams.set(key, value);
-    }
-  });
+  useEffect(() => {
+    setLocalSortDirection(currentSort === field ? sortDirection : null);
+    setIsSorting(false); // stop loader when server updates
+  }, [currentSort, sortDirection, field]);
+
+  const isActive = currentSort === field || localSortDirection !== null;
+  const nextDirection = !localSortDirection
+    ? "asc"
+    : localSortDirection === "asc"
+    ? "desc"
+    : "asc";
+
+  const handleSort = () => {
+    setLocalSortDirection(nextDirection);
+    setIsSorting(true);
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", currentPage.toString());
+    params.set("limit", limit.toString());
+    if (searchQuery) params.set("query", searchQuery);
+    params.set("sort", `${field}:${nextDirection}`);
+
+    Object.entries(currentFilters || {}).forEach(([key, value]) => {
+      if (Array.isArray(value) && value.length > 0) {
+        params.set(key, value.join(","));
+      } else if (typeof value === "string" && value) {
+        params.set(key, value);
+      }
+    });
+
+    router.replace(`${basePath}?${params.toString()}`);
+  };
 
   return (
-    <th className="border border-gray-300 text-left cursor-pointer">
-      <Link
-        href={`${basePath}?${urlParams.toString()}`}
+    <th className="border border-gray-300 text-left cursor-pointer whitespace-nowrap">
+      <div
+        onClick={handleSort}
         className={cn(
-          "flex items-center p-2",
-          isActive ? "bg-gray-200" : "hover:bg-gray-100"
+          "flex items-center p-2 select-none transition-colors duration-200 rounded hover:bg-gray-50",
+          isActive ? "bg-gray-100 font-semibold" : ""
         )}
       >
-        <span className="inline-flex gap-1 items-center font-semibold relative">
-          {field}
-          <span className="absolute right-0 translate-x-full">
-            <LucideChevronDown size="14" />
-          </span>
+        <span className="inline-flex items-center gap-1 relative">
+          {camelCaseToTitle(field)}
+          {isSorting ? (
+            <LucideLoader className="w-4 h-4 ml-1 animate-spin text-gray-500" />
+          ) : (
+            <LucideChevronDown
+              size={14}
+              className={cn(
+                "transition-transform duration-200",
+                isActive ? "text-blue-600" : "text-gray-400 opacity-0",
+                localSortDirection === "desc" ? "rotate-180" : "rotate-0"
+              )}
+            />
+          )}
         </span>
-      </Link>
+      </div>
     </th>
   );
 }

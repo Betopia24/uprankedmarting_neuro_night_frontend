@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { LucideSearch, LucideLoader } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface SearchFieldProps {
   defaultQuery?: string;
@@ -18,9 +20,10 @@ export default function SearchField({
   const searchParams = useSearchParams();
 
   const [value, setValue] = useState(defaultQuery);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Debounced update
   useEffect(() => {
+    setIsLoading(true);
     const timeout = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
 
@@ -31,19 +34,34 @@ export default function SearchField({
         params.delete("query");
       }
 
+      // Push new URL
       router.push(`${basePath}?${params.toString()}`);
+
+      // Stop loading after debounce
+      setIsLoading(false);
     }, debounceTime);
 
     return () => clearTimeout(timeout);
   }, [value, debounceTime, router, basePath, searchParams]);
 
   return (
-    <input
-      type="text"
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-      placeholder="Search..."
-      className="border rounded px-3 py-1 text-sm w-60"
-    />
+    <div className="relative w-64">
+      <LucideSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        placeholder="Search..."
+        className={cn(
+          "w-full pl-10 pr-10 py-2 rounded-lg border border-gray-300 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
+        )}
+      />
+
+      {/* Loading indicator */}
+      {isLoading && (
+        <LucideLoader className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 animate-spin" />
+      )}
+    </div>
   );
 }
