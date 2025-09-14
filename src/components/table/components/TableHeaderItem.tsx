@@ -1,12 +1,7 @@
 import { cn } from "@/lib/utils";
-import {
-  LucideArrowDownNarrowWide,
-  LucideArrowUpDown,
-  LucideArrowUpNarrowWide,
-} from "lucide-react";
+import { LucideChevronDown } from "lucide-react";
 import Link from "next/link";
 
-// ---------- TABLE HEADER ITEM ----------
 interface TableHeaderItemProps {
   field: string;
   currentSort: string;
@@ -47,24 +42,20 @@ export default function TableHeaderItem({
     }
   });
 
-  const getIcon = () => {
-    if (!isActive || !sortDirection) return <LucideArrowUpDown size={12} />;
-    if (sortDirection === "asc") return <LucideArrowUpNarrowWide size={12} />;
-    return <LucideArrowDownNarrowWide size={12} />;
-  };
-
   return (
     <th className="border border-gray-300 text-left cursor-pointer">
       <Link
         href={`${basePath}?${urlParams.toString()}`}
         className={cn(
-          "flex items-center p-2 rounded",
+          "flex items-center p-2",
           isActive ? "bg-gray-200" : "hover:bg-gray-100"
         )}
       >
         <span className="inline-flex gap-1 items-center font-semibold relative">
           {field}
-          <span className="absolute right-0 translate-x-full">{getIcon()}</span>
+          <span className="absolute right-0 translate-x-full">
+            <LucideChevronDown size="14" />
+          </span>
         </span>
       </Link>
     </th>

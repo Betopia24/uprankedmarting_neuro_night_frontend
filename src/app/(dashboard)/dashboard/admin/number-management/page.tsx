@@ -126,6 +126,7 @@ export default async function CallManageAndLogsPage({
         <p className="text-center text-gray-500">No numbers available.</p>
       ) : (
         <>
+          <SearchField basePath={config.basePath} />
           <table className="table-auto border-collapse border border-gray-200 w-full text-gray-800">
             <thead>
               <tr className="bg-gray-100">

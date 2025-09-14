@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 interface SearchFieldProps {
@@ -11,52 +11,37 @@ interface SearchFieldProps {
 
 export default function SearchField({
   defaultQuery = "",
-  debounceTime = 500,
+  debounceTime = 200,
   basePath,
 }: SearchFieldProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Extract stable string from searchParams
-  const searchParamsString = useMemo(
-    () => searchParams.toString(),
-    [searchParams]
-  );
+  const [value, setValue] = useState(defaultQuery);
 
-  const [query, setQuery] = useState(defaultQuery);
-
-  // Sync input with URL on mount & when URL changes
+  // Debounced update
   useEffect(() => {
-    const initialQuery =
-      new URLSearchParams(searchParamsString).get("query") || defaultQuery;
-    setQuery(initialQuery);
-  }, [searchParamsString, defaultQuery]);
+    const timeout = setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
 
-  // Push URL updates when query changes
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      const params = new URLSearchParams(searchParamsString);
-
-      if (query.trim()) {
-        params.set("query", query);
+      if (value) {
+        params.set("query", value);
+        params.set("page", "1");
       } else {
         params.delete("query");
       }
 
-      // Reset pagination on new search
-      params.delete("page");
-
       router.push(`${basePath}?${params.toString()}`);
     }, debounceTime);
 
-    return () => clearTimeout(handler);
-  }, [query, debounceTime, router, basePath, searchParamsString]);
+    return () => clearTimeout(timeout);
+  }, [value, debounceTime, router, basePath, searchParams]);
 
   return (
     <input
       type="text"
-      value={query}
-      onChange={(e) => setQuery(e.target.value)}
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
       placeholder="Search..."
       className="border rounded px-3 py-1 text-sm w-60"
     />
