@@ -84,35 +84,33 @@ export default function UpdateAgentForm({
 }: UpdateAgentFormProps) {
   const defaultValues: AgentUpdateFormInput = {
     userData: {
-      name: agent.userData?.name ?? "",
-      phone: agent.userData?.phone ?? "",
-      bio: agent.userData?.bio ?? "",
+      name: agent.name ?? "",
+      phone: agent.phone ?? "",
+      bio: agent.bio ?? "",
     },
     agentData: {
-      dateOfBirth: agent.agentData?.dateOfBirth
-        ? agent.agentData.dateOfBirth.split("T")[0]
+      dateOfBirth: agent.Agent?.dateOfBirth
+        ? agent.Agent.dateOfBirth.split("T")[0]
         : "",
-      gender: agent.agentData?.gender?.toLowerCase() as
-        | (typeof genderOptions)[number]
-        | undefined,
-      address: agent.agentData?.address ?? "",
-      emergencyPhone: agent.agentData?.emergencyPhone ?? "",
-      ssn: agent.agentData?.ssn ?? "",
-      skills: agent.agentData?.skills?.join(", ") ?? "",
-      jobTitle: agent.agentData?.jobTitle ?? "",
-      employmentType: agent.agentData?.employmentType as
+      gender: agent.Agent?.gender as (typeof genderOptions)[number] | undefined,
+      address: agent.Agent?.address ?? "",
+      emergencyPhone: agent.Agent?.emergencyPhone ?? "",
+      ssn: agent.Agent?.ssn ?? "",
+      skills: agent.Agent?.skills?.join(", ") ?? "",
+      jobTitle: agent.Agent?.jobTitle ?? "",
+      employmentType: agent.Agent?.employmentType as
         | (typeof employmentTypes)[number]
         | undefined,
-      department: agent.agentData?.department ?? "",
+      department: agent.Agent?.department ?? "",
       shift: inferShiftFromTimes(
-        agent.agentData?.workStartTime,
-        agent.agentData?.workEndTime
+        agent.Agent?.workStartTime,
+        agent.Agent?.workEndTime
       ),
-      startWorkDateTime: agent.agentData?.startWorkDateTime
-        ? agent.agentData.startWorkDateTime.split("T")[0]
+      startWorkDateTime: agent.Agent?.startWorkDateTime
+        ? agent.Agent.startWorkDateTime.split("T")[0]
         : "",
-      endWorkDateTime: agent.agentData?.endWorkDateTime
-        ? agent.agentData.endWorkDateTime.split("T")[0]
+      endWorkDateTime: agent.Agent?.endWorkDateTime
+        ? agent.Agent.endWorkDateTime.split("T")[0]
         : "",
     },
   };
