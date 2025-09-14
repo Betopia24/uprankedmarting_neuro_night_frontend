@@ -20,6 +20,11 @@ import {
   CreditCard,
   Blocks,
 } from "lucide-react";
+// import { getSubscriptionType } from "@/app/api/subscription/subscription";
+// import { getServerAuth } from "@/lib/auth";
+// import { Button } from "@/components/ui/button";
+// import { Link } from 'next/link';
+// import { useAuth } from "@/components/AuthProvider";
 
 export type SidebarItemType = {
   name: string;
@@ -49,11 +54,38 @@ const icons = {
   blocks: Blocks,
 };
 
-export default function SidebarContent({
+export default async function SidebarContent({
   mainItems,
   subItems,
 }: SidebarContentType) {
   const { isCollapsedSidebar } = useSidebar();
+  // const auth = await useAuth();
+
+  // if (!auth.token) {
+  //   console.error("Missing access token from getServerAuth()");
+  //   return <div className="text-red-500">Unauthorized: No access token</div>;
+  // }
+
+  // let subscription;
+  // try {
+  //   subscription = await getSubscriptionType(auth.token);
+  // } catch (err) {
+  //   console.error("Error loading subscription:", err);
+  //   return (
+  //     <div className="flex items-center justify-center h-screen">
+  //       <div className="text-red-500 flex flex-col items-center">
+  //         <h1 className="text-2xl font-semibold">Buy a number first</h1>
+  //         {/* <Button variant={"link"} className="mt-4">
+  //           <a href="/dashboard/organization/explore-numbers">Explore Numbers</a>
+  //         </Button> */}
+  //         <Link href="/dashboard/organization/explore-numbers">Explore Numbers</Link>
+  //       </div>
+  //     </div>
+  //   );
+  // }
+
+  // console.log(subscription);
+
   return (
     <div className="h-full flex flex-col justify-between gap-6 px-2">
       <ul className={cn("space-y-2")}>
