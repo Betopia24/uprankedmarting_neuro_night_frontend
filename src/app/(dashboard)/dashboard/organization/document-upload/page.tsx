@@ -6,6 +6,7 @@ export default async function OrganizationDocumentUploadPage() {
   const me = await getServerAuth();
 
   const AI_AGENT_BASE_URL = env.NEXT_PUBLIC_API_BASE_URL_AI;
+  const HUMAN_AGENT_BASE_URL = env.NEXT_PUBLIC_API_URL;
 
   const AI_AGENT_UPLOAD_URL = () =>
     `${AI_AGENT_BASE_URL}/organization-knowledge/knowledge-base/file`;
@@ -14,6 +15,8 @@ export default async function OrganizationDocumentUploadPage() {
     `${AI_AGENT_BASE_URL}/organization-knowledge/knowledge-base/${organizationId}`;
 
   const AI_AGENT_DELETE_URL = `${AI_AGENT_BASE_URL}/organization-knowledge/knowledge-base`;
+
+  const HUMAN_AGENT_UPLOAD_URL = () => `${HUMAN_AGENT_BASE_URL}/company-docs`;
 
   return (
     <>
@@ -25,13 +28,13 @@ export default async function OrganizationDocumentUploadPage() {
           deleteUrl={AI_AGENT_DELETE_URL}
           fetchUrl={AI_AGENT_FETCH_URL(me?.data.ownedOrganization?.id || "")}
         />
-        {/* <DocumentUploads
-          organizationId={me.organizationInfo.id}
+        <DocumentUploads
+          organizationId={me?.data?.ownedOrganization?.id || ""}
           title="Upload Document for Human Agent"
-          uploadUrl={AI_AGENT_UPLOAD_URL()}
+          uploadUrl={HUMAN_AGENT_UPLOAD_URL()}
           deleteUrl={AI_AGENT_DELETE_URL}
-          fetchUrl={AI_AGENT_FETCH_URL(me.organizationInfo.id)}
-        /> */}
+          fetchUrl={AI_AGENT_FETCH_URL(me?.data?.ownedOrganization?.id || "")}
+        />
       </div>
     </>
   );
