@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { FaCcVisa, FaCcMastercard, FaCcAmex } from "react-icons/fa6";
-import { IoArrowBack, IoInformationCircle } from "react-icons/io5";
+import { IoArrowBack } from "react-icons/io5";
 import { loadStripe } from "@stripe/stripe-js";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+
 import {
   Elements,
   CardElement,
@@ -11,9 +13,6 @@ import {
   useElements,
 } from "@stripe/react-stripe-js";
 import { useAuth } from "@/components/AuthProvider";
-
-// Types
-type CardType = "visa" | "mastercard" | "amex" | "none";
 
 interface FormData {
   cardholderName: string;
@@ -62,6 +61,8 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
+
+  const router = useRouter();
 
   const subTotal = (planPrice * formData.agentCount).toFixed(2);
 
@@ -186,10 +187,13 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
       // Optional: you can inspect paymentIntent?.status === 'succeeded'
       // and (if you have an endpoint) notify your backend to finalize/refresh state.
 
-      console.log("PaymentIntent after confirmation:", paymentIntent);
-      console.log("Created subscription:", created?.data?.subscription);
+      toast.success("Subscription created and payment confirmed successfully!");
 
-      alert("Subscription created and payment confirmed successfully!");
+      if (created?.data?.subscription?.planId) {
+        router.push(
+          `/payment-success?subscriptionId=${created?.data?.subscription?.planId}`
+        );
+      }
     } catch (err: unknown) {
       console.error("Error:", err);
 
@@ -203,7 +207,7 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
         message = String((err as { message: unknown }).message);
       }
 
-      alert(message);
+      toast.error(message);
     } finally {
       setIsLoading(false);
     }
@@ -211,7 +215,12 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
 
   // ----------------- UI -----------------
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+    <div
+      style={{
+        height: "calc(100vh - var(--_sidebar-header-height))",
+      }}
+      className="bg-gray-50 flex items-center justify-center p-4"
+    >
       <div className="w-full max-w-6xl lg:grid lg:grid-cols-2 shadow-2xl rounded-2xl overflow-hidden">
         {/* Left Panel */}
         <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white p-8 md:p-12">
