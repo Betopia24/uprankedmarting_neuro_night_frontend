@@ -1,3 +1,4 @@
+import React from "react";
 import Pagination from "@/components/table/components/Pagination";
 import SearchField from "@/components/table/components/SearchField";
 import TableHeaderItem from "@/components/table/components/TableHeaderItem";
@@ -6,23 +7,20 @@ import { parseFilters } from "@/components/table/utils/filters";
 import { env } from "@/env";
 import { getServerAuth } from "@/lib/auth";
 
-const config = {
-  basePath: adminOrganizationManagementPath(),
-};
-
 export interface TableSearchParams {
   page?: number;
   limit?: number;
   sort?: string;
   query?: string;
-  [key: string]: string | string[] | undefined | number;
+  [key: string]: string | string[] | number | undefined;
 }
 
 interface TableProps {
-  searchParams: Promise<TableSearchParams>;
+  searchParams?: {
+    [key: string]: string | string[] | undefined;
+  };
 }
 
-// Backend API types
 interface Subscription {
   id: string;
   startDate: string;
@@ -57,8 +55,8 @@ interface OrganizationAdmin {
   name: string;
   email: string;
   phone: string;
-  image: string;
-  bio: string;
+  image?: string;
+  bio?: string;
   status: string;
   role: string;
   createdAt: string;
@@ -80,7 +78,6 @@ interface OrganizationApiResponse {
   };
 }
 
-// Table row type
 interface TableRow {
   id: string;
   name: string;
@@ -90,44 +87,43 @@ interface TableRow {
   organizationIndustry: string;
   organizationAddress: string;
   totalAgents: number;
-  agentNames: string; // comma-separated
+  agentNames: string;
 }
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 10;
 const DEFAULT_SORT = "";
 
-// Fetch organization admins
 async function getOrganizations(
-  queryParams: TableSearchParams
+  params: TableSearchParams
 ): Promise<OrganizationApiResponse | null> {
   const auth = await getServerAuth();
   if (!auth?.accessToken) return null;
 
-  const {
-    page = DEFAULT_PAGE,
-    limit = DEFAULT_LIMIT,
-    query = "",
-  } = queryParams;
+  const page = params.page ?? DEFAULT_PAGE;
+  const limit = params.limit ?? DEFAULT_LIMIT;
+  const query = typeof params.query === "string" ? params.query : "";
+
   const url = new URL(`${env.API_BASE_URL}/organization-admins`);
   url.searchParams.set("page", String(page));
   url.searchParams.set("limit", String(limit));
   if (query) url.searchParams.set("searchTerm", query);
+  if (params.sort) url.searchParams.set("sort", String(params.sort));
 
-  try {
-    const res = await fetch(url.toString(), {
-      headers: { Authorization: auth.accessToken },
-      cache: "no-cache",
-    });
-    if (!res.ok) throw new Error(`Network error: ${res.status}`);
-    return res.json();
-  } catch (err) {
-    console.error("Server fetch error:", err);
+  const res = await fetch(url.toString(), {
+    headers: {
+      Authorization: auth.accessToken,
+    },
+    cache: "no-cache",
+  });
+  if (!res.ok) {
+    console.error("Fetch error code:", res.status);
     return null;
   }
+  const json = await res.json();
+  return json;
 }
 
-// Sort helper
 function sortData<T>(
   data: T[],
   field: keyof T,
@@ -135,32 +131,53 @@ function sortData<T>(
 ): T[] {
   if (!field) return data;
   return [...data].sort((a, b) => {
-    const aValue = a[field];
-    const bValue = b[field];
-    if (typeof aValue === "number" && typeof bValue === "number") {
-      return direction === "asc" ? aValue - bValue : bValue - aValue;
+    const aV = a[field];
+    const bV = b[field];
+    if (typeof aV === "number" && typeof bV === "number") {
+      return direction === "asc" ? aV - bV : bV - aV;
     }
-    return direction === "asc"
-      ? String(aValue).localeCompare(String(bValue))
-      : String(bValue).localeCompare(String(aValue));
+    const aS = String(aV ?? "");
+    const bS = String(bV ?? "");
+    return direction === "asc" ? aS.localeCompare(bS) : bS.localeCompare(aS);
   });
 }
 
-// Filter helper
 function filterData(data: TableRow[], query: string): TableRow[] {
   if (!query) return data;
+  const q = query.toLowerCase();
   return data.filter(
     (item) =>
-      item.name.toLowerCase().includes(query.toLowerCase()) ||
-      item.email.toLowerCase().includes(query.toLowerCase()) ||
-      item.organizationName.toLowerCase().includes(query.toLowerCase())
+      item.name.toLowerCase().includes(q) ||
+      item.email.toLowerCase().includes(q) ||
+      item.organizationName.toLowerCase().includes(q)
   );
 }
 
 export default async function OrganizationAdminPage({
   searchParams,
 }: TableProps) {
-  const queryParams = await searchParams;
+  // parse the searchParams prop
+  const sp = searchParams ?? {};
+  // convert to TableSearchParams
+  const queryParams: TableSearchParams = {
+    page: sp.page
+      ? Array.isArray(sp.page)
+        ? parseInt(sp.page[0], 10)
+        : parseInt(sp.page as string, 10)
+      : DEFAULT_PAGE,
+    limit: sp.limit
+      ? Array.isArray(sp.limit)
+        ? parseInt(sp.limit[0], 10)
+        : parseInt(sp.limit as string, 10)
+      : DEFAULT_LIMIT,
+    sort: sp.sort
+      ? Array.isArray(sp.sort)
+        ? sp.sort[0]
+        : sp.sort
+      : DEFAULT_SORT,
+    query: sp.query ? (Array.isArray(sp.query) ? sp.query[0] : sp.query) : "",
+  };
+
   const response = await getOrganizations(queryParams);
 
   if (!response || !response.data) {
@@ -173,10 +190,22 @@ export default async function OrganizationAdminPage({
 
   const { data: organizations, meta } = response.data;
 
+  const normalizedData = organizations.map((org) => ({
+    id: org.id,
+    name: org.name,
+    serviceType: org.ownedOrganization.industry,
+    packageType: org.ownedOrganization.subscriptions,
+    assignAgent: org.ownedOrganization.agents,
+    contactInfo: org.phone,
+    website: org.ownedOrganization.websiteLink,
+  }));
+
+  console.log(normalizedData);
+
   const tableData: TableRow[] = organizations.map((org) => {
-    const agents = org.ownedOrganization.agents || [];
+    const agents = org.ownedOrganization.agents ?? [];
     const agentNames = agents
-      .map((a) => a.userId || a.name || "N/A")
+      .map((a) => a.name ?? a.userId ?? "N/A")
       .join(", ");
     return {
       id: org.id,
@@ -191,25 +220,28 @@ export default async function OrganizationAdminPage({
     };
   });
 
-  const currentPage = Math.max(1, Math.min(meta.page, meta.totalPages));
+  // sort / filter
+  const [sortField, sortDirection] = (queryParams.sort || "").split(":") as [
+    string,
+    string?
+  ];
+
+  const filtered = filterData(tableData, queryParams.query || "");
+  const sorted = sortField
+    ? sortData(
+        filtered,
+        sortField as keyof TableRow,
+        sortDirection === "desc" ? "desc" : "asc"
+      )
+    : filtered;
+
   const totalPages = meta.totalPages;
-
-  const currentFilters = parseFilters(queryParams);
-  const [sortField, sortDirection = "asc"] = (
-    queryParams.sort || DEFAULT_SORT
-  ).split(":");
-
-  const filteredData = filterData(tableData, queryParams.query || "");
-  const sortedData = sortData(
-    filteredData,
-    sortField as keyof TableRow,
-    sortDirection as "asc" | "desc"
-  );
+  const currentPage = Math.min(Math.max(1, meta.page), totalPages);
 
   const tableHeader =
-    sortedData.length > 0
-      ? Object.keys(sortedData[0])
-      : [
+    sorted.length > 0
+      ? (Object.keys(sorted[0]) as (keyof TableRow)[]).filter((k) => k !== "id")
+      : ([
           "name",
           "email",
           "phone",
@@ -218,46 +250,53 @@ export default async function OrganizationAdminPage({
           "organizationAddress",
           "totalAgents",
           "agentNames",
-        ];
+        ] as (keyof TableRow)[]);
+
+  const currentFilters = parseFilters(queryParams);
+
+  const basePath = adminOrganizationManagementPath();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <SearchField
-          basePath={config.basePath}
+          basePath={basePath}
           defaultQuery={queryParams.query || ""}
         />
       </div>
 
-      <div className="overflow-x-auto bg-white shadow rounded-lg border border-gray-200">
+      <div className="w-full overflow-x-auto bg-white shadow rounded-lg border border-gray-200">
         <table className="min-w-full text-sm text-left text-gray-700 border-collapse">
           <thead className="bg-gray-50 text-gray-900 text-sm font-medium border-b border-gray-200">
             <tr>
               {tableHeader.map((field) => (
                 <TableHeaderItem
-                  key={field}
+                  key={String(field)}
                   field={field}
                   currentSort={sortField}
-                  sortDirection={sortDirection}
+                  sortDirection={sortDirection === "desc" ? "desc" : "asc"}
                   currentPage={currentPage}
                   limit={meta.limit}
                   searchQuery={queryParams.query || ""}
-                  basePath={config.basePath}
+                  basePath={basePath}
                   currentFilters={currentFilters}
                 />
               ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {sortedData.length > 0 ? (
-              sortedData.map((item) => (
+            {sorted.length > 0 ? (
+              sorted.map((item) => (
                 <tr
                   key={item.id}
                   className="hover:bg-gray-50 transition-colors cursor-pointer"
                 >
                   {tableHeader.map((key) => (
-                    <td key={key} className="px-4 py-3 border border-gray-200">
-                      {item[key as keyof TableRow]}
+                    <td
+                      key={String(key)}
+                      className="px-4 py-3 border border-gray-200 whitespace-nowrap"
+                    >
+                      {item[key]}
                     </td>
                   ))}
                 </tr>
@@ -283,8 +322,8 @@ export default async function OrganizationAdminPage({
         hasPrevPage={currentPage > 1}
         limit={meta.limit}
         sortField={sortField}
-        sortDirection={sortDirection}
-        basePath={config.basePath}
+        sortDirection={sortDirection === "desc" ? "desc" : "asc"}
+        basePath={basePath}
       />
     </div>
   );
