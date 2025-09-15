@@ -84,10 +84,23 @@ export default async function OrganizationDashboardPage() {
     );
   }
 
+  const callStats = {
+    totalCalls: statsData.totalCalls,
+    totalHumanCalls: statsData.totalHumanCalls,
+    totalAICalls: statsData.totalAICalls,
+    totalSuccessCalls: statsData.totalSuccessCalls,
+    todayHumanCalls: statsData.todayHumanCalls,
+    todayAICalls: statsData.todayAICalls,
+    todaySuccessCalls: statsData.todaySuccessCalls,
+    avgCallTime: statsData.callTiming.avgTotalCallTime,
+    avgAICallTime: statsData.callTiming.avgAICallTime,
+    avgHumanCallTime: statsData.callTiming.avgHumanCallTime,
+  };
+
   return (
     <div className="lg:flex gap-10">
       <div className="space-y-6 flex-1">
-        <CallGraph />
+        <CallGraph callStats={callStats} />
         <CallGraphBarChart monthlyReport={statsData.monthlyReport} />
       </div>
       <div className="basis-72 max-w-72">

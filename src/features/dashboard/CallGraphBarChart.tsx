@@ -105,7 +105,7 @@ export default function DashboardChart({
   }, [maxValue]);
 
   return (
-    <section>
+    <section className="-mx-12">
       <div style={{ width: "100%", height: 480 }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
@@ -142,7 +142,7 @@ export default function DashboardChart({
                 fontWeight: "600",
               }}
               verticalAlign="top"
-              height={36}
+              height={54}
             />
             <Bar
               dataKey="totalCalls"
