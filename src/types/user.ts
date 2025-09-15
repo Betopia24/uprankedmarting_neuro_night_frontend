@@ -14,10 +14,10 @@ type OrganizationInfo = {
   industry: string;
   address: string;
   websiteLink: string;
-  organizationNumber: any;
+  organizationNumber: number;
   ownerId: string;
-  agentVoiceUrl: any;
-  leadQuestions: any[];
+  agentVoiceUrl: string;
+  leadQuestions: string[];
   createdAt: string;
   updatedAt: string;
 };

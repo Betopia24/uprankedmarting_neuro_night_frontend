@@ -13,7 +13,23 @@ import AuthButton from "./AuthButton";
 import Link from "next/link";
 import { toast } from "sonner";
 import { adminPaths } from "@/constants";
-import { AuthMe2 } from "@/types/user";
+
+type AuthResponse = {
+  success: boolean;
+  message: string;
+  data?: {
+    user?: {
+      id: string;
+      role: string;
+      email: string;
+      name: string;
+    };
+    accessToken?: string;
+    refreshToken?: string;
+    isVerified?: boolean;
+  };
+  errors?: { field: string; message: string }[];
+};
 
 export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
   const form = useForm<LoginFormSchema>({
@@ -30,20 +46,53 @@ export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
 
   const onSubmit = async (formData: LoginFormSchema) => {
     try {
-      const response = await fetch(`/api/auth/login`, {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
-      if (!response.ok) return toast.error(response.statusText);
-      const data: AuthMe2 = await response.json();
-      window.location.href =
-        adminPaths[data.user?.role as keyof typeof adminPaths];
-      toast.success(data.message);
+      const result: AuthResponse = await response.json().catch(() => null);
+
+      // ❌ Handle errors
+      if (!response.ok || !result?.success) {
+        if (result?.errors?.length) {
+          result.errors.forEach((err) =>
+            toast.error(`${err.field}: ${err.message}`)
+          );
+        } else {
+          toast.error(
+            result?.message || response.statusText || "Login failed."
+          );
+        }
+        return;
+      }
+
+      // 🔹 Check if user is verified
+      if (result.data?.isVerified === false) {
+        toast.info("Please verify your account first.");
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        window.location.href =
+          "/auth/verify-otp?email=" + encodeURIComponent(formData.email);
+        return;
+      }
+
+      // ✅ Success: show message
+      toast.success(result.message || "Login successful!");
+
+      // 🔹 Redirect based on role
+      const role = result.data?.user?.role;
+      if (role && role in adminPaths) {
+        window.location.href = adminPaths[role as keyof typeof adminPaths];
+      } else {
+        window.location.href = "/";
+      }
     } catch (error) {
+      console.error("Login Request Error:", error);
       if (error instanceof Error) {
         toast.error(error.message);
+      } else {
+        toast.error("Something went wrong. Please try again later.");
       }
     }
   };

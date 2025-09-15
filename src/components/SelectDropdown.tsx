@@ -38,6 +38,7 @@ export default function SelectDropdown({
   required,
   options,
   className,
+  ...props
 }: SelectFieldProps) {
   const form = useFormContext();
 
@@ -60,7 +61,11 @@ export default function SelectDropdown({
             </div>
           </FormLabel>
           <FormControl className="p-0">
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <Select
+              onValueChange={field.onChange}
+              defaultValue={field.value}
+              {...props}
+            >
               <SelectTrigger className="w-full border-transparent">
                 <SelectValue placeholder={placeholder} />
               </SelectTrigger>

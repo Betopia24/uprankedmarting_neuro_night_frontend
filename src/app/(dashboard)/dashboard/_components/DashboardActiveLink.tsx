@@ -20,7 +20,7 @@ export default function DashboardActiveLink({
     <Link
       href={href}
       className={cn(
-        "block w-full hover:bg-blue-300 rounded whitespace-nowrap truncate",
+        "block w-full text-sm hover:bg-blue-300 rounded whitespace-nowrap truncate",
         isActive && "is-active-link bg-blue-300",
         className
       )}

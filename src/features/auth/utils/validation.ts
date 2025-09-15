@@ -38,23 +38,19 @@ export const signupSchema = z
       .max(MAX_PASSWORD_LENGTH, {
         message: "Confirm password must not exceed 64 characters",
       }),
-
-    businessName: z
-      .string({ message: "Business name is required" })
-      .min(6, { message: "Business name must be at least 6 characters long" }),
-
     phoneNumber: z
       .string({ message: "Phone number is required" })
       .regex(/^\+[1-9]\d{9,14}$/, {
         message: "Phone number must include country code",
       }),
 
+    businessName: z
+      .string({ message: "Business name is required" })
+      .min(6, { message: "Business name must be at least 6 characters long" }),
+
     industry: z.string({ message: "Industry is required" }),
 
-    website: z
-      .string({ message: "Website is required" })
-      .url("Invalid URL")
-      .optional(),
+    website: z.string().default("").optional(),
 
     address: z
       .string({ message: "Address is required" })
@@ -78,6 +74,58 @@ export const signupSchema = z
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
+
+export const organizationSignupSchema = z.object({
+  userData: z.object({
+    name: z
+      .string({ message: "Fullname is required" })
+      .min(6, { message: "Fullname must be at least 6 characters long" })
+      .max(25, { message: "Fullname must be at most 25 characters long" })
+      .trim(),
+
+    email: z.email("Invalid email address"),
+
+    password: z
+      .string({ message: "Password is required" })
+      .min(MIN_PASSWORD_LENGTH, {
+        message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters long`,
+      })
+      .max(MAX_PASSWORD_LENGTH, {
+        message: `Password must not exceed ${MAX_PASSWORD_LENGTH} characters`,
+      })
+      .regex(PASSWORD_REGEX, {
+        message:
+          "Password must include uppercase, lowercase, number, and special character (!@#$%^&* etc.)",
+      })
+      .trim(),
+
+    phone: z
+      .string({ message: "Phone number is required" })
+      .regex(/^\+[1-9]\d{9,14}$/, {
+        message: "Phone number must include country code",
+      }),
+  }),
+  organizationData: z.object({
+    name: z
+      .string({ message: "Business name is required" })
+      .min(6, { message: "Business name must be at least 6 characters long" }),
+    industry: z.string({ message: "Industry is required" }),
+    websiteLink: z
+      .string({ message: "Website is required" })
+      .url("Invalid URL")
+      .optional(),
+
+    address: z
+      .string({ message: "Address is required" })
+      .min(6, {
+        message: "Address must be at least 6 characters long",
+      })
+      .refine((val) => val.split(",").length === 3, {
+        message:
+          "Address must contain exactly 3 comma-separated values (e.g., Street, City, Country)",
+      }),
+  }),
+});
 
 // -------------------- Login Schema --------------------
 export const loginSchema = z.object({

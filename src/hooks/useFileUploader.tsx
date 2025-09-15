@@ -4,7 +4,7 @@ import axios from "axios";
 
 export function useFileUploader(
   uploadUrl: string,
-  payload?: Record<string, any>
+  payload?: Record<string, string | number>
 ) {
   const [progress, setProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
@@ -34,7 +34,7 @@ export function useFileUploader(
       });
 
       return true;
-    } catch (err) {
+    } catch {
       setError("Upload failed");
       return false;
     } finally {

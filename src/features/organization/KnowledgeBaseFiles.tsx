@@ -1,4 +1,4 @@
-import { Button, Heading } from "@/components";
+import { Button } from "@/components";
 import { LucideTrash } from "lucide-react";
 
 type KnowledgeBase = {

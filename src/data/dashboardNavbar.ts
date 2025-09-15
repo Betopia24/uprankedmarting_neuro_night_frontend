@@ -8,15 +8,21 @@ export const dashboardNavigation = {
       href: paths.adminDashboardPath(),
     },
     {
+      name: "Number Management",
+      icon: "phone",
+      href: paths.adminNumberManagementPath(),
+    },
+    {
       name: "Agent Management",
       icon: "userCog",
       href: paths.adminAgentManagementPath(),
     },
     {
-      name: "Organization Management",
+      name: "Orgs Management",
       icon: "users",
       href: paths.adminOrganizationManagementPath(),
     },
+    { name: "Approval", icon: "userCog", href: paths.adminApprovalPath() },
   ],
   organization: [
     {
@@ -25,9 +31,9 @@ export const dashboardNavigation = {
       href: paths.organizationDashboardPath(),
     },
     {
-      name: "Buy A Number",
+      name: "Explore Numbers",
       icon: "phone",
-      href: paths.organizationBuyNumbersPath(),
+      href: paths.organizationExploreNumbersPath(),
     },
     {
       name: "Call Logs & Management",
@@ -38,6 +44,11 @@ export const dashboardNavigation = {
       name: "Agent Management",
       icon: "userCog",
       href: paths.organizationAgentManagementPath(),
+    },
+    {
+      name: "AI Management",
+      icon: "userCog",
+      href: paths.organizationAIManagementPath(),
     },
     {
       name: "Document Upload",

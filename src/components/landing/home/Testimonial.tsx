@@ -2,53 +2,73 @@
 
 import Embla, { useEmblaContext } from "@/components/Carousel";
 import { Section, Container, Heading } from "@/components";
-import starFullImage from "@/images/star-full.svg";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { env } from "@/env";
+import RatingViewer from "@/components/RatingViewer";
 
 type TestimonialData = {
-  id: number;
+  id: string;
   author: string;
   content: string;
   image: string;
   rating: number;
 };
 
-const testimonialsData = [
-  {
-    id: 1,
-    author: "Owner",
-    content:
-      "Autoawnser.ai completely transformed how we handle incoming calls. Our AI receptionist is friendly, natural-sounding, and always available — it’s like having a 24/7 superstar at the front desk!",
-    image: "",
-    rating: 4,
-  },
-  {
-    id: 2,
-    author: "Owner",
-    content:
-      "Autoawnser.ai blends AI with live agents so seamlessly that most of our clients don’t even notice the difference. The scheduling and lead qualification features saved us hours every week.",
-    image: "",
-    rating: 4,
-  },
-  {
-    id: 3,
-    author: "Owner",
-    content:
-      "Autoawnser.ai helped automate our initial screening process and drastically reduced the time-to-hire. Candidates love the AI’s smooth voice and interaction flow.",
-    image: "",
-    rating: 4,
-  },
-  {
-    id: 4,
-    author: "Owner",
-    content:
-      "Autoawnser.ai helped automate our initial screening process and drastically reduced the time-to-hire. Candidates love the AI’s smooth voice and interaction flow.",
-    image: "",
-    rating: 4,
-  },
-];
+type ApiResponse = {
+  success: boolean;
+  message: string;
+  data: {
+    data: {
+      id: string;
+      feedbackText: string;
+      rating?: number;
+      client?: {
+        name?: string;
+        image?: string;
+      };
+    }[];
+  };
+};
 
 export default function Testimonial() {
+  const [testimonials, setTestimonials] = useState<TestimonialData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchTestimonials() {
+      try {
+        const res = await fetch(
+          `${env.NEXT_PUBLIC_API_URL}/service-feedback/testimonial-feedback`
+        );
+        const json: ApiResponse = await res.json();
+
+        if (json.success && json.data?.data) {
+          const mapped: TestimonialData[] = json.data.data.map((item) => ({
+            id: item.id,
+            author: item.client?.name || "Anonymous",
+            content: item.feedbackText,
+            image: item.client?.image || "",
+            rating: item.rating || 0,
+          }));
+
+          setTestimonials(mapped);
+        }
+      } catch (err) {
+        console.error("Failed to fetch testimonials", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchTestimonials();
+  }, []);
+
+  if (loading)
+    return <div className="text-center py-10">Loading testimonials...</div>;
+  if (!testimonials.length)
+    return <div className="text-center py-10">No testimonials found.</div>;
+
   return (
     <Embla>
       <Section bg="bg-warning">
@@ -62,9 +82,9 @@ export default function Testimonial() {
             </Section.Heading>
           </div>
 
-          <Embla data={testimonialsData} delay={6000} slidesPerView={3}>
+          <Embla data={testimonials} delay={6000} slidesPerView={3}>
             <div className="relative group/embla mt-10">
-              <div className="px-10">
+              <div className="px-4">
                 <Embla.Container>
                   <Carousel />
                 </Embla.Container>
@@ -80,32 +100,38 @@ export default function Testimonial() {
 
 function TestimonialCard({ data }: { data: TestimonialData }) {
   return (
-    <blockquote className="border border-warning-500 rounded-3xl p-2 md:p-6 lg:p-10 h-full space-y-2 text-center">
-      <div className="size-32 rounded-full mx-auto border"></div>
-      <Heading size="h4">{data.author}</Heading>
-      <StarRating />
-      <p>{data.content}</p>
+    <blockquote className="border border-warning-500 rounded-3xl p-2 md:p-6 lg:p-10 h-full space-y-4 text-center">
+      {data.image ? (
+        <div className="w-24 h-24 rounded-full mx-auto overflow-hidden border">
+          <Image src={data.image} alt={data.author} width={96} height={96} />
+        </div>
+      ) : (
+        <div className="w-24 h-24 rounded-full mx-auto border flex items-center justify-center text-xl font-bold bg-gray-200">
+          {data.author.charAt(0)}
+        </div>
+      )}
+
+      <Heading size="h4" className="text-violet-900">
+        {data.author}
+      </Heading>
+      <div className="flex justify-center">
+        <RatingViewer rating={data.rating} />
+      </div>
+      <p className="text-sm break-words">
+        {data.content.slice(0, 200)}
+        {data.content.length > 200 && "..."}
+      </p>
     </blockquote>
   );
 }
 
 function Carousel() {
-  const { data } = useEmblaContext();
-  return data.map((item, index) => (
-    <Embla.Slide key={index} index={index}>
-      <TestimonialCard key={index} data={item as TestimonialData} />
+  const context = useEmblaContext();
+  const data = (context?.data ?? []).map((item) => item as TestimonialData);
+
+  return data.map((item) => (
+    <Embla.Slide key={item.id} index={0}>
+      <TestimonialCard data={item} />
     </Embla.Slide>
   ));
-}
-
-function StarRating() {
-  return (
-    <div className="flex gap-1 justify-center">
-      <Image src={starFullImage} alt="star" />
-      <Image src={starFullImage} alt="star" />
-      <Image src={starFullImage} alt="star" />
-      <Image src={starFullImage} alt="star" />
-      <Image src={starFullImage} alt="star" />
-    </div>
-  );
 }

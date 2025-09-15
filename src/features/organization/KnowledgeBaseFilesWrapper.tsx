@@ -2,7 +2,6 @@
 
 import { toast } from "sonner";
 import FileUpload from "@/components/FileUpload";
-import { env } from "@/env";
 import KnowledgeBaseFiles from "./KnowledgeBaseFiles";
 import { useCallback, useEffect, useState } from "react";
 import { Heading } from "@/components";

@@ -1,4 +1,3 @@
-// app/_components/Pagination.tsx
 "use client";
 
 import Link from "next/link";
@@ -42,7 +41,7 @@ export default function Pagination({
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
     let start = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
-    let end = Math.min(totalPages, start + maxPagesToShow - 1);
+    const end = Math.min(totalPages, start + maxPagesToShow - 1);
     if (end - start < maxPagesToShow - 1) {
       start = Math.max(1, end - maxPagesToShow + 1);
     }
@@ -52,49 +51,48 @@ export default function Pagination({
   const pageNumbers = getPageNumbers();
 
   return (
-    <div className="flex items-center justify-between mt-6">
+    <div className="flex flex-col sm:flex-row items-center justify-between mt-6 gap-2">
       <div className="text-sm text-gray-500">
         Page {currentPage} of {totalPages}
       </div>
-      <div className="flex items-center space-x-2">
+
+      <div className="flex items-center space-x-1">
         {/* Previous */}
         <Link
           href={buildUrl(currentPage - 1)}
           scroll={false}
           className={cn(
-            "flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700",
+            "flex items-center px-3 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors",
             !hasPrevPage && "opacity-50 cursor-not-allowed pointer-events-none"
           )}
         >
           <LucideChevronLeft className="w-4 h-4 mr-1" />
-          Previous
+          Prev
         </Link>
 
-        {/* Pages */}
-        <div className="flex items-center space-x-1">
-          {pageNumbers.map((pageNum) => (
-            <Link
-              key={pageNum}
-              href={buildUrl(pageNum)}
-              scroll={false}
-              className={cn(
-                "px-3 py-2 text-sm font-medium border rounded-lg",
-                currentPage === pageNum
-                  ? "bg-gray-50 border-blue-500 text-blue-600"
-                  : "bg-white border-gray-300 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-              )}
-            >
-              {pageNum}
-            </Link>
-          ))}
-        </div>
+        {/* Page Numbers */}
+        {pageNumbers.map((pageNum) => (
+          <Link
+            key={pageNum}
+            href={buildUrl(pageNum)}
+            scroll={false}
+            className={cn(
+              "px-3 py-2 text-sm font-medium border rounded-lg transition-colors",
+              currentPage === pageNum
+                ? "bg-blue-50 border-blue-500 text-blue-600"
+                : "bg-white border-gray-300 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+            )}
+          >
+            {pageNum}
+          </Link>
+        ))}
 
         {/* Next */}
         <Link
           href={buildUrl(currentPage + 1)}
           scroll={false}
           className={cn(
-            "flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700",
+            "flex items-center px-3 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors",
             !hasNextPage && "opacity-50 cursor-not-allowed pointer-events-none"
           )}
         >

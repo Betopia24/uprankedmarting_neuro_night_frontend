@@ -1,11 +1,38 @@
 import { env } from "@/env";
 import { NextResponse } from "next/server";
+import { organizationSignupSchema } from "@/features/auth/utils/validation";
+import { ZodError } from "zod";
+
+/**
+ * 🔹 Request shape from frontend form
+ */
+type OrganizationSignupRequest = {
+  name: string;
+  email: string;
+  password: string;
+  phoneNumber: string;
+  businessName: string;
+  website?: string;
+  address?: string;
+  industry?: string;
+};
+
+/**
+ * 🔹 Utility: Format Zod validation errors
+ */
+function formatZodError(error: ZodError) {
+  return error.issues.map((issue) => ({
+    field: issue.path.join("."),
+    message: issue.message,
+  }));
+}
 
 export async function POST(request: Request) {
   try {
-    const formData = await request.json();
+    const formData: OrganizationSignupRequest = await request.json();
 
-    const payload = {
+    // ✅ Validate payload with Zod
+    const payload = organizationSignupSchema.parse({
       userData: {
         name: formData.name,
         email: formData.email,
@@ -18,25 +45,41 @@ export async function POST(request: Request) {
         address: formData.address,
         industry: formData.industry,
       },
-    };
+    });
 
-    const response = await fetch(`${env.API_BASE_URL}/users/register`, {
+    // ✅ Forward request to backend
+    const response = await fetch(`${env.API_BASE_URL}/users/register-user`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
-    if (!response.ok) {
-      return Response.json({ error: "Signup failed" }, { status: 401 });
+    // ✅ Pass through backend response as-is
+    const responseBody = await response.json().catch(() => null);
+
+    return NextResponse.json(responseBody, { status: response.status });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        {
+          success: false,
+          statusCode: 400,
+          message: "Validation failed. Please check your input.",
+          errors: formatZodError(error),
+        },
+        { status: 400 }
+      );
     }
 
-    const user = await response.json();
+    console.error("Signup Error:", error);
 
-    console.log(user);
-    const nextResponse = NextResponse.json({ user });
-
-    return nextResponse;
-  } catch (error) {
-    return Response.json({ error: "Login failed" }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        statusCode: 500,
+        message: "An unexpected error occurred. Please try again later.",
+      },
+      { status: 500 }
+    );
   }
 }

@@ -12,9 +12,9 @@ interface ParallaxProps {
 
 export default function ParallaxElastic({
   children,
-  yOffset = 50,
-  scaleOffset = 0.05,
-  opacityOffset = 0.2,
+  yOffset = 20,
+  scaleOffset = 0.01,
+  opacityOffset = 0.5,
 }: ParallaxProps) {
   const ref = useRef<HTMLDivElement | null>(null);
 
@@ -25,8 +25,8 @@ export default function ParallaxElastic({
 
   // Elastic spring transforms
   const y = useSpring(useTransform(scrollYProgress, [0, 1], [0, yOffset]), {
-    stiffness: 120,
-    damping: 20,
+    stiffness: 10,
+    damping: 10,
   });
 
   const scale = useSpring(

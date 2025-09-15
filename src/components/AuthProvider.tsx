@@ -8,6 +8,10 @@ interface User {
   role: string;
   name: string;
   image: string;
+  ownedOrganization: {
+    id: string;
+    name: string;
+  } | null;
 }
 
 interface AuthContextType {

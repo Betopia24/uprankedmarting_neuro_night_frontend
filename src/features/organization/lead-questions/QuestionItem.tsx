@@ -17,9 +17,8 @@ export default function QuestionItem({
 }: Props) {
   return (
     <div
-      className={`flex items-start gap-2 p-2 border rounded ${
-        isActive ? "border-red-500 bg-red-50" : "border-gray-300"
-      }`}
+      className={`flex items-start gap-2 p-2 border rounded ${isActive ? "border-red-500 bg-red-50" : "border-gray-300"
+        }`}
     >
       <span className="font-semibold">{index + 1}.</span>
       <span className="flex-1">{question}</span>

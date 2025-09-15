@@ -52,7 +52,7 @@ const defaultValues = {
   confirmPassword: "1234zxcvQ!",
   businessName: "1234zxcv",
   industry: "information-technology",
-  website: "http://example.com",
+  website: "",
   address: "11,11,11",
   phoneNumber: "+8801670012716",
   acceptTerms: true,
@@ -70,19 +70,36 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
 
   const onSubmit = async (formData: SignupFormSchema) => {
     try {
-      const response = await fetch(`/api/auth/signup`, {
+      const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
+      const result = await response.json().catch(() => null);
       if (response.ok) {
-        toast.success("Successfully logged in");
+        toast.success(
+          result?.message || "Please check your email for verification."
+        );
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        window.location.href =
+          "/auth/verify-otp?email=" + encodeURIComponent(formData.email);
+        return;
+      }
+
+      // ❌ Backend error response
+      if (result?.errors?.length) {
+        // Field-level validation errors
+        result.errors.forEach((err: { field: string; message: string }) => {
+          toast.error(`${err.field}: ${err.message}`);
+        });
+      } else {
+        // General error message
+        toast.error(result?.message || "Registration failed.");
       }
     } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message);
-      }
+      console.error("Signup Request Error:", error);
+      toast.error("Something went wrong. Please try again later.");
     }
   };
 
@@ -149,7 +166,7 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
                   <fieldset className="space-y-6">
                     <TextField
                       label="Full Name"
-                      name="full_name"
+                      name="name"
                       placeholder="Enter your name"
                     >
                       <LucideUser2 className="size-9 p-2.5 absolute right-0 bottom-0" />

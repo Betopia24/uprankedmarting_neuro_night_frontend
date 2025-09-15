@@ -7,7 +7,7 @@ import paginateData from "./utils/paginateData";
 import { applyFilters, filterData, parseFilters } from "./utils/filters";
 
 // Dummy table data
-export const tableData = [
+const tableData = [
   {
     id: 1,
     name: "John",

@@ -1,3 +1,4 @@
+import AgentProfileContainerPage from './_container/AgentProfileContainer';
 export default function AgentSettings() {
-  return <div>AgentSettings</div>;
+  return <AgentProfileContainerPage />;
 }

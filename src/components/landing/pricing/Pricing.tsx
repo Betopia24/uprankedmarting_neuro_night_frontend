@@ -26,7 +26,7 @@ export default function Pricing() {
         "7-Day Free Trial",
         "Cancel Anytime",
       ],
-      buttonText: "Try it free",
+      buttonText: "Subscribe",
       showNoCredit: true,
     },
     {
@@ -163,11 +163,6 @@ export default function Pricing() {
                   <Button size="sm" className="w-full">
                     {plan.buttonText}
                   </Button>
-                  {plan.showNoCredit && (
-                    <p className="text-[10px] text-gray-500 text-center mt-2 absolute 4 inset-x-0">
-                      No credit card required *
-                    </p>
-                  )}
                 </div>
               </CardAnimation>
             ))}
