@@ -1,7 +1,9 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { LucideSearch, LucideLoader } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface SearchFieldProps {
   defaultQuery?: string;
@@ -11,54 +13,55 @@ interface SearchFieldProps {
 
 export default function SearchField({
   defaultQuery = "",
-  debounceTime = 500,
+  debounceTime = 200,
   basePath,
 }: SearchFieldProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Extract stable string from searchParams
-  const searchParamsString = useMemo(
-    () => searchParams.toString(),
-    [searchParams]
-  );
+  const [value, setValue] = useState(defaultQuery);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [query, setQuery] = useState(defaultQuery);
-
-  // Sync input with URL on mount & when URL changes
   useEffect(() => {
-    const initialQuery =
-      new URLSearchParams(searchParamsString).get("query") || defaultQuery;
-    setQuery(initialQuery);
-  }, [searchParamsString, defaultQuery]);
+    setIsLoading(true);
+    const timeout = setTimeout(() => {
+      const params = new URLSearchParams(searchParams.toString());
 
-  // Push URL updates when query changes
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      const params = new URLSearchParams(searchParamsString);
-
-      if (query.trim()) {
-        params.set("query", query);
+      if (value) {
+        params.set("query", value);
+        params.set("page", "1");
       } else {
         params.delete("query");
       }
 
-      // Reset pagination on new search
-      params.delete("page");
-
+      // Push new URL
       router.push(`${basePath}?${params.toString()}`);
+
+      // Stop loading after debounce
+      setIsLoading(false);
     }, debounceTime);
 
-    return () => clearTimeout(handler);
-  }, [query, debounceTime, router, basePath, searchParamsString]);
+    return () => clearTimeout(timeout);
+  }, [value, debounceTime, router, basePath, searchParams]);
 
   return (
-    <input
-      type="text"
-      value={query}
-      onChange={(e) => setQuery(e.target.value)}
-      placeholder="Search..."
-      className="border rounded px-3 py-1 text-sm w-60"
-    />
+    <div className="relative w-64">
+      <LucideSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        placeholder="Search..."
+        className={cn(
+          "w-full pl-10 pr-10 py-2 rounded-lg border border-gray-300 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
+        )}
+      />
+
+      {/* Loading indicator */}
+      {isLoading && (
+        <LucideLoader className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 animate-spin" />
+      )}
+    </div>
   );
 }

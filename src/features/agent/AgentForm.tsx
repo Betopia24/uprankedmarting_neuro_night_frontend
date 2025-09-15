@@ -6,7 +6,6 @@ import { useForm } from "react-hook-form";
 import { Button, InputField, SelectDropdown } from "@/components";
 import { toast } from "sonner";
 import { env } from "@/env";
-import { useEffect } from "react";
 import { z } from "zod";
 
 // --- Options ---
@@ -34,6 +33,9 @@ const agentSchema = z.object({
         }
       ),
     phone: z.string().min(5).max(20),
+    bio: z.string({
+      message: "Bio must be at least 5 characters long",
+    }),
   }),
   agentData: z.object({
     dateOfBirth: z.string(),
@@ -110,6 +112,7 @@ const defaultValues: AgentFormInput = {
     email: "anonymous2@agent.com",
     password: "12345678901234Q!a",
     phone: generateUSPhoneNumber(),
+    bio: "I am an agent",
   },
   agentData: {
     dateOfBirth: "",
@@ -199,6 +202,12 @@ export default function AgentForm() {
               name="userData.phone"
               type="tel"
               placeholder="+14155552671"
+            />
+            <InputField
+              label="Bio"
+              name="userData.bio"
+              type="text"
+              placeholder="Update your bio"
             />
           </div>
         </FormGroup>
