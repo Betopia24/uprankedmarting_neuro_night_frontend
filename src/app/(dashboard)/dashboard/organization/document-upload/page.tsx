@@ -47,16 +47,13 @@ import { Button } from "@/components/ui/button";
 
 export default async function OrganizationDocumentUploadPage() {
 
-  const auth = await getServerAuth();
-  const subscriptionRes = await getSubscriptionType(auth?.accessToken || "");
+  const me = await getServerAuth();
+  const subscriptionRes = await getSubscriptionType(me?.accessToken || "");
   const subscription = subscriptionRes?.data;
 
   if (
     !subscription ||
-    subscription.status !== "ACTIVE" ||
-    // subscription.planLevel !== "ai_then_real_agent"
-    // subscription.planLevel === "only_real_agent"
-    subscription.planLevel === "only_ai"
+    subscription.status !== "ACTIVE"
   ) {
     return (
       <div
@@ -89,32 +86,56 @@ export default async function OrganizationDocumentUploadPage() {
   const HUMAN_AGENT_UPLOAD_URL = () => `${HUMAN_AGENT_BASE_URL}/company-docs`;
 
   return (
-    <div className="space-y-10">
-      <DocumentUploads
-        organizationId={auth?.data?.ownedOrganization?.id || ""}
-        title="Upload Document for AI Agent"
-        uploadUrl={AI_AGENT_UPLOAD_URL()}
-        deleteUrl={AI_AGENT_DELETE_URL}
-        fetchUrl={AI_AGENT_FETCH_URL(auth?.data?.ownedOrganization?.id || "")}
-      />
-    </div>
     <>
-      <div className="space-y-10">
-        <DocumentUploads
-          organizationId={me?.data?.ownedOrganization?.id || ""}
-          title="Upload Document for AI Agent"
-          uploadUrl={AI_AGENT_UPLOAD_URL()}
-          deleteUrl={AI_AGENT_DELETE_URL}
-          fetchUrl={AI_AGENT_FETCH_URL(me?.data.ownedOrganization?.id || "")}
-        />
-        <DocumentUploads
-          organizationId={me?.data?.ownedOrganization?.id || ""}
-          title="Upload Document for Human Agent"
-          uploadUrl={HUMAN_AGENT_UPLOAD_URL()}
-          deleteUrl={AI_AGENT_DELETE_URL}
-          fetchUrl={AI_AGENT_FETCH_URL(me?.data?.ownedOrganization?.id || "")}
-        />
-      </div>
+      {
+        subscription.planLevel === "only_real_agent" && (
+          <div className="space-y-10">
+            <DocumentUploads
+              organizationId={me?.data?.ownedOrganization?.id || ""}
+              title="Upload Document for Human Agent"
+              uploadUrl={HUMAN_AGENT_UPLOAD_URL()}
+              deleteUrl={AI_AGENT_DELETE_URL}
+              fetchUrl={AI_AGENT_FETCH_URL(me?.data?.ownedOrganization?.id || "")}
+            />
+          </div>
+        )
+      }
+
+      {
+        subscription.planLevel === "only_ai" && (
+          <div className="space-y-10">
+            <DocumentUploads
+              organizationId={me?.data?.ownedOrganization?.id || ""}
+              title="Upload Document for AI Agent"
+              uploadUrl={AI_AGENT_UPLOAD_URL()}
+              deleteUrl={AI_AGENT_DELETE_URL}
+              fetchUrl={AI_AGENT_FETCH_URL(me?.data?.ownedOrganization?.id || "")}
+            />
+          </div>
+        )
+      }
+
+      {
+        subscription.planLevel === "ai_then_real_agent" && (
+          <div className="space-y-10">
+            <DocumentUploads
+              organizationId={me?.data?.ownedOrganization?.id || ""}
+              title="Upload Document for Human Agent"
+              uploadUrl={HUMAN_AGENT_UPLOAD_URL()}
+              deleteUrl={AI_AGENT_DELETE_URL}
+              fetchUrl={AI_AGENT_FETCH_URL(me?.data?.ownedOrganization?.id || "")}
+            />
+            <DocumentUploads
+              organizationId={me?.data?.ownedOrganization?.id || ""}
+              title="Upload Document for AI Agent"
+              uploadUrl={AI_AGENT_UPLOAD_URL()}
+              deleteUrl={AI_AGENT_DELETE_URL}
+              fetchUrl={AI_AGENT_FETCH_URL(me?.data?.ownedOrganization?.id || "")}
+            />
+          </div>
+        )
+      }
+
     </>
   );
 }

@@ -107,7 +107,7 @@ export default async function AIManagement() {
     console.error("Error fetching subscription:", err);
   }
 
-  if (planLevel === "only_real_agent" || planLevel === "only_ai") {
+  if (planLevel === "only_real_agent") {
     return (
       <div
         style={{

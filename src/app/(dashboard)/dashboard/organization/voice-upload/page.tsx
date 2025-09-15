@@ -31,9 +31,7 @@ export default async function VoiceUploadPage() {
   const subscription = subscriptionRes?.data;
 
   if (
-    !subscription ||
-    subscription.status !== "ACTIVE" ||
-    subscription.planLevel !== "ai_then_real_agent"
+    subscription.planLevel === "only_real_agent" || !subscription
   ) {
     return (
       <div
