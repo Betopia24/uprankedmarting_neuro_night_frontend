@@ -1,19 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   PhoneIcon,
   PhoneXMarkIcon,
   MicrophoneIcon,
-  SpeakerXMarkIcon,
-  BackspaceIcon,
 } from "@heroicons/react/24/solid";
 import { useCall } from "@/contexts/CallContext";
+import { toast } from "sonner";
+import { motion } from "framer-motion";
 
-const CallPanel: React.FC = () => {
+const CallPanel = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [error, setError] = useState("");
-
   const {
     currentCall,
     isDeviceReady,
@@ -26,69 +24,27 @@ const CallPanel: React.FC = () => {
     unmuteCall,
   } = useCall();
 
-  const handleMakeCall = async () => {
-    if (!phoneNumber.trim()) {
-      setError("Please enter a phone number");
-      return;
-    }
-
-    const cleaned = phoneNumber.replace(/\D/g, "");
-    console.log("phone number", cleaned);
-    if (cleaned.length < 11) {
-      setError("Please enter a valid phone number");
-      return;
-    }
-
-    setError("");
-
-    try {
-      await makeCall(phoneNumber.trim());
-    } catch (err: any) {
-      setError(err.message || "Failed to make call. Please try again.");
-      console.error("Call error:", err);
-    }
-  };
-
-  const handleHangup = () => {
-    hangupCall();
-  };
-
-  const handleMute = () => {
-    if (isMuted) {
-      unmuteCall();
-    } else {
-      muteCall();
-    }
-  };
-
   const formatPhoneNumber = (value: string) => {
     const cleaned = value.replace(/\D/g, "");
-
-    // Support optional "+" at start
     const plusPrefix = value.startsWith("+") ? "+" : "";
-
-    if (cleaned.length <= 3) {
-      return plusPrefix + cleaned;
-    } else if (cleaned.length <= 6) {
+    if (cleaned.length <= 3) return plusPrefix + cleaned;
+    if (cleaned.length <= 6)
       return `${plusPrefix}(${cleaned.slice(0, 3)}) ${cleaned.slice(3)}`;
-    } else {
-      return `${plusPrefix}(${cleaned.slice(0, 3)}) ${cleaned.slice(
-        3,
-        6
-      )}-${cleaned.slice(6, 15)}`;
-    }
+    return `${plusPrefix}(${cleaned.slice(0, 3)}) ${cleaned.slice(
+      3,
+      6
+    )}-${cleaned.slice(6, 15)}`;
   };
 
   const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatPhoneNumber(e.target.value);
-    setPhoneNumber(formatted);
+    setPhoneNumber(formatPhoneNumber(e.target.value));
   };
 
   const keypadRows = [
     ["1", "2", "3"],
     ["4", "5", "6"],
     ["7", "8", "9"],
-    ["+", "0", "⌫"], // ⌫ is the backspace symbol
+    ["+", "0", "⌫"],
   ];
 
   const handleKeypadPress = (digit: string) => {
@@ -97,14 +53,11 @@ const CallPanel: React.FC = () => {
         const isPlus = phoneNumber.startsWith("+");
         const cleaned = phoneNumber.replace(/\D/g, "");
         const raw = isPlus ? "+" + cleaned : cleaned;
-        const updated = raw.slice(0, -1);
-        setPhoneNumber(formatPhoneNumber(updated));
+        setPhoneNumber(formatPhoneNumber(raw.slice(0, -1)));
       }
       return;
     }
-
     if (digit === "+" && phoneNumber.includes("+")) return;
-
     if (currentCall) {
       currentCall.sendDigits(digit);
     } else {
@@ -117,110 +70,114 @@ const CallPanel: React.FC = () => {
     }
   };
 
+  // ✅ Keyboard support
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isDeviceReady) return;
+      if (e.key >= "0" && e.key <= "9") handleKeypadPress(e.key);
+      else if (e.key === "+" || (e.shiftKey && e.key === "="))
+        handleKeypadPress("+");
+      else if (e.key === "Backspace") handleKeypadPress("⌫");
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [phoneNumber, currentCall, isDeviceReady]);
+
   return (
-    <div className="space-y-6">
-      {/* Phone Number Input */}
+    <div className="w-full max-w-md mx-auto space-y-4 px-4">
+      {/* Phone Number Display */}
       {!currentCall && (
-        <div>
-          <label
-            htmlFor="phoneNumber"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Phone Number
-          </label>
-          <div className="mt-1">
-            <input
-              type="tel"
-              id="phoneNumber"
-              value={phoneNumber}
-              onChange={handlePhoneNumberChange}
-              placeholder="(555) 123-4567 or +1..."
-              className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md px-3 py-2"
-              maxLength={20}
-            />
-          </div>
-          {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+        <div className="px-3 py-2 rounded-xl bg-white/70 backdrop-blur-md border border-gray-200 shadow-sm">
+          <input
+            type="tel"
+            value={phoneNumber}
+            onChange={handlePhoneNumberChange}
+            placeholder="Enter number"
+            className="w-full text-center font-bold tracking-widest text-2xl sm:text-3xl md:text-4xl bg-transparent outline-none placeholder:text-gray-300"
+            disabled
+          />
         </div>
       )}
 
       {/* Keypad */}
-      <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto">
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {keypadRows.flat().map((digit) => (
-          <button
+          <motion.button
             key={digit}
+            whileTap={{ scale: 0.9 }}
             onClick={() => handleKeypadPress(digit)}
-            className="bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-3 px-4 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors"
             disabled={!isDeviceReady}
+            tabIndex={-1} // 👈 Prevent auto-focus from keyboard
+            className="aspect-square flex items-center justify-center rounded-full 
+                       bg-gradient-to-b from-gray-50 to-gray-100 shadow 
+                       hover:shadow-md active:shadow-inner 
+                       focus:outline-none focus:ring-2 focus:ring-transparent
+                       transition-all disabled:opacity-50"
           >
-            {digit}
-          </button>
+            <span
+              className={`${
+                /\d/.test(digit) || digit === "+"
+                  ? "text-2xl sm:text-3xl font-bold text-gray-900"
+                  : "text-lg sm:text-xl font-semibold text-gray-700"
+              }`}
+            >
+              {digit}
+            </span>
+          </motion.button>
         ))}
       </div>
 
       {/* Call Controls */}
-      <div className="flex justify-center space-x-4">
+      <div className="flex justify-center gap-3 sm:gap-4 flex-wrap">
         {!currentCall ? (
-          <button
-            onClick={handleMakeCall}
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => makeCall(phoneNumber.trim())}
             disabled={!isDeviceReady || isConnecting || !phoneNumber.trim()}
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex items-center justify-center gap-2 px-6 py-2 
+                       rounded-full text-base sm:text-lg font-semibold 
+                       text-white shadow-md 
+                       bg-green-600 hover:bg-green-700 active:bg-green-800 
+                       focus:outline-none focus:ring-2 focus:ring-blue-500
+                       disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
-            <PhoneIcon className="w-5 h-5 mr-2" />
+            <PhoneIcon className="w-5 h-5 sm:w-6 sm:h-6" />
             {isConnecting ? "Connecting..." : "Call"}
-          </button>
+          </motion.button>
         ) : (
           <>
-            <button
-              onClick={handleMute}
-              className={`inline-flex items-center px-4 py-3 border border-transparent text-base font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                isMuted
-                  ? "text-red-700 bg-red-100 hover:bg-red-200 focus:ring-red-500"
-                  : "text-gray-700 bg-gray-100 hover:bg-gray-200 focus:ring-gray-500"
-              }`}
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => (isMuted ? unmuteCall() : muteCall())}
+              className={`flex items-center gap-2 px-5 py-2 rounded-full 
+                          text-base sm:text-lg font-semibold shadow-md 
+                          focus:outline-none focus:ring-2 focus:ring-blue-500
+                          transition-all ${
+                            isMuted
+                              ? "bg-red-100 text-red-700 hover:bg-red-200"
+                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          }`}
             >
-              <MicrophoneIcon className="w-5 h-5 mr-2" />
+              <MicrophoneIcon className="w-5 h-5 sm:w-6 sm:h-6" />
               {isMuted ? "Unmute" : "Mute"}
-            </button>
+            </motion.button>
 
-            <button
-              onClick={handleHangup}
-              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={hangupCall}
+              className="flex items-center gap-2 px-6 py-2 
+                         rounded-full text-base sm:text-lg font-semibold 
+                         text-white shadow-md 
+                         bg-red-600 hover:bg-red-700 active:bg-red-800 
+                         focus:outline-none focus:ring-2 focus:ring-transparent
+                         transition-all"
             >
-              <PhoneXMarkIcon className="w-5 h-5 mr-2" />
+              <PhoneXMarkIcon className="w-5 h-5 sm:w-6 sm:h-6" />
               Hang Up
-            </button>
+            </motion.button>
           </>
         )}
       </div>
-
-      {/* Device Status */}
-      {!isDeviceReady && callStatus !== "ready" && (
-        <div className="text-center">
-          <div className="inline-flex items-center px-3 py-2 rounded-lg bg-yellow-50 border border-yellow-200">
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-yellow-600 mr-2"></div>
-            <p className="text-sm text-yellow-800">
-              Connecting to call service...
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Call Status */}
-      {currentCall && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="flex items-center justify-center">
-            <div className="text-center">
-              <p className="text-lg font-semibold text-blue-900">Call Active</p>
-              <p className="text-sm text-blue-600">
-                {currentCall.parameters?.To || phoneNumber}
-              </p>
-              {isMuted && (
-                <p className="text-xs text-red-600 mt-1">Microphone muted</p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

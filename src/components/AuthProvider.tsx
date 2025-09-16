@@ -1,7 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback } from "react";
-import { toast } from "sonner";
+import React, { createContext, useContext, useState } from "react";
 
 interface User {
   id: string;
@@ -31,9 +30,7 @@ interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => Promise<void>;
-  token?: string;
-  isLoading: boolean;
-  error: string | null;
+  token?: string | undefined;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -41,86 +38,47 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({
   children,
   initialUser,
-  initialToken,
+  token,
 }: {
   children: React.ReactNode;
   initialUser?: User | null;
-  initialToken?: string;
+  token?: string;
 }) {
   const [user, setUser] = useState<User | null>(initialUser || null);
-  const [token, setToken] = useState<string | undefined>(initialToken);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const login = useCallback(
-    async (email: string, password: string): Promise<boolean> => {
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const response = await fetch("/api/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => null);
-          const message = errorData?.message || "Login failed";
-          setError(message);
-          toast.error(message);
-          return false;
-        }
-
-        const { user: userData, token: authToken } = await response.json();
-
-        setUser(userData);
-        setToken(authToken);
-
-        toast.success("Logged in successfully!");
-        return true;
-      } catch (err) {
-        const message = "Network error during login";
-        setError(message);
-        toast.error(message);
-        return false;
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    []
-  );
-
-  const logout = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-
+  const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await fetch("/api/auth/logout", { method: "POST" });
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        const message = errorData?.message || "Logout failed";
-        setError(message);
-        toast.error(message);
-      } else {
-        toast.success("Logged out successfully!");
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const { user: userData } = await response.json();
+        setUser(userData);
+
+        return true;
       }
-    } catch (err) {
-      const message = "Network error during logout";
-      setError(message);
-      toast.error(message);
-      console.error("Logout error:", err);
+      return false;
+    } catch {
+      return false;
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch (error) {
+      console.error("Logout error:", error);
     } finally {
       setUser(null);
-      setToken(undefined);
-      setIsLoading(false);
 
-      // Redirect user after logout
       window.location.href = "/";
     }
-  }, []);
+  };
 
   return (
     <AuthContext.Provider
@@ -129,8 +87,6 @@ export function AuthProvider({
         login,
         logout,
         token,
-        isLoading,
-        error,
       }}
     >
       {children}

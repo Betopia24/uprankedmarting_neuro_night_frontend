@@ -43,6 +43,8 @@ interface CallProviderProps {
 export const CallProvider: React.FC<CallProviderProps> = ({ children }) => {
   const { token, user } = useAuth();
 
+  console.log({ token, user });
+
   const [device, setDevice] = useState<Device | null>(null);
   const [currentCall, setCurrentCall] = useState<Call | null>(null);
   const [isDeviceReady, setIsDeviceReady] = useState(false);
@@ -52,8 +54,7 @@ export const CallProvider: React.FC<CallProviderProps> = ({ children }) => {
   const [calls, setCalls] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const API_BASE_URL =
-    process.env.NEXT_PUBLIC_CALL_CENTER_API_URL || "http://127.0.0.1:9000";
+  const API_BASE_URL = "https://c8877843a49f.ngrok-free.app"; //|| "http://127.0.0.1:9000";
 
   useEffect(() => {
     if (token && user) {
