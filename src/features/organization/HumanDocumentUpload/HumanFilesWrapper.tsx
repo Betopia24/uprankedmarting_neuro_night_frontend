@@ -43,11 +43,13 @@ export default function HumanFilesWrapper({
       if (!response.ok) throw new Error("Failed to fetch files");
       const data = await response.json();
       const normalizedData = (data?.data || []).map(
-        (item: { id: string; content: { metadata: { Title: string } } }) => ({
+        (item: { id: string; fileName: string }) => ({
           id: item.id,
-          fileName: item.content.metadata.Title || "",
+          fileName: item.fileName || "",
         })
       );
+
+      console.log(data);
 
       setFiles(normalizedData);
     } catch (err) {
