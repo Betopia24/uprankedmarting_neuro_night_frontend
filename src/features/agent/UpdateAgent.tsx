@@ -256,11 +256,6 @@ export default function UpdateAgentForm({
               name="agentData.startWorkDateTime"
               type="date"
             />
-            <InputField
-              label="End Work Date"
-              name="agentData.endWorkDateTime"
-              type="date"
-            />
           </div>
         </FormGroup>
 

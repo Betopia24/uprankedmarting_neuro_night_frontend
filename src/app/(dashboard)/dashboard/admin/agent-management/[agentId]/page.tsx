@@ -3,6 +3,7 @@ import UpdateAgentForm from "@/features/agent/UpdateAgent";
 import { getServerAuth } from "@/lib/auth";
 import { notFound } from "next/navigation";
 import { type UpdateAgentUser } from "@/types/agent";
+import AgentProfile from "@/features/agent/AgentProfile";
 
 type ApiResponse<T> = {
   success: boolean;
@@ -51,9 +52,11 @@ export default async function AgentDetailsPage({ params }: Props) {
 
   return (
     <div className="p-4">
-      <h1 className="text-xl font-semibold mb-4">Agent Details</h1>
       {agent ? (
-        <UpdateAgentForm agent={agent} agentId={agentId} />
+        <>
+          <AgentProfile agentId={agentId} />
+          <UpdateAgentForm agent={agent} agentId={agentId} />
+        </>
       ) : (
         <p className="text-gray-500">No agent data available</p>
       )}
