@@ -103,7 +103,7 @@ export default async function NumberManagementPage({
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto bg-white shadow rounded-lg border border-gray-200">
+      <div className="w-full overflow-x-auto bg-white shadow rounded-lg border border-gray-200">
         <table className="min-w-full text-sm text-left text-gray-700 border-collapse">
           <thead className="bg-gray-50 text-gray-900 text-sm font-medium border-b border-gray-200">
             <tr>

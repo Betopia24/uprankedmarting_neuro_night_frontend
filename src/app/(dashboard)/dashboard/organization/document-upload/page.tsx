@@ -1,6 +1,7 @@
 import DocumentUploads from "@/features/organization/DocumentUploads";
 import { env } from "@/env";
 import { getServerAuth } from "@/lib/auth";
+import HumanDocumentUploads from "@/features/organization/HumanDocumentUpload/HumanDocumentUploads";
 
 export default async function OrganizationDocumentUploadPage() {
   const me = await getServerAuth();
@@ -16,10 +17,10 @@ export default async function OrganizationDocumentUploadPage() {
 
   const AI_AGENT_DELETE_URL = `${AI_AGENT_BASE_URL}/organization-knowledge/knowledge-base`;
 
- const HUMAN_AGENT_UPLOAD_URL = () =>
-    `${HUMAN_AGENT_BASE_URL}/company-docs`;
-
-
+  const HUMAN_AGENT_UPLOAD_URL = () => `${HUMAN_AGENT_BASE_URL}/company-docs`;
+  const HUMAN_AGENT_LIST_URL = () =>
+    `${HUMAN_AGENT_BASE_URL}/company-docs/organization`;
+  const HUMAN_AGENT_DELETE_FILE = () => `${HUMAN_AGENT_BASE_URL}/company-docs`;
 
   return (
     <>
@@ -31,13 +32,13 @@ export default async function OrganizationDocumentUploadPage() {
           deleteUrl={AI_AGENT_DELETE_URL}
           fetchUrl={AI_AGENT_FETCH_URL(me?.data.ownedOrganization?.id || "")}
         />
-       <DocumentUploads
+        <HumanDocumentUploads
           organizationId={me?.data?.ownedOrganization?.id || ""}
           title="Upload Document for Human Agent"
           uploadUrl={HUMAN_AGENT_UPLOAD_URL()}
-          deleteUrl={AI_AGENT_DELETE_URL}
-          fetchUrl={AI_AGENT_FETCH_URL(me?.data?.ownedOrganization?.id || "")}
-        /> 
+          deleteUrl={HUMAN_AGENT_DELETE_FILE()}
+          fetchUrl={HUMAN_AGENT_LIST_URL()}
+        />
       </div>
     </>
   );
