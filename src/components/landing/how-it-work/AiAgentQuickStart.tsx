@@ -1,21 +1,39 @@
+
+'use client';
+
 import { Section, Container } from "@/components";
 import { ParallaxEffect, StaggerFadeUp } from "@/components/animations";
-import documentPlaceholderImage from "@/images/how-it-work/document-placeholder.png";
-import Image from "next/image";
+import { LottieRefCurrentProps } from "lottie-react";
+import { useEffect, useRef } from "react";
+import Player from 'lottie-react';
+import uploadCloud from "./_animation/upload-cloud.json";
 
 export default function AiAgentQuickStart() {
+
+  const lottieRef = useRef<LottieRefCurrentProps>(null);
+
+  useEffect(() => {
+    if (lottieRef.current) {
+      lottieRef.current.setSpeed(0.3);
+    }
+  }, []);
+
   return (
     <Section bg="bg-success-500">
       <Container>
         <ParallaxEffect>
           <StaggerFadeUp>
             <div className="flex flex-col lg:flex-row items-center gap-12">
-              <Image
-                className="max-w-lg w-full mx-auto block object-contain -translate-y-8"
-                src={documentPlaceholderImage}
-                alt="recording"
-              />
-              <div className="space-y-4 text-xl">
+              <div className="order-1 lg:order-1 flex flex-col justify-center items-center">
+                <Player
+                  lottieRef={lottieRef}
+                  animationData={uploadCloud}
+                  loop={true}
+                  autoplay={true}
+                  style={{ width: 500, height: 500 }}
+                />
+              </div>
+              <div className="order-2 lg:order-2 space-y-4 text-xl">
                 <Section.Heading>
                   Launch your AI agent in just minutes—no developers needed.
                 </Section.Heading>

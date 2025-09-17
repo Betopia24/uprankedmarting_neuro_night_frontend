@@ -192,8 +192,6 @@ export default async function OrganizationAdminPage({
 
   console.log(response);
 
-  return;
-
   const { data: organizations, meta } = response.data;
 
   const tableData: TableRow[] = organizations.map((org) => {

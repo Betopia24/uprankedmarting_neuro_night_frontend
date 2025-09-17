@@ -2,16 +2,16 @@ import { Heading } from "@/components";
 import { cn } from "@/lib/utils";
 
 type CallStats = {
-  totalCalls: number;
-  totalHumanCalls: number;
-  totalAICalls: number;
-  totalSuccessCalls: number;
-  todayHumanCalls: number;
-  todayAICalls: number;
-  todaySuccessCalls: number;
-  avgCallTime: number;
-  avgAICallTime: number;
-  avgHumanCallTime: number;
+  totalCalls: number | string;
+  totalHumanCalls: number | string;
+  totalAICalls: number | string;
+  totalSuccessCalls: number | string;
+  todayHumanCalls: number | string;
+  todayAICalls: number | string;
+  todaySuccessCalls: number | string;
+  avgCallTime: number | string;
+  avgAICallTime: number | string;
+  avgHumanCallTime: number | string;
 };
 
 const classes = {
@@ -88,7 +88,7 @@ export default function CallGraph({ callStats }: { callStats: CallStats }) {
         variant={classes.variant7}
       />
       <Circle
-        value={callStats.avgCallTime}
+        value={Number(callStats.avgCallTime).toFixed(2)}
         label="Avg. Call Time (s)"
         variant={classes.variant8}
       />{" "}
@@ -120,7 +120,7 @@ function Circle({
   label,
   variant,
 }: {
-  value: number;
+  value: number | string;
   label: string;
   variant: { border: string; text: string };
 }) {
@@ -136,7 +136,7 @@ function Circle({
           variant.text
         )}
       >
-        {formatNumber(value || 0)}
+        {formatNumber(Number(value || 0))}
       </div>
     </div>
   );

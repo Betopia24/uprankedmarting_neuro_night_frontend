@@ -67,17 +67,28 @@ export const getProfileInfo = async (
 
 export const uploadAgentProfileImage = async (file: File, token: string) => {
   const formData = new FormData();
-  formData.append("image", file);
+  formData.append("file", file);
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/agents/profile`, {
-    method: "PATCH",
-    headers: {
-      Authorization: `${token}`,
-    },
-    body: formData,
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/users/agents/profile`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `${token}`,
+      },
+      body: formData,
+    }
+  );
 
-  if (!res.ok) throw new Error("Image upload failed");
+  if (!res.ok) {
+    let errText = "Image upload failed";
+    try {
+      const json = await res.json();
+      if (json?.message) errText = json.message;
+    } catch {}
+    throw new Error(errText);
+  }
+
   return res.json();
 };
 

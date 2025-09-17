@@ -495,8 +495,8 @@ export default function AgentForm({
             {loading
               ? "Processing..."
               : agentId
-              ? "Update Agent"
-              : "Create Agent"}
+                ? "Update Agent"
+                : "Create Agent"}
           </Button>
         </form>
       </Form>

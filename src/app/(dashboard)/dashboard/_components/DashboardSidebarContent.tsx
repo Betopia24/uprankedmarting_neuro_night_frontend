@@ -20,6 +20,11 @@ import {
   CreditCard,
   Blocks,
 } from "lucide-react";
+import { useAuth } from "@/components/AuthProvider";
+import { useEffect, useState } from "react";
+import { dashboardNavigation } from "@/data/dashboardNavbar";
+import { getSubscriptionType } from "@/app/api/subscription/subscription";
+import SkeletonSidebar from "@/components/SkeletonSidebar";
 
 export type SidebarItemType = {
   name: string;
@@ -54,10 +59,69 @@ export default function SidebarContent({
   subItems,
 }: SidebarContentType) {
   const { isCollapsedSidebar } = useSidebar();
+  const auth = useAuth();
+
+  const [orgMenu, setOrgMenu] = useState<SidebarItemType[] | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const loadSubscription = async () => {
+      if (auth?.user?.role === "organization_admin" && auth?.token) {
+        setLoading(true);
+        try {
+          const subscription = await getSubscriptionType(auth.token);
+
+          const allSubs =
+            subscription?.data?.organization?.subscriptions || [];
+
+          const hasActive =
+            Array.isArray(allSubs) &&
+            allSubs.some((s: any) => s.status === "ACTIVE");
+
+          if (hasActive) {
+            setOrgMenu(dashboardNavigation.organization); // পুরো মেনু
+          } else {
+            setOrgMenu(dashboardNavigation.organization.slice(0, 2)); // শুধু ২টা
+          }
+        } catch (error) {
+          // error হলে কেবল ২টা item
+          setOrgMenu(dashboardNavigation.organization.slice(0, 2));
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadSubscription();
+  }, [auth]);
+
+  let finalMainItems: SidebarItemType[] = [];
+  let finalSubItems: SidebarItemType[] = [];
+
+  if (auth?.user?.role === "super_admin") {
+    finalMainItems = dashboardNavigation.admin;
+  } else if (auth?.user?.role === "organization_admin") {
+    if (orgMenu) {
+      finalMainItems = orgMenu;
+      finalSubItems = dashboardNavigation.subItems.organization;
+    }
+  } else if (auth?.user?.role === "agent") {
+    finalMainItems = dashboardNavigation.agent;
+    finalSubItems = dashboardNavigation.subItems.agent;
+  } else {
+    finalMainItems = mainItems;
+    finalSubItems = subItems || [];
+  }
+
+  // subscription loading অথবা orgMenu null থাকলে skeleton দেখাবে
+  if (auth?.user?.role === "organization_admin" && (loading || !orgMenu)) {
+    return <SkeletonSidebar />;
+  }
+
   return (
     <div className="h-full flex flex-col justify-between gap-6 px-2">
       <ul className={cn("space-y-2")}>
-        {mainItems.map((item) => {
+        {finalMainItems.map((item) => {
           const Icon = icons[item.icon as keyof typeof icons];
           return (
             <li key={item.name}>
@@ -74,9 +138,10 @@ export default function SidebarContent({
           );
         })}
       </ul>
-      {subItems && (
+
+      {finalSubItems.length > 0 && (
         <ul className={cn("space-y-2", isCollapsedSidebar && "space-y-4")}>
-          {subItems.map((item) => {
+          {finalSubItems.map((item) => {
             const Icon = icons[item.icon as keyof typeof icons];
             return (
               <li key={item.name}>
@@ -122,3 +187,4 @@ function AnimatedLabel({ children }: React.PropsWithChildren) {
     )
   );
 }
+

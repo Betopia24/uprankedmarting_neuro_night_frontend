@@ -1,16 +1,28 @@
+"use client";
+
 import { Section, Container } from "@/components";
 import { ParallaxEffect, StaggerFadeUp } from "@/components/animations";
-import agentManagementImage from "@/images/how-it-work/agent-management.png";
-import Image from "next/image";
+import { LottieRefCurrentProps } from "lottie-react";
+import { useEffect, useRef } from "react";
+import Player from "lottie-react";
+import AiRobot from "./_animation/ai-robot-assistant.json";
 
 export default function AgentManagement() {
+  const lottieRef = useRef<LottieRefCurrentProps>(null);
+
+  useEffect(() => {
+    if (lottieRef.current) {
+      lottieRef.current.setSpeed(0.3);
+    }
+  }, []);
+
   return (
     <Section>
       <Container>
         <ParallaxEffect>
           <StaggerFadeUp>
             <div className="flex flex-col lg:flex-row gap-6">
-              <div className="space-y-4 text-xl order-2 lg:order-1">
+              <div className="space-y-4 text-xl order-1 lg:order-1">
                 <div className="space-y-8 text-xl">
                   <Section.Heading>
                     Know Out What Your AI Agent Can Do for You
@@ -48,11 +60,15 @@ export default function AgentManagement() {
                   productivity.
                 </div>
               </div>
-              <Image
-                className="h-full mx-auto block object-contain order-1 lg:order-2"
-                src={agentManagementImage}
-                alt="recording"
-              />
+              <div className="order-2 lg:order-2 flex flex-col justify-center items-center">
+                <Player
+                  lottieRef={lottieRef}
+                  animationData={AiRobot}
+                  loop={true}
+                  autoplay={true}
+                  style={{ width: 500, height: 500 }}
+                />
+              </div>
             </div>
           </StaggerFadeUp>
         </ParallaxEffect>
