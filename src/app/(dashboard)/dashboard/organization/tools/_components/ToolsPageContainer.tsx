@@ -21,11 +21,7 @@ const ToolsPageContainerPage = () => {
     {
       name: 'Google Sheets',
       icon: '/sheet.png',
-    },
-    {
-      name: 'Microsoft Teams',
-      icon: '/teams.png',
-    },
+    }
   ];
 
   return (
