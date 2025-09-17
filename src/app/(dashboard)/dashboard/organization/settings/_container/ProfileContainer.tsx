@@ -8,10 +8,13 @@ import { useAuth } from "@/components/AuthProvider"
 import { toast } from "sonner"
 import ImageUpload from "./image-upload"
 import { getProfileInfo, updateProfileSettings } from "@/app/api/profile-settings/profile-settings"
+import { getSubscriptionType } from "@/app/api/subscription/subscription"
 
-const ProfileContainerPage = () => {
+const ProfileContainerPage = async () => {
   const auth = useAuth()
   const token = auth?.token
+
+  const [subscription, setSubscription] = useState<any>(null)
 
   const [profileImage, setProfileImage] = useState<File | null>(null)
 
@@ -29,6 +32,10 @@ const ProfileContainerPage = () => {
 
     const fetchProfile = async () => {
       try {
+
+        const subscription = await getSubscriptionType(token || "");
+        setSubscription(subscription);
+
         const res = await getProfileInfo(auth?.user?.id || "", token)
         if (!res.ok) throw new Error("Failed to load profile")
         const data = await res.json()
@@ -81,12 +88,6 @@ const ProfileContainerPage = () => {
         websiteLink: formData.website,
       },
     }
-
-    console.log("getprofileinfo: ", getProfileInfo);
-    console.log("Payload: ", payload)
-    console.log("Token available:", token)
-    console.log("Profile image:", profileImage)
-
     try {
       const res = await updateProfileSettings(payload, token, profileImage)
 
@@ -128,6 +129,7 @@ const ProfileContainerPage = () => {
           currentImage={typeof auth.user?.image === "string" ? auth.user?.image : null}
           onImageChange={handleImageChange}
         />
+        <p className="text-sm text-red-500 text-center">Purchased Plan: {subscription?.data.planLevel}</p>
       </div>
 
 
