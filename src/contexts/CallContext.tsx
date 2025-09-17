@@ -10,6 +10,7 @@ import React, {
 } from "react";
 import { Device, Call } from "@twilio/voice-sdk";
 import { useAuth } from "@/components/AuthProvider";
+import { env } from "@/env";
 
 interface CallContextType {
   currentCall: Call | null;
@@ -42,19 +43,16 @@ interface CallProviderProps {
 
 export const CallProvider: React.FC<CallProviderProps> = ({ children }) => {
   const { token, user } = useAuth();
-
-  console.log({ token, user });
-
   const [device, setDevice] = useState<Device | null>(null);
   const [currentCall, setCurrentCall] = useState<Call | null>(null);
   const [isDeviceReady, setIsDeviceReady] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [callStatus, setCallStatus] = useState("disconnected");
-  const [calls, setCalls] = useState<any[]>([]);
+  const [calls, setCalls] = useState<[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const API_BASE_URL = "https://c8877843a49f.ngrok-free.app"; //|| "http://127.0.0.1:9000";
+  const API_BASE_URL = env.NEXT_PUBLIC_API_BASE_URL_AI;
 
   useEffect(() => {
     if (token && user) {
