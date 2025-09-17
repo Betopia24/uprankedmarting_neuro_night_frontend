@@ -7,7 +7,6 @@ import {
   MicrophoneIcon,
 } from "@heroicons/react/24/solid";
 import { useCall } from "@/contexts/CallContext";
-import { toast } from "sonner";
 import { motion } from "framer-motion";
 
 const CallPanel = () => {
@@ -17,23 +16,23 @@ const CallPanel = () => {
     isDeviceReady,
     isMuted,
     isConnecting,
-    callStatus,
     makeCall,
     hangupCall,
     muteCall,
     unmuteCall,
   } = useCall();
 
+  // ✅ Simple formatter (no brackets/dashes, just space grouping)
   const formatPhoneNumber = (value: string) => {
     const cleaned = value.replace(/\D/g, "");
     const plusPrefix = value.startsWith("+") ? "+" : "";
-    if (cleaned.length <= 3) return plusPrefix + cleaned;
-    if (cleaned.length <= 6)
-      return `${plusPrefix}(${cleaned.slice(0, 3)}) ${cleaned.slice(3)}`;
-    return `${plusPrefix}(${cleaned.slice(0, 3)}) ${cleaned.slice(
-      3,
-      6
-    )}-${cleaned.slice(6, 15)}`;
+    return (
+      plusPrefix +
+      cleaned
+        .slice(0, 15)
+        .replace(/(\d{3})(?=\d)/g, "$1 ")
+        .trim()
+    );
   };
 
   const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,10 +49,8 @@ const CallPanel = () => {
   const handleKeypadPress = (digit: string) => {
     if (digit === "⌫") {
       if (!currentCall) {
-        const isPlus = phoneNumber.startsWith("+");
-        const cleaned = phoneNumber.replace(/\D/g, "");
-        const raw = isPlus ? "+" + cleaned : cleaned;
-        setPhoneNumber(formatPhoneNumber(raw.slice(0, -1)));
+        const raw = phoneNumber.replace(/\D/g, "").slice(0, -1);
+        setPhoneNumber(formatPhoneNumber(raw));
       }
       return;
     }
@@ -61,11 +58,10 @@ const CallPanel = () => {
     if (currentCall) {
       currentCall.sendDigits(digit);
     } else {
-      const currentDigits = phoneNumber.replace(/\D/g, "");
+      const raw = phoneNumber.replace(/\D/g, "");
       const isPlus = phoneNumber.startsWith("+") || digit === "+";
-      if (currentDigits.length >= 15 && digit !== "+") return;
-      const newNumber =
-        (isPlus ? "+" : "") + currentDigits + digit.replace(/\D/g, "");
+      if (raw.length >= 15 && digit !== "+") return;
+      const newNumber = (isPlus ? "+" : "") + raw + digit.replace(/\D/g, "");
       setPhoneNumber(formatPhoneNumber(newNumber));
     }
   };
@@ -84,16 +80,22 @@ const CallPanel = () => {
   }, [phoneNumber, currentCall, isDeviceReady]);
 
   return (
-    <div className="w-full max-w-md mx-auto space-y-4 px-4">
+    <div className="w-full max-w-sm mx-auto space-y-4 px-4">
       {/* Phone Number Display */}
       {!currentCall && (
-        <div className="px-3 py-2 rounded-xl bg-white/70 backdrop-blur-md border border-gray-200 shadow-sm">
+        <div className="px-3 py-2 rounded-lg bg-white/70 backdrop-blur border border-gray-200">
           <input
             type="tel"
             value={phoneNumber}
             onChange={handlePhoneNumberChange}
             placeholder="Enter number"
-            className="w-full text-center font-bold tracking-widest text-2xl sm:text-3xl md:text-4xl bg-transparent outline-none placeholder:text-gray-300"
+            className="w-full text-center font-bold text-2xl sm:text-3xl md:text-4xl 
+                       bg-transparent outline-none placeholder:text-gray-400
+                       transition-all"
+            style={{
+              fontSize:
+                phoneNumber.replace(/\D/g, "").length > 12 ? "1.5rem" : "",
+            }}
             disabled
           />
         </div>
@@ -107,18 +109,18 @@ const CallPanel = () => {
             whileTap={{ scale: 0.9 }}
             onClick={() => handleKeypadPress(digit)}
             disabled={!isDeviceReady}
-            tabIndex={-1} // 👈 Prevent auto-focus from keyboard
+            tabIndex={-1} // prevent auto-focus
             className="aspect-square flex items-center justify-center rounded-full 
-                       bg-gradient-to-b from-gray-50 to-gray-100 shadow 
-                       hover:shadow-md active:shadow-inner 
-                       focus:outline-none focus:ring-2 focus:ring-transparent
+                       bg-gradient-to-b from-gray-50 to-gray-100 shadow-sm
+                       hover:shadow-md active:shadow-inner
+                       focus:outline-none focus:ring-2 focus:ring-blue-500
                        transition-all disabled:opacity-50"
           >
             <span
               className={`${
                 /\d/.test(digit) || digit === "+"
-                  ? "text-2xl sm:text-3xl font-bold text-gray-900"
-                  : "text-lg sm:text-xl font-semibold text-gray-700"
+                  ? "text-xl sm:text-2xl font-bold text-gray-900"
+                  : "text-base sm:text-lg font-semibold text-gray-700"
               }`}
             >
               {digit}
@@ -169,7 +171,7 @@ const CallPanel = () => {
                          rounded-full text-base sm:text-lg font-semibold 
                          text-white shadow-md 
                          bg-red-600 hover:bg-red-700 active:bg-red-800 
-                         focus:outline-none focus:ring-2 focus:ring-transparent
+                         focus:outline-none focus:ring-2 focus:ring-blue-500
                          transition-all"
             >
               <PhoneXMarkIcon className="w-5 h-5 sm:w-6 sm:h-6" />
