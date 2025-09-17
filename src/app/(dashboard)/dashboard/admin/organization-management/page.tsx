@@ -1,3 +1,4 @@
+
 import React from "react";
 import Pagination from "@/components/table/components/Pagination";
 import SearchField from "@/components/table/components/SearchField";
@@ -22,30 +23,21 @@ interface TableProps {
 }
 
 interface Subscription {
-  id: string;
-  startDate: string;
-  endDate: string;
-  amount: number;
-  paymentStatus: string;
-  status: string;
   planLevel: string;
   purchasedNumber: string;
-  numberOfAgents: number;
 }
 
 interface Agent {
-  id: string;
-  userId: string;
   name?: string;
+  userId?: string;
+  user?: {
+    name: string;
+  };
 }
 
 interface OwnedOrganization {
-  id: string;
-  name: string;
   industry: string;
-  address: string;
   websiteLink: string;
-  organizationNumber: string | null;
   subscriptions: Subscription[];
   agents: Agent[];
 }
@@ -53,14 +45,7 @@ interface OwnedOrganization {
 interface OrganizationAdmin {
   id: string;
   name: string;
-  email: string;
   phone: string;
-  image?: string;
-  bio?: string;
-  status: string;
-  role: string;
-  createdAt: string;
-  updatedAt: string;
   ownedOrganization: OwnedOrganization;
 }
 
@@ -81,13 +66,11 @@ interface OrganizationApiResponse {
 interface TableRow {
   id: string;
   name: string;
-  email: string;
-  phone: string;
-  organizationName: string;
-  organizationIndustry: string;
-  organizationAddress: string;
-  totalAgents: number;
-  agentNames: string;
+  serviceType: string;
+  packageType: string;
+  assignAgent: string;
+  contactInfo: string;
+  website: string;
 }
 
 const DEFAULT_PAGE = 1;
@@ -116,10 +99,7 @@ async function getOrganizations(
     },
     cache: "no-cache",
   });
-  if (!res.ok) {
-    console.error("Fetch error code:", res.status);
-    return null;
-  }
+  if (!res.ok) return null;
   const json = await res.json();
   return json;
 }
@@ -148,17 +128,13 @@ function filterData(data: TableRow[], query: string): TableRow[] {
   return data.filter(
     (item) =>
       item.name.toLowerCase().includes(q) ||
-      item.email.toLowerCase().includes(q) ||
-      item.organizationName.toLowerCase().includes(q)
+      item.serviceType.toLowerCase().includes(q) ||
+      item.packageType.toLowerCase().includes(q)
   );
 }
 
-export default async function OrganizationAdminPage({
-  searchParams,
-}: TableProps) {
-  // parse the searchParams prop
+export default async function OrganizationAdminPage({ searchParams }: TableProps) {
   const sp = searchParams ?? {};
-  // convert to TableSearchParams
   const queryParams: TableSearchParams = {
     page: sp.page
       ? Array.isArray(sp.page)
@@ -190,37 +166,30 @@ export default async function OrganizationAdminPage({
 
   const { data: organizations, meta } = response.data;
 
-  const normalizedData = organizations.map((org) => ({
-    id: org.id,
-    name: org.name,
-    serviceType: org.ownedOrganization.industry,
-    packageType: org.ownedOrganization.subscriptions,
-    assignAgent: org.ownedOrganization.agents,
-    contactInfo: org.phone,
-    website: org.ownedOrganization.websiteLink,
-  }));
-
-  console.log(normalizedData);
-
   const tableData: TableRow[] = organizations.map((org) => {
+    const subs = org.ownedOrganization.subscriptions ?? [];
+    const packageTypes =
+      subs
+        .map((s) => `${s.planLevel} (${s.purchasedNumber})`)
+        .join(", ") || "N/A";
+
     const agents = org.ownedOrganization.agents ?? [];
-    const agentNames = agents
-      .map((a) => a.name ?? a.userId ?? "N/A")
-      .join(", ");
+    const agentNames =
+      agents
+        .map((a) => a.user?.name || a.name || a.userId || "N/A")
+        .join(", ") || "N/A";
+
     return {
       id: org.id,
       name: org.name,
-      email: org.email,
-      phone: org.phone,
-      organizationName: org.ownedOrganization.name,
-      organizationIndustry: org.ownedOrganization.industry,
-      organizationAddress: org.ownedOrganization.address,
-      totalAgents: agents.length,
-      agentNames,
+      serviceType: org.ownedOrganization.industry,
+      packageType: packageTypes,
+      assignAgent: agentNames,
+      contactInfo: org.phone,
+      website: org.ownedOrganization.websiteLink,
     };
   });
 
-  // sort / filter
   const [sortField, sortDirection] = (queryParams.sort || "").split(":") as [
     string,
     string?
@@ -229,32 +198,25 @@ export default async function OrganizationAdminPage({
   const filtered = filterData(tableData, queryParams.query || "");
   const sorted = sortField
     ? sortData(
-        filtered,
-        sortField as keyof TableRow,
-        sortDirection === "desc" ? "desc" : "asc"
-      )
+      filtered,
+      sortField as keyof TableRow,
+      sortDirection === "desc" ? "desc" : "asc"
+    )
     : filtered;
 
   const totalPages = meta.totalPages;
   const currentPage = Math.min(Math.max(1, meta.page), totalPages);
-
-  const tableHeader =
-    sorted.length > 0
-      ? (Object.keys(sorted[0]) as (keyof TableRow)[]).filter((k) => k !== "id")
-      : ([
-          "name",
-          "email",
-          "phone",
-          "organizationName",
-          "organizationIndustry",
-          "organizationAddress",
-          "totalAgents",
-          "agentNames",
-        ] as (keyof TableRow)[]);
-
+  const basePath = adminOrganizationManagementPath();
   const currentFilters = parseFilters(queryParams);
 
-  const basePath = adminOrganizationManagementPath();
+  const columns: { key: keyof TableRow; label: string }[] = [
+    { key: "name", label: "Customer Name" },
+    { key: "serviceType", label: "Service Type" },
+    { key: "packageType", label: "Package Type" },
+    { key: "assignAgent", label: "Assign Agent" },
+    { key: "contactInfo", label: "Contact Info" },
+    { key: "website", label: "Website" },
+  ];
 
   return (
     <div className="space-y-6 px-4 sm:px-6 lg:px-8">
@@ -269,10 +231,10 @@ export default async function OrganizationAdminPage({
         <table className="min-w-full text-sm text-left text-gray-700 border-collapse">
           <thead className="bg-gray-50 text-gray-900 text-sm font-medium border-b border-gray-200">
             <tr>
-              {tableHeader.map((field) => (
+              {columns.map((col) => (
                 <TableHeaderItem
-                  key={String(field)}
-                  field={field}
+                  key={col.key}
+                  field={col.key}
                   currentSort={sortField}
                   sortDirection={sortDirection === "desc" ? "desc" : "asc"}
                   currentPage={currentPage}
@@ -291,20 +253,37 @@ export default async function OrganizationAdminPage({
                   key={item.id}
                   className="hover:bg-gray-50 transition-colors cursor-pointer"
                 >
-                  {tableHeader.map((key) => (
-                    <td
-                      key={String(key)}
-                      className="px-4 py-3 border border-gray-200 whitespace-nowrap"
-                    >
-                      {item[key]}
-                    </td>
-                  ))}
+                  {columns.map((col) => {
+                    if (col.key === "assignAgent") {
+                      const agentsArray =
+                        item.assignAgent && item.assignAgent !== "N/A"
+                          ? item.assignAgent.split(", ").filter(Boolean)
+                          : [];
+                      return (
+                        <td
+                          key={col.key}
+                          className="px-4 py-3 border border-gray-200 whitespace-nowrap"
+                          title={agentsArray.join("\n")}
+                        >
+                          {agentsArray.length}
+                        </td>
+                      );
+                    }
+                    return (
+                      <td
+                        key={col.key}
+                        className="px-4 py-3 border border-gray-200 whitespace-nowrap"
+                      >
+                        {item[col.key]}
+                      </td>
+                    );
+                  })}
                 </tr>
               ))
             ) : (
               <tr>
                 <td
-                  colSpan={tableHeader.length}
+                  colSpan={columns.length}
                   className="px-4 py-10 text-center text-gray-500 border border-gray-200"
                 >
                   No organization admins found.
@@ -312,6 +291,7 @@ export default async function OrganizationAdminPage({
               </tr>
             )}
           </tbody>
+
         </table>
       </div>
 
@@ -328,3 +308,5 @@ export default async function OrganizationAdminPage({
     </div>
   );
 }
+
+
