@@ -19,9 +19,9 @@ export interface TableSearchParams {
 }
 
 interface TableProps {
-  searchParams?: {
+  searchParams?: Promise<{
     [key: string]: string | string[] | undefined;
-  };
+  }>;
 }
 
 interface OrganizationAdmin {
@@ -149,7 +149,9 @@ function filterData(data: TableRow[], query: string): TableRow[] {
 export default async function OrganizationAdminPage({
   searchParams,
 }: TableProps) {
-  const sp = searchParams ?? {};
+  // Await searchParams for Next.js 15
+  const sp = searchParams ? await searchParams : {};
+
   const queryParams: TableSearchParams = {
     page: sp.page
       ? Array.isArray(sp.page)
@@ -195,7 +197,6 @@ export default async function OrganizationAdminPage({
     _rawCallDuration: org.call_duration,
   }));
 
-  // sort / filter
   const [sortField, sortDirection] = (queryParams.sort || "").split(":") as [
     string,
     string?
