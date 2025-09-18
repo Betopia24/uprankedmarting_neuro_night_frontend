@@ -33,6 +33,7 @@ export interface Assignment {
   id: string;
   status: string;
   organizationId: string;
+  organization: Organization;
 }
 
 export interface Organization {
@@ -169,8 +170,7 @@ export default async function AgentManagementPage({ searchParams }: Props) {
     const subscription = await getSubscriptionType(auth.accessToken);
 
     planLevel =
-      subscription?.data?.planLevel ||
-      subscription?.data?.plan?.planLevel;
+      subscription?.data?.planLevel || subscription?.data?.plan?.planLevel;
 
     if (!planLevel) {
       const subs = subscription?.data?.organization?.subscriptions || [];
@@ -193,7 +193,10 @@ export default async function AgentManagementPage({ searchParams }: Props) {
       >
         <div className="max-w-md">
           <h1 className="text-5xl font-bold text-red-600 mb-4">Oops!</h1>
-          <p className="text-lg text-gray-700 mb-6">Your current plan does not allow uploading documents for Agent Management.</p>
+          <p className="text-lg text-gray-700 mb-6">
+            Your current plan does not allow uploading documents for Agent
+            Management.
+          </p>
           <Button variant="link" className="mt-4">
             <a href="/dashboard/organization/explore-numbers">
               Upgrade your plan

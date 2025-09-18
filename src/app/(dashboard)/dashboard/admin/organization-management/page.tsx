@@ -1,4 +1,3 @@
-
 import React from "react";
 import Pagination from "@/components/table/components/Pagination";
 import SearchField from "@/components/table/components/SearchField";
@@ -133,8 +132,10 @@ function filterData(data: TableRow[], query: string): TableRow[] {
   );
 }
 
-export default async function OrganizationAdminPage({ searchParams }: TableProps) {
-  const sp = searchParams ?? {};
+export default async function OrganizationAdminPage(props: {
+  searchParams: Promise<TableProps["searchParams"]>;
+}) {
+  const sp = (await props.searchParams) ?? {};
   const queryParams: TableSearchParams = {
     page: sp.page
       ? Array.isArray(sp.page)
@@ -169,9 +170,8 @@ export default async function OrganizationAdminPage({ searchParams }: TableProps
   const tableData: TableRow[] = organizations.map((org) => {
     const subs = org.ownedOrganization.subscriptions ?? [];
     const packageTypes =
-      subs
-        .map((s) => `${s.planLevel} (${s.purchasedNumber})`)
-        .join(", ") || "N/A";
+      subs.map((s) => `${s.planLevel} (${s.purchasedNumber})`).join(", ") ||
+      "N/A";
 
     const agents = org.ownedOrganization.agents ?? [];
     const agentNames =
@@ -198,10 +198,10 @@ export default async function OrganizationAdminPage({ searchParams }: TableProps
   const filtered = filterData(tableData, queryParams.query || "");
   const sorted = sortField
     ? sortData(
-      filtered,
-      sortField as keyof TableRow,
-      sortDirection === "desc" ? "desc" : "asc"
-    )
+        filtered,
+        sortField as keyof TableRow,
+        sortDirection === "desc" ? "desc" : "asc"
+      )
     : filtered;
 
   const totalPages = meta.totalPages;
@@ -291,7 +291,6 @@ export default async function OrganizationAdminPage({ searchParams }: TableProps
               </tr>
             )}
           </tbody>
-
         </table>
       </div>
 
@@ -308,5 +307,3 @@ export default async function OrganizationAdminPage({ searchParams }: TableProps
     </div>
   );
 }
-
-

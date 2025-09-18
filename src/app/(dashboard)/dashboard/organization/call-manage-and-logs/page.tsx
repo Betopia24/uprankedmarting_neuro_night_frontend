@@ -155,11 +155,12 @@ function filterData(data: TableRow[], query: string): TableRow[] {
   );
 }
 
-export default async function OrganizationAdminPage({
-  searchParams,
-}: TableProps) {
-  // parse the searchParams prop
-  const sp = searchParams ?? {};
+export default async function OrganizationAdminPage(props: {
+  searchParams: Promise<TableProps["searchParams"]>;
+}) {
+  // parse the searchParams prop (await because Next.js 15 gives a Promise)
+  const sp = (await props.searchParams) ?? {};
+
   // convert to TableSearchParams
   const queryParams: TableSearchParams = {
     page: sp.page

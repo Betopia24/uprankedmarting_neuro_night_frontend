@@ -10,9 +10,10 @@ const constructBackendUrl = (path: string[] | string | undefined): string => {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { path: string[] } }
+  ctx: { params: Promise<{ path: string[] }> }
 ) {
-  const url = constructBackendUrl(params.path);
+  const { path } = await ctx.params; // 👈 must await
+  const url = constructBackendUrl(path);
   console.log("Proxying GET request to:", url);
 
   try {
@@ -41,10 +42,12 @@ export async function GET(
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { path: string[] } }
+  ctx: { params: Promise<{ path: string[] }> }
 ) {
-  const url = constructBackendUrl(params.path);
+  const { path } = await ctx.params;
+  const url = constructBackendUrl(path);
   console.log("Proxying POST request to:", url);
+
   const body = await req.json();
 
   try {
@@ -73,9 +76,10 @@ export async function POST(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { path: string[] } }
+  ctx: { params: Promise<{ path: string[] }> }
 ) {
-  const url = constructBackendUrl(params.path);
+  const { path } = await ctx.params;
+  const url = constructBackendUrl(path);
   console.log("Proxying DELETE request to:", url);
 
   try {
