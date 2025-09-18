@@ -49,13 +49,18 @@ interface OrganizationApiResponse {
 }
 
 interface TableRow {
-  ["Called Number"]: string;
+  id: string;
+  calledNumber: string;
   callType: string;
-  callTime: string;
-  callDuration: number;
+  callTime: string; // formatted
+  callDuration: string; // formatted H:M:S
   receivedBy: string;
   agentName: string;
   callRecord: string;
+
+  // raw fields for sorting
+  _rawCallTime: string;
+  _rawCallDuration: number;
 }
 
 const DEFAULT_PAGE = 1;
@@ -94,41 +99,53 @@ async function getOrganizations(
   return json;
 }
 
-function sortData<T>(
-  data: T[],
-  field: keyof T,
+function sortData(
+  data: TableRow[],
+  field: keyof TableRow,
   direction: "asc" | "desc"
-): T[] {
+): TableRow[] {
   if (!field) return data;
+
   return [...data].sort((a, b) => {
-    const aV = a[field];
-    const bV = b[field];
+    let aV: string | number = a[field] as any;
+    let bV: string | number = b[field] as any;
+
+    // handle special cases
+    if (field === "callTime") {
+      aV = new Date(a._rawCallTime).getTime();
+      bV = new Date(b._rawCallTime).getTime();
+    } else if (field === "callDuration") {
+      aV = a._rawCallDuration;
+      bV = b._rawCallDuration;
+    }
+
     if (typeof aV === "number" && typeof bV === "number") {
       return direction === "asc" ? aV - bV : bV - aV;
     }
-    const aS = String(aV ?? "");
-    const bS = String(bV ?? "");
-    return direction === "asc" ? aS.localeCompare(bS) : bS.localeCompare(aS);
+
+    return direction === "asc"
+      ? String(aV).localeCompare(String(bV))
+      : String(bV).localeCompare(String(aV));
   });
 }
 
 function filterData(data: TableRow[], query: string): TableRow[] {
   if (!query) return data;
   const q = query.toLowerCase();
+
   return data.filter(
     (item) =>
-      item.name.toLowerCase().includes(q) ||
-      item.email.toLowerCase().includes(q) ||
-      item.organizationName.toLowerCase().includes(q)
+      item.calledNumber.toLowerCase().includes(q) ||
+      item.callType.toLowerCase().includes(q) ||
+      item.receivedBy.toLowerCase().includes(q) ||
+      item.agentName.toLowerCase().includes(q)
   );
 }
 
 export default async function OrganizationAdminPage({
   searchParams,
 }: TableProps) {
-  // parse the searchParams prop
   const sp = searchParams ?? {};
-  // convert to TableSearchParams
   const queryParams: TableSearchParams = {
     page: sp.page
       ? Array.isArray(sp.page)
@@ -159,20 +176,19 @@ export default async function OrganizationAdminPage({
   }
 
   const { data: organizations, meta } = response.data;
-  console.log("organizations: ", organizations);
 
-  const tableData: TableRow[] = organizations.map((org) => {
-    return {
-      id: org.id,
-      ["Called Number"]: org.to_number,
-      callType: org.callType,
-      callTime: formatDateTime(org.call_time),
-      callDuration: formatSecondsToHMS(org.call_duration),
-      receivedBy: org.type,
-      agentName: org.agent_name || "AI",
-      callRecord: org.recording_url,
-    };
-  });
+  const tableData: TableRow[] = organizations.map((org) => ({
+    id: org.id,
+    calledNumber: org.to_number,
+    callType: org.callType.slice(0, 1).toUpperCase() + org.callType.slice(1),
+    callTime: formatDateTime(org.call_time),
+    callDuration: formatSecondsToHMS(org.call_duration),
+    receivedBy: org.type.toUpperCase(),
+    agentName: org.agent_name || "AI",
+    callRecord: org.recording_url,
+    _rawCallTime: org.call_time,
+    _rawCallDuration: org.call_duration,
+  }));
 
   // sort / filter
   const [sortField, sortDirection] = (queryParams.sort || "").split(":") as [
@@ -192,21 +208,17 @@ export default async function OrganizationAdminPage({
   const totalPages = meta.totalPages;
   const currentPage = Math.min(Math.max(1, meta.page), totalPages);
 
-  const tableHeader =
-    sorted.length > 0
-      ? (Object.keys(sorted[0]) as (keyof TableRow)[]).filter((k) => k !== "id")
-      : ([
-          "Called Number",
-          "Call Type",
-          "Call Time",
-          "Call Duration",
-          "Received By",
-          "Agent Name",
-          "Call Record",
-        ] as (keyof TableRow)[]);
+  const tableHeader: (keyof TableRow)[] = [
+    "calledNumber",
+    "callType",
+    "callTime",
+    "callDuration",
+    "receivedBy",
+    "agentName",
+    "callRecord",
+  ];
 
   const currentFilters = parseFilters(queryParams);
-
   const basePath = organizationCallLogsPath();
 
   return (
