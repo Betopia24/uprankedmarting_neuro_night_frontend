@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { Container, Section } from "@/components";
 import { Accordion } from "@/components";
-import { ParallaxEffect, StaggerFadeUp } from "@/components/animations";
 import ScrollAnimation from "@/components/animations/ScrollAnimation";
 
 const accordionData = [
