@@ -8,6 +8,7 @@ import { env } from "@/env";
 import { getServerAuth } from "@/lib/auth";
 import { formatDateTime } from "@/utils/formatDateTime";
 import { formatSecondsToHMS } from "@/utils/formatSecondsToHMS";
+import PlayCallRecord from "@/components/PlayCallRecord";
 
 export interface TableSearchParams {
   page?: number;
@@ -29,9 +30,11 @@ interface OrganizationAdmin {
   callType: string;
   call_time: string;
   call_duration: number;
+  from_number: string;
   type: string;
   agent_name: string;
   recording_url: string;
+  call_sid: string;
 }
 
 interface OrganizationApiResponse {
@@ -51,6 +54,7 @@ interface OrganizationApiResponse {
 interface TableRow {
   id: string;
   calledNumber: string;
+  callerNumber: string;
   callType: string;
   callTime: string; // formatted
   callDuration: string; // formatted H:M:S
@@ -176,16 +180,18 @@ export default async function OrganizationAdminPage({
   }
 
   const { data: organizations, meta } = response.data;
+  console.log("Organizations:", organizations);
 
   const tableData: TableRow[] = organizations.map((org) => ({
     id: org.id,
     calledNumber: org.to_number,
+    callerNumber: org.from_number,
     callType: org.callType.slice(0, 1).toUpperCase() + org.callType.slice(1),
     callTime: formatDateTime(org.call_time),
     callDuration: formatSecondsToHMS(org.call_duration),
     receivedBy: org.type.toUpperCase(),
     agentName: org.agent_name || "AI",
-    callRecord: org.recording_url,
+    callRecord: org.call_sid,
     _rawCallTime: org.call_time,
     _rawCallDuration: org.call_duration,
   }));
@@ -210,6 +216,7 @@ export default async function OrganizationAdminPage({
 
   const tableHeader: (keyof TableRow)[] = [
     "calledNumber",
+    "callerNumber",
     "callType",
     "callTime",
     "callDuration",
@@ -256,14 +263,26 @@ export default async function OrganizationAdminPage({
                   key={item.id}
                   className="hover:bg-gray-50 transition-colors cursor-pointer"
                 >
-                  {tableHeader.map((key) => (
-                    <td
-                      key={String(key)}
-                      className="px-4 py-3 border border-gray-200 whitespace-nowrap"
-                    >
-                      {item[key]}
-                    </td>
-                  ))}
+                  {tableHeader.map((key) => {
+                    if (key === "callRecord") {
+                      return (
+                        <td
+                          key={String(key)}
+                          className="px-4 py-3 border border-gray-200 whitespace-nowrap"
+                        >
+                          <PlayCallRecord sid={item.callRecord} />
+                        </td>
+                      );
+                    }
+                    return (
+                      <td
+                        key={String(key)}
+                        className="px-4 py-3 border border-gray-200 whitespace-nowrap"
+                      >
+                        {item[key]}
+                      </td>
+                    );
+                  })}
                 </tr>
               ))
             ) : (
