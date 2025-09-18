@@ -2,10 +2,12 @@ import React from "react";
 import Pagination from "@/components/table/components/Pagination";
 import SearchField from "@/components/table/components/SearchField";
 import TableHeaderItem from "@/components/table/components/TableHeaderItem";
-import { adminOrganizationManagementPath } from "@/paths";
+import { organizationCallLogsPath } from "@/paths";
 import { parseFilters } from "@/components/table/utils/filters";
 import { env } from "@/env";
 import { getServerAuth } from "@/lib/auth";
+import { formatDateTime } from "@/utils/formatDateTime";
+import { formatSecondsToHMS } from "@/utils/formatSecondsToHMS";
 
 export interface TableSearchParams {
   page?: number;
@@ -21,47 +23,15 @@ interface TableProps {
   };
 }
 
-interface Subscription {
-  id: string;
-  startDate: string;
-  endDate: string;
-  amount: number;
-  paymentStatus: string;
-  status: string;
-  planLevel: string;
-  purchasedNumber: string;
-  numberOfAgents: number;
-}
-
-interface Agent {
-  id: string;
-  userId: string;
-  name?: string;
-}
-
-interface OwnedOrganization {
-  id: string;
-  name: string;
-  industry: string;
-  address: string;
-  websiteLink: string;
-  organizationNumber: string | null;
-  subscriptions: Subscription[];
-  agents: Agent[];
-}
-
 interface OrganizationAdmin {
   id: string;
-  name: string;
-  email: string;
-  phone: string;
-  image?: string;
-  bio?: string;
-  status: string;
-  role: string;
-  createdAt: string;
-  updatedAt: string;
-  ownedOrganization: OwnedOrganization;
+  to_number: string;
+  callType: string;
+  call_time: string;
+  call_duration: number;
+  type: string;
+  agent_name: string;
+  recording_url: string;
 }
 
 interface OrganizationApiResponse {
@@ -79,15 +49,13 @@ interface OrganizationApiResponse {
 }
 
 interface TableRow {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  organizationName: string;
-  organizationIndustry: string;
-  organizationAddress: string;
-  totalAgents: number;
-  agentNames: string;
+  ["Called Number"]: string;
+  callType: string;
+  callTime: string;
+  callDuration: number;
+  receivedBy: string;
+  agentName: string;
+  callRecord: string;
 }
 
 const DEFAULT_PAGE = 1;
@@ -155,12 +123,11 @@ function filterData(data: TableRow[], query: string): TableRow[] {
   );
 }
 
-export default async function OrganizationAdminPage(props: {
-  searchParams: Promise<TableProps["searchParams"]>;
-}) {
-  // parse the searchParams prop (await because Next.js 15 gives a Promise)
-  const sp = (await props.searchParams) ?? {};
-
+export default async function OrganizationAdminPage({
+  searchParams,
+}: TableProps) {
+  // parse the searchParams prop
+  const sp = searchParams ?? {};
   // convert to TableSearchParams
   const queryParams: TableSearchParams = {
     page: sp.page
@@ -191,25 +158,19 @@ export default async function OrganizationAdminPage(props: {
     );
   }
 
-  console.log(response);
-
   const { data: organizations, meta } = response.data;
+  console.log("organizations: ", organizations);
 
   const tableData: TableRow[] = organizations.map((org) => {
-    const agents = org.ownedOrganization.agents ?? [];
-    const agentNames = agents
-      .map((a) => a.name ?? a.userId ?? "N/A")
-      .join(", ");
     return {
       id: org.id,
-      name: org.name,
-      email: org.email,
-      phone: org.phone,
-      organizationName: org.ownedOrganization.name,
-      organizationIndustry: org.ownedOrganization.industry,
-      organizationAddress: org.ownedOrganization.address,
-      totalAgents: agents.length,
-      agentNames,
+      ["Called Number"]: org.to_number,
+      callType: org.callType,
+      callTime: formatDateTime(org.call_time),
+      callDuration: formatSecondsToHMS(org.call_duration),
+      receivedBy: org.type,
+      agentName: org.agent_name || "AI",
+      callRecord: org.recording_url,
     };
   });
 
@@ -235,19 +196,18 @@ export default async function OrganizationAdminPage(props: {
     sorted.length > 0
       ? (Object.keys(sorted[0]) as (keyof TableRow)[]).filter((k) => k !== "id")
       : ([
-          "name",
-          "email",
-          "phone",
-          "organizationName",
-          "organizationIndustry",
-          "organizationAddress",
-          "totalAgents",
-          "agentNames",
+          "Called Number",
+          "Call Type",
+          "Call Time",
+          "Call Duration",
+          "Received By",
+          "Agent Name",
+          "Call Record",
         ] as (keyof TableRow)[]);
 
   const currentFilters = parseFilters(queryParams);
 
-  const basePath = adminOrganizationManagementPath();
+  const basePath = organizationCallLogsPath();
 
   return (
     <div className="space-y-6 px-4 sm:px-6 lg:px-8">

@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { env } from "@/env";
 
 interface ErrorPageProps {
   error?: Error | string;
@@ -19,10 +20,15 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
       }}
       className="flex flex-col items-center justify-center  bg-gray-50 px-4 text-center -mt-20"
     >
-      <div className="max-w-md">
+      <div className="max-w-2xl">
         <h1 className="text-5xl font-bold text-red-600 mb-4">Oops!</h1>
         <p className="text-lg text-gray-700 mb-6">Something went wrong.</p>
-        {error && (
+        {env.NEXT_PUBLIC_APP_ENV === "development" && (
+          <pre className="bg-gray-100 p-4 rounded-lg text-sm text-red-500 overflow-x-auto mb-6">
+            {error instanceof Error ? error.stack : String(error)}
+          </pre>
+        )}
+        {env.NEXT_PUBLIC_APP_ENV === "production" && (
           <pre className="bg-gray-100 p-4 rounded-lg text-sm text-red-500 overflow-x-auto mb-6">
             {error instanceof Error ? error.message : String(error)}
           </pre>
