@@ -8,6 +8,7 @@ import { env } from "@/env";
 import { getServerAuth } from "@/lib/auth";
 import { formatDateTime } from "@/utils/formatDateTime";
 import { formatSecondsToHMS } from "@/utils/formatSecondsToHMS";
+import PlayCallRecord from "@/components/PlayCallRecord";
 
 export interface TableSearchParams {
   page?: number;
@@ -18,9 +19,9 @@ export interface TableSearchParams {
 }
 
 interface TableProps {
-  searchParams?: {
+  searchParams?: Promise<{
     [key: string]: string | string[] | undefined;
-  };
+  }>;
 }
 
 interface OrganizationAdmin {
@@ -29,9 +30,11 @@ interface OrganizationAdmin {
   callType: string;
   call_time: string;
   call_duration: number;
+  from_number: string;
   type: string;
   agent_name: string;
   recording_url: string;
+  call_sid: string;
 }
 
 interface OrganizationApiResponse {
@@ -49,13 +52,19 @@ interface OrganizationApiResponse {
 }
 
 interface TableRow {
-  ["Called Number"]: string;
+  id: string;
+  calledNumber: string;
+  callerNumber: string;
   callType: string;
-  callTime: string;
-  callDuration: number;
+  callTime: string; // formatted
+  callDuration: string; // formatted H:M:S
   receivedBy: string;
   agentName: string;
   callRecord: string;
+
+  // raw fields for sorting
+  _rawCallTime: string;
+  _rawCallDuration: number;
 }
 
 const DEFAULT_PAGE = 1;
@@ -94,41 +103,55 @@ async function getOrganizations(
   return json;
 }
 
-function sortData<T>(
-  data: T[],
-  field: keyof T,
+function sortData(
+  data: TableRow[],
+  field: keyof TableRow,
   direction: "asc" | "desc"
-): T[] {
+): TableRow[] {
   if (!field) return data;
+
   return [...data].sort((a, b) => {
-    const aV = a[field];
-    const bV = b[field];
+    let aV: string | number = a[field] as any;
+    let bV: string | number = b[field] as any;
+
+    // handle special cases
+    if (field === "callTime") {
+      aV = new Date(a._rawCallTime).getTime();
+      bV = new Date(b._rawCallTime).getTime();
+    } else if (field === "callDuration") {
+      aV = a._rawCallDuration;
+      bV = b._rawCallDuration;
+    }
+
     if (typeof aV === "number" && typeof bV === "number") {
       return direction === "asc" ? aV - bV : bV - aV;
     }
-    const aS = String(aV ?? "");
-    const bS = String(bV ?? "");
-    return direction === "asc" ? aS.localeCompare(bS) : bS.localeCompare(aS);
+
+    return direction === "asc"
+      ? String(aV).localeCompare(String(bV))
+      : String(bV).localeCompare(String(aV));
   });
 }
 
 function filterData(data: TableRow[], query: string): TableRow[] {
   if (!query) return data;
   const q = query.toLowerCase();
+
   return data.filter(
     (item) =>
-      item.name.toLowerCase().includes(q) ||
-      item.email.toLowerCase().includes(q) ||
-      item.organizationName.toLowerCase().includes(q)
+      item.calledNumber.toLowerCase().includes(q) ||
+      item.callType.toLowerCase().includes(q) ||
+      item.receivedBy.toLowerCase().includes(q) ||
+      item.agentName.toLowerCase().includes(q)
   );
 }
 
 export default async function OrganizationAdminPage({
   searchParams,
 }: TableProps) {
-  // parse the searchParams prop
-  const sp = searchParams ?? {};
-  // convert to TableSearchParams
+  // Await searchParams for Next.js 15
+  const sp = searchParams ? await searchParams : {};
+
   const queryParams: TableSearchParams = {
     page: sp.page
       ? Array.isArray(sp.page)
@@ -159,22 +182,21 @@ export default async function OrganizationAdminPage({
   }
 
   const { data: organizations, meta } = response.data;
-  console.log("organizations: ", organizations);
 
-  const tableData: TableRow[] = organizations.map((org) => {
-    return {
-      id: org.id,
-      ["Called Number"]: org.to_number,
-      callType: org.callType,
-      callTime: formatDateTime(org.call_time),
-      callDuration: formatSecondsToHMS(org.call_duration),
-      receivedBy: org.type,
-      agentName: org.agent_name || "AI",
-      callRecord: org.recording_url,
-    };
-  });
+  const tableData: TableRow[] = organizations.map((org) => ({
+    id: org.id,
+    calledNumber: org.to_number,
+    callerNumber: org.from_number,
+    callType: org.callType.slice(0, 1).toUpperCase() + org.callType.slice(1),
+    callTime: formatDateTime(org.call_time),
+    callDuration: formatSecondsToHMS(org.call_duration),
+    receivedBy: org.type.toUpperCase(),
+    agentName: org.agent_name || "AI",
+    callRecord: org.call_sid,
+    _rawCallTime: org.call_time,
+    _rawCallDuration: org.call_duration,
+  }));
 
-  // sort / filter
   const [sortField, sortDirection] = (queryParams.sort || "").split(":") as [
     string,
     string?
@@ -192,21 +214,18 @@ export default async function OrganizationAdminPage({
   const totalPages = meta.totalPages;
   const currentPage = Math.min(Math.max(1, meta.page), totalPages);
 
-  const tableHeader =
-    sorted.length > 0
-      ? (Object.keys(sorted[0]) as (keyof TableRow)[]).filter((k) => k !== "id")
-      : ([
-          "Called Number",
-          "Call Type",
-          "Call Time",
-          "Call Duration",
-          "Received By",
-          "Agent Name",
-          "Call Record",
-        ] as (keyof TableRow)[]);
+  const tableHeader: (keyof TableRow)[] = [
+    "calledNumber",
+    "callerNumber",
+    "callType",
+    "callTime",
+    "callDuration",
+    "receivedBy",
+    "agentName",
+    "callRecord",
+  ];
 
   const currentFilters = parseFilters(queryParams);
-
   const basePath = organizationCallLogsPath();
 
   return (
@@ -244,14 +263,26 @@ export default async function OrganizationAdminPage({
                   key={item.id}
                   className="hover:bg-gray-50 transition-colors cursor-pointer"
                 >
-                  {tableHeader.map((key) => (
-                    <td
-                      key={String(key)}
-                      className="px-4 py-3 border border-gray-200 whitespace-nowrap"
-                    >
-                      {item[key]}
-                    </td>
-                  ))}
+                  {tableHeader.map((key) => {
+                    if (key === "callRecord") {
+                      return (
+                        <td
+                          key={String(key)}
+                          className="px-4 py-3 border border-gray-200 whitespace-nowrap"
+                        >
+                          <PlayCallRecord sid={item.callRecord} />
+                        </td>
+                      );
+                    }
+                    return (
+                      <td
+                        key={String(key)}
+                        className="px-4 py-3 border border-gray-200 whitespace-nowrap"
+                      >
+                        {item[key]}
+                      </td>
+                    );
+                  })}
                 </tr>
               ))
             ) : (

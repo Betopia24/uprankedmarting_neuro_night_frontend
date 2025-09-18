@@ -28,7 +28,5 @@ export default async function SettingsPage() {
     console.error("Failed to fetch subscription info");
   }
 
-  console.log("Subscription info:", subscription);
-
   return <ProfileContainerPage planLevel={subscription?.data?.planLevel} />;
 }

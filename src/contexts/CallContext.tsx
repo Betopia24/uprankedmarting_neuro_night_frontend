@@ -97,25 +97,25 @@ export const CallProvider: React.FC<CallProviderProps> = ({ children }) => {
       newDevice.on("registered", () => {
         setIsDeviceReady(true);
         setCallStatus("ready");
-        console.log("[CallContext] Twilio device registered successfully");
       });
 
       newDevice.on("error", (error) => {
-        console.error("[CallContext] Device error:", error);
+        env.NEXT_PUBLIC_APP_ENV === "development" &&
+          console.error("[CallContext] Device error:", error);
         setIsDeviceReady(false);
         setCallStatus("error");
       });
 
       // Handle incoming calls (for receiving calls)
       newDevice.on("incoming", (call) => {
-        console.log("[CallContext] Incoming call received:", call);
         // You can handle incoming calls here if needed
         // For now, just log them
       });
 
       setDevice(newDevice);
     } catch (error) {
-      console.error("[CallContext] Failed to initialize device:", error);
+      env.NEXT_PUBLIC_APP_ENV === "development" &&
+        console.error("[CallContext] Failed to initialize device:", error);
       setIsDeviceReady(false);
       setCallStatus("error");
     }
@@ -124,7 +124,8 @@ export const CallProvider: React.FC<CallProviderProps> = ({ children }) => {
   const makeCall = async (phoneNumber: string) => {
     if (!device || !isDeviceReady) {
       const err = new Error("Device is not ready");
-      console.error("[CallContext] makeCall error:", err);
+      env.NEXT_PUBLIC_APP_ENV === "development" &&
+        console.error("[CallContext] makeCall error:", err);
       throw err;
     }
 
@@ -140,14 +141,11 @@ export const CallProvider: React.FC<CallProviderProps> = ({ children }) => {
         },
       });
 
-      console.log("[CallContext] Call initiated:", call);
-
       // Setup call event listeners
       call.on("accept", () => {
         setCurrentCall(call);
         setIsConnecting(false);
         setCallStatus("connected");
-        console.log("[CallContext] Call accepted/connected");
       });
 
       call.on("disconnect", () => {
@@ -155,14 +153,12 @@ export const CallProvider: React.FC<CallProviderProps> = ({ children }) => {
         setIsMuted(false);
         setCallStatus("ready");
         setIsConnecting(false);
-        console.log("[CallContext] Call disconnected");
       });
 
       call.on("cancel", () => {
         setCurrentCall(null);
         setIsConnecting(false);
         setCallStatus("ready");
-        console.log("[CallContext] Call cancelled");
       });
 
       call.on("error", (error) => {
@@ -174,7 +170,6 @@ export const CallProvider: React.FC<CallProviderProps> = ({ children }) => {
 
       call.on("ringing", () => {
         setCallStatus("ringing");
-        console.log("[CallContext] Call is ringing");
       });
 
       // Set the current call immediately
@@ -225,13 +220,15 @@ export const CallProvider: React.FC<CallProviderProps> = ({ children }) => {
         const data = await response.json();
         setCalls(data.data?.calls || []);
       } else {
-        console.error(
-          "[CallContext] Failed to fetch call history:",
-          response.status
-        );
+        env.NEXT_PUBLIC_APP_ENV === "development" &&
+          console.error(
+            "[CallContext] Failed to fetch call history:",
+            response.status
+          );
       }
     } catch (error) {
-      console.error("[CallContext] Failed to fetch call history:", error);
+      env.NEXT_PUBLIC_APP_ENV === "development" &&
+        console.error("[CallContext] Failed to fetch call history:", error);
     } finally {
       setIsLoading(false);
     }

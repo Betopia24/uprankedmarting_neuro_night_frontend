@@ -1,5 +1,6 @@
 "use client";
 
+import { env } from "@/env";
 import { useState, useRef, useCallback } from "react";
 
 export function useAudioRecorder() {
@@ -41,7 +42,8 @@ export function useAudioRecorder() {
         setRecordingTime((t) => t + 1);
       }, 1000);
     } catch (err) {
-      console.error("Audio recording failed:", err);
+      env.NEXT_PUBLIC_APP_ENV === "development" &&
+        console.error("Audio recording failed:", err);
       alert("Microphone access denied or unavailable.");
     }
   }, [isRecording]);

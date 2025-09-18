@@ -22,8 +22,6 @@ const Dashboard: React.FC = () => {
   const { currentCall, callStatus } = useCall();
   const [timeOfDay, setTimeOfDay] = useState<string>("");
 
-  console.log({ user });
-
   useEffect(() => {
     const hour = new Date().getHours();
     if (hour < 12) setTimeOfDay("morning");

@@ -22,6 +22,7 @@ import CheckboxField from "./CheckboxField";
 import SelectField from "@/components/SelectField";
 import AuthButton from "./AuthButton";
 import { toast } from "sonner";
+import { env } from "@/env";
 
 const MIN_STEP = 1;
 const MAX_STEP = 2;
@@ -98,7 +99,8 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
         toast.error(result?.message || "Registration failed.");
       }
     } catch (error) {
-      console.error("Signup Request Error:", error);
+      env.NEXT_PUBLIC_APP_ENV === "development" &&
+        console.error("Signup Request Error:", error);
       toast.error("Something went wrong. Please try again later.");
     }
   };

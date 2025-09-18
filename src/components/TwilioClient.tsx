@@ -27,6 +27,7 @@ import {
   Signal,
 } from "lucide-react";
 import { getErrorMessage } from "@/lib/getErrorMessage";
+import { env } from "@/env";
 
 // Configuration constants
 const CONFIG = {
@@ -279,7 +280,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       try {
         const newToken = await fetchToken();
         deviceRef.current.updateToken(newToken);
-        console.log("Token refreshed successfully");
         updateStatusMessage("Token refreshed");
         scheduleTokenRefresh();
       } catch (err) {
@@ -291,7 +291,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
             try {
               const newToken = await fetchToken();
               deviceRef.current.updateToken(newToken);
-              console.log("Token refresh retry successful");
               scheduleTokenRefresh();
             } catch (retryErr) {
               console.error("Token refresh retry failed:", retryErr);
@@ -327,8 +326,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
   // Call handlers
   const attachCallHandlers = useCallback(
     (call: Call) => {
-      console.log("Attaching enhanced call handlers");
-
       call.on("accept", () => {
         if (!isMountedRef.current) return;
 
@@ -353,7 +350,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       call.on("disconnect", () => {
         if (!isMountedRef.current) return;
 
-        console.log("Call disconnected");
         setCallState({
           state: "none",
           call: null,
@@ -384,7 +380,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       call.on("cancel", () => {
         if (!isMountedRef.current) return;
 
-        console.log("Call cancelled by caller");
         setCallState({
           state: "none",
           call: null,
@@ -435,7 +430,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       });
 
       call.on("warning-cleared", (name: string) => {
-        console.log("Call quality warning cleared:", name);
         setCallState((prev) => ({ ...prev, quality: "good" }));
       });
     },
@@ -445,8 +439,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
   // Device initialization and management
   const initializeDevice = useCallback(
     async (accessToken: string): Promise<Device> => {
-      console.log("Initializing Twilio Device with enhanced configuration...");
-
       if (deviceRef.current) {
         try {
           deviceRef.current.destroy();
@@ -473,7 +465,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
           isHealthy: true,
         }));
         updateStatusMessage("Device registered - Ready for calls");
-        console.log("Device registered successfully");
       });
 
       device.on("unregistered", () => {
@@ -511,8 +502,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       device.on("incoming", (call: Call) => {
         if (!isMountedRef.current) return;
 
-        console.log("Incoming call received:", call.parameters);
-
         const from = call.parameters.From || "Unknown";
 
         setCallState({
@@ -545,7 +534,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       });
 
       device.on("tokenWillExpire", async () => {
-        console.log("Token will expire, refreshing...");
         try {
           const newToken = await fetchToken();
           device.updateToken(newToken);
@@ -556,12 +544,10 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       });
 
       device.audio?.on("deviceChange", () => {
-        console.log("Audio devices changed");
         updateAudioDevices(device);
       });
 
       await updateAudioDevices(device);
-      console.log("Device initialized successfully");
       return device;
     },
     [
@@ -611,11 +597,8 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
   // WebSocket management with enhanced reliability
   const connectWebSocket = useCallback(() => {
     if (!user?.id || !token || !isMountedRef.current) {
-      console.log("Waiting for authentication...");
       return;
     }
-
-    console.log("Connecting WebSocket for user:", user.id);
 
     const wsUrl = getWebSocketUrl(user.id);
 
@@ -637,7 +620,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         }
 
         clearTimeout(connectionTimeout);
-        console.log("WebSocket connected");
 
         setConnectionState((prev) => ({
           ...prev,
@@ -689,7 +671,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         if (!isMountedRef.current) return;
 
         clearTimeout(connectionTimeout);
-        console.log("WebSocket disconnected:", event.code, event.reason);
 
         setConnectionState((prev) => ({
           ...prev,
@@ -702,7 +683,8 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         }
       };
     } catch (error) {
-      console.error("WebSocket creation error:", error);
+      env.NEXT_PUBLIC_APP_ENV === "development" &&
+        console.error("WebSocket creation error:", error);
       updateStatusMessage("Failed to create WebSocket connection", "error");
       scheduleReconnect();
     }
@@ -749,19 +731,15 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
 
   const handleWebSocketMessage = useCallback(
     (message: { type: string; data: { message?: string } }) => {
-      console.log("WebSocket message:", message);
-
       switch (message.type) {
         case "registration_success":
           updateStatusMessage("Agent registered successfully");
           break;
 
         case "incoming_call":
-          console.log("Call notification received via WebSocket");
           break;
 
         case "call_ended":
-          console.log("Call ended notification received");
           break;
 
         case "registration_error":
@@ -780,7 +758,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
           break;
 
         default:
-          console.log("Unknown message type:", message.type);
       }
     },
     [updateStatusMessage]
@@ -806,7 +783,8 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
 
       updateStatusMessage("Call accepted");
     } catch (err) {
-      console.error("Failed to accept call:", err);
+      env.NEXT_PUBLIC_APP_ENV === "development" &&
+        console.error("Failed to accept call:", err);
       updateStatusMessage("Failed to accept call", "error");
     }
   }, [updateStatusMessage]);
@@ -829,7 +807,8 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
 
       currentCallRef.current = null;
     } catch (err) {
-      console.error("Failed to reject call:", err);
+      env.NEXT_PUBLIC_APP_ENV === "development" &&
+        console.error("Failed to reject call:", err);
       updateStatusMessage("Failed to reject call", "error");
     }
   }, [updateStatusMessage]);
@@ -860,7 +839,8 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       });
       currentCallRef.current = null;
     } catch (err) {
-      console.error("Failed to end call:", err);
+      env.NEXT_PUBLIC_APP_ENV === "development" &&
+        console.error("Failed to end call:", err);
       updateStatusMessage("Failed to end call", "error");
     } finally {
       if (callTimerRef.current) clearInterval(callTimerRef.current);
@@ -880,7 +860,8 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       setAudioState((prev) => ({ ...prev, isMuted: newMutedState }));
       updateStatusMessage(newMutedState ? "Muted" : "Unmuted");
     } catch (err) {
-      console.error("Failed to toggle mute:", err);
+      env.NEXT_PUBLIC_APP_ENV === "development" &&
+        console.error("Failed to toggle mute:", err);
       updateStatusMessage("Failed to toggle mute", "error");
     }
   }, [audioState.isMuted, updateStatusMessage]);
@@ -907,7 +888,8 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
           await Notification.requestPermission();
         }
       } catch (err) {
-        console.error("System initialization failed:", err);
+        env.NEXT_PUBLIC_APP_ENV === "development" &&
+          console.error("System initialization failed:", err);
 
         const message = getErrorMessage(err, "System initialization failed");
         updateStatusMessage(`Initialization failed: ${message}`, "error");
@@ -926,8 +908,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
 
   // Cleanup function
   const cleanup = useCallback(() => {
-    console.log("Cleaning up resources...");
-
     [
       reconnectTimeoutRef,
       heartbeatIntervalRef,
@@ -1031,7 +1011,8 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         setAudioState((prev) => ({ ...prev, selectedInput: deviceId }));
         updateStatusMessage("Input device updated");
       } catch (err) {
-        console.error("Failed to set input device:", err);
+        env.NEXT_PUBLIC_APP_ENV === "development" &&
+          console.error("Failed to set input device:", err);
         updateStatusMessage("Failed to update input device", "error");
       }
     },
@@ -1047,7 +1028,8 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         setAudioState((prev) => ({ ...prev, selectedOutput: deviceId }));
         updateStatusMessage("Output device updated");
       } catch (err) {
-        console.error("Failed to set output device:", err);
+        env.NEXT_PUBLIC_APP_ENV === "development" &&
+          console.error("Failed to set output device:", err);
         updateStatusMessage("Failed to update output device", "error");
       }
     },
@@ -1061,7 +1043,8 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       await deviceRef.current.audio.speakerDevices.test();
       updateStatusMessage("Audio test completed");
     } catch (err) {
-      console.error("Failed to test audio devices:", err);
+      env.NEXT_PUBLIC_APP_ENV === "development" &&
+        console.error("Failed to test audio devices:", err);
       updateStatusMessage("Audio test failed", "error");
     }
   }, [updateStatusMessage]);

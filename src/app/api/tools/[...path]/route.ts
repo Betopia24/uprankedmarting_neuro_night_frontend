@@ -14,7 +14,6 @@ export async function GET(
 ) {
   const { path } = await ctx.params; // 👈 must await
   const url = constructBackendUrl(path);
-  console.log("Proxying GET request to:", url);
 
   try {
     const response = await axios({
@@ -46,7 +45,6 @@ export async function POST(
 ) {
   const { path } = await ctx.params;
   const url = constructBackendUrl(path);
-  console.log("Proxying POST request to:", url);
 
   const body = await req.json();
 
@@ -80,7 +78,6 @@ export async function DELETE(
 ) {
   const { path } = await ctx.params;
   const url = constructBackendUrl(path);
-  console.log("Proxying DELETE request to:", url);
 
   try {
     const response = await axios({

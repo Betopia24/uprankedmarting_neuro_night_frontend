@@ -47,7 +47,6 @@ export default async function Pricing({
   const { data: plans }: { data: Plan[] } = await response.json();
 
   const filteredPlans = plans.filter((plan) => plan.interval === planInterval);
-  console.log({ plans });
 
   return (
     <Container>

@@ -33,20 +33,23 @@ export default async function AgentDetailsPage({ params }: Props) {
     );
 
     if (!response.ok) {
-      console.error("Fetch failed:", response.status, response.statusText);
+      env.NEXT_PUBLIC_APP_ENV === "development" &&
+        console.error("Fetch failed:", response.status, response.statusText);
       return notFound();
     }
 
     const json: ApiResponse<UpdateAgentUser> = await response.json();
 
     if (!json.success || !json.data) {
-      console.error("Invalid API response:", json);
+      env.NEXT_PUBLIC_APP_ENV === "development" &&
+        console.error("Invalid API response:", json);
       return notFound();
     }
 
     agent = json.data;
   } catch (error) {
-    console.error("Error fetching agent:", error);
+    env.NEXT_PUBLIC_APP_ENV === "development" &&
+      console.error("Error fetching agent:", error);
     return notFound();
   }
 

@@ -1,6 +1,5 @@
 // utils/dateTime.ts
 export function formatDateTime(input?: string | null): string {
-  console.log({ input });
   if (!input) return "—";
 
   const date = new Date(input);

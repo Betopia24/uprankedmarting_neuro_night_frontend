@@ -16,6 +16,7 @@ import {
   Check,
 } from "lucide-react";
 import { toast } from "sonner";
+import { env } from "@/env";
 
 type FileWithProgress = {
   id: string;
@@ -380,7 +381,8 @@ export default function AudioUploadRecorder({
         toast.error(`Failed to upload ${failed} file(s)`);
       }
     } catch (error) {
-      console.error("Upload process failed:", error);
+      env.NEXT_PUBLIC_APP_ENV === "development" &&
+        console.error("Upload process failed:", error);
       toast.error("Upload process failed");
     } finally {
       setUploading(false);

@@ -9,10 +9,11 @@ import {
   createOrganizationQuestion,
   getOrganizationQuestions,
   updateOrganizationQuestion,
-  deleteOrganizationQuestion
+  deleteOrganizationQuestion,
 } from "@/app/api/organization/organization";
 import { toast } from "sonner";
-import Image from 'next/image';
+import Image from "next/image";
+import { env } from "@/env";
 
 const suggested = [
   "What type of service are you looking for?",
@@ -30,7 +31,7 @@ interface Question {
 }
 
 interface FormMessage {
-  type: 'success' | 'error';
+  type: "success" | "error";
   text: string;
 }
 
@@ -40,12 +41,13 @@ export default function QuestionList() {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [formMessage, setFormMessage] = useState<FormMessage | null>(null);
-  const [editFormMessage, setEditFormMessage] = useState<FormMessage | null>(null);
+  const [editFormMessage, setEditFormMessage] = useState<FormMessage | null>(
+    null
+  );
 
   const { user } = useAuth();
   const orgId = user?.ownedOrganization?.id;
   const orgName = user?.ownedOrganization?.name;
-
 
   useEffect(() => {
     if (!showForm) {
@@ -53,13 +55,11 @@ export default function QuestionList() {
     }
   }, [showForm]);
 
-
   useEffect(() => {
     if (editingIndex === null) {
       setEditFormMessage(null);
     }
   }, [editingIndex]);
-
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -76,9 +76,9 @@ export default function QuestionList() {
 
         const data = await res.json();
         setQuestions(data);
-        console.log("Fetched questions:", data);
       } catch (error) {
-        console.error("Error fetching questions:", error);
+        env.NEXT_PUBLIC_APP_ENV === "development" &&
+          console.error("Error fetching questions:", error);
         toast.error("Failed to load questions");
       } finally {
         setLoading(false);
@@ -89,13 +89,13 @@ export default function QuestionList() {
   }, [orgId]);
 
   const handleAdd = async (question: string) => {
-    console.log({ orgId });
     setFormMessage(null);
 
     try {
       if (!orgId || !orgName) {
-        console.error("Organization not found");
-        setFormMessage({ type: 'error', text: 'Organization not found' });
+        env.NEXT_PUBLIC_APP_ENV === "development" &&
+          console.error("Organization not found");
+        setFormMessage({ type: "error", text: "Organization not found" });
         return;
       }
 
@@ -103,31 +103,29 @@ export default function QuestionList() {
       const responseData = await res.json();
 
       if (!res.ok || !responseData.accepted) {
-
         const errorMessage = responseData.reason || "Failed to add question";
-        setFormMessage({ type: 'error', text: errorMessage });
+        setFormMessage({ type: "error", text: errorMessage });
         return;
       }
 
-
-      const successMessage = responseData.message || "Question added successfully";
-      setFormMessage({ type: 'success', text: successMessage });
+      const successMessage =
+        responseData.message || "Question added successfully";
+      setFormMessage({ type: "success", text: successMessage });
 
       const fetchRes = await getOrganizationQuestions(orgId);
       if (fetchRes.ok) {
         const updatedQuestions = await fetchRes.json();
         setQuestions(updatedQuestions);
         toast.success(successMessage);
-        console.log("Questions after add:", updatedQuestions);
-
 
         setTimeout(() => {
           setShowForm(false);
         }, 2000);
       }
     } catch (error) {
-      console.error("Error adding question:", error);
-      setFormMessage({ type: 'error', text: 'Failed to add question' });
+      env.NEXT_PUBLIC_APP_ENV === "development" &&
+        console.error("Error adding question:", error);
+      setFormMessage({ type: "error", text: "Failed to add question" });
     }
   };
 
@@ -149,32 +147,31 @@ export default function QuestionList() {
       const responseData = await res.json();
 
       if (!res.ok || !responseData.accepted) {
-
         const errorMessage = responseData.reason || "Failed to update question";
-        setEditFormMessage({ type: 'error', text: errorMessage });
+        setEditFormMessage({ type: "error", text: errorMessage });
         return;
       }
 
-      const successMessage = responseData.message || "Question updated successfully";
-      setEditFormMessage({ type: 'success', text: successMessage });
-
+      const successMessage =
+        responseData.message || "Question updated successfully";
+      setEditFormMessage({ type: "success", text: successMessage });
 
       const updated = [...questions];
       updated[editingIndex] = {
         ...questionToUpdate,
         question_text: questionText,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       };
       setQuestions(updated);
-      console.log("Updated Questions: ", updated);
       toast.success(successMessage);
 
       setTimeout(() => {
         setEditingIndex(null);
       }, 2000);
     } catch (error) {
-      console.error("Error updating question:", error);
-      setEditFormMessage({ type: 'error', text: 'Failed to update question' });
+      env.NEXT_PUBLIC_APP_ENV === "development" &&
+        console.error("Error updating question:", error);
+      setEditFormMessage({ type: "error", text: "Failed to update question" });
     }
   };
 
@@ -185,22 +182,24 @@ export default function QuestionList() {
     if (!questionToDelete) return;
 
     try {
-      const res = await deleteOrganizationQuestion(orgId, questionToDelete.question_id);
+      const res = await deleteOrganizationQuestion(
+        orgId,
+        questionToDelete.question_id
+      );
 
       if (!res.ok) {
         const errorText = await res.text();
         throw new Error(errorText || "Failed to delete question");
       }
 
-
-      setQuestions(prev => {
+      setQuestions((prev) => {
         const updated = prev.filter((_, i) => i !== index);
-        console.log("Questions after delete:", updated);
         toast.success("Question deleted successfully");
         return updated;
       });
     } catch (error) {
-      console.error("Error deleting question:", error);
+      env.NEXT_PUBLIC_APP_ENV === "development" &&
+        console.error("Error deleting question:", error);
       toast.error("Failed to delete question");
     }
   };
@@ -208,34 +207,33 @@ export default function QuestionList() {
   const handleSuggestedSelect = async (question: string) => {
     try {
       if (!orgId || !orgName) {
-        console.error("Organization not found");
+        env.NEXT_PUBLIC_APP_ENV === "development" &&
+          console.error("Organization not found");
         toast.error("Organization not found");
         return;
       }
-
 
       const res = await createOrganizationQuestion(orgId, orgName, question);
       const responseData = await res.json();
 
       if (!res.ok || !responseData.accepted) {
-
         const errorMessage = responseData.reason || "Failed to add question";
         toast.error(errorMessage);
         return;
       }
 
-      const successMessage = responseData.message || "Question added successfully";
-
+      const successMessage =
+        responseData.message || "Question added successfully";
 
       const fetchRes = await getOrganizationQuestions(orgId);
       if (fetchRes.ok) {
         const updatedQuestions = await fetchRes.json();
         setQuestions(updatedQuestions);
         toast.success(successMessage);
-        console.log("Questions after suggested select:", updatedQuestions);
       }
     } catch (err) {
-      console.error("Error adding suggested question:", err);
+      env.NEXT_PUBLIC_APP_ENV === "development" &&
+        console.error("Error adding suggested question:", err);
       toast.error("Failed to add question");
     }
   };
@@ -258,16 +256,19 @@ export default function QuestionList() {
         <p className="text-sm font-semibold mb-2">Select or Add Questions</p>
         <div className="flex flex-col gap-2">
           {suggested.map((text, idx) => {
-            const alreadyAdded = questions.some(q => q.question_text === text);
+            const alreadyAdded = questions.some(
+              (q) => q.question_text === text
+            );
             return (
               <button
                 key={idx}
                 onClick={() => !alreadyAdded && handleSuggestedSelect(text)}
                 disabled={alreadyAdded}
-                className={`text-left px-3 py-2 border rounded transition ${alreadyAdded
-                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                  : "hover:bg-gray-50 border-gray-300"
-                  }`}
+                className={`text-left px-3 py-2 border rounded transition ${
+                  alreadyAdded
+                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    : "hover:bg-gray-50 border-gray-300"
+                }`}
               >
                 {text}
               </button>
@@ -301,8 +302,15 @@ export default function QuestionList() {
 
       {questions.length === 0 && !showForm && (
         <div className="flex flex-col items-center py-8 text-gray-500">
-          <Image src={'/help-circle.png'} alt="No questions" width={100} height={100} />
-          <p className="mt-2">No questions added yet. Add your first question below.</p>
+          <Image
+            src={"/help-circle.png"}
+            alt="No questions"
+            width={100}
+            height={100}
+          />
+          <p className="mt-2">
+            No questions added yet. Add your first question below.
+          </p>
         </div>
       )}
 

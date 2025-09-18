@@ -35,14 +35,16 @@ export default function AgentFeedbackForm() {
         const res = await fetch(`/api/getAgentIds`);
 
         if (!res.ok) {
-          console.error("Failed to fetch agent IDs:", res.statusText);
+          env.NEXT_PUBLIC_APP_ENV === "development" &&
+            console.error("Failed to fetch agent IDs:", res.statusText);
           return;
         }
 
         const data = await res.json();
         setAgentInfos(data?.data);
       } catch (err) {
-        console.error("Network error fetching agent IDs:", err);
+        env.NEXT_PUBLIC_APP_ENV === "development" &&
+          console.error("Network error fetching agent IDs:", err);
       }
     };
 

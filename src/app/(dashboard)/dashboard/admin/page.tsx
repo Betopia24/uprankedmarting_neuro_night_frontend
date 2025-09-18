@@ -53,22 +53,23 @@ async function fetchDashboardStats(): Promise<DashboardStatsData | null> {
     });
 
     if (!res.ok) {
-      console.error("API responded with status:", res.status);
+      env.NEXT_PUBLIC_APP_ENV === "development" &&
+        console.error("API responded with status:", res.status);
       return null;
     }
 
     const json: DashboardStatsResponse = await res.json();
     if (!json.success) {
-      console.error("API success flag false:", json.message);
+      env.NEXT_PUBLIC_APP_ENV === "development" &&
+        console.error("API success flag false:", json.message);
       return null;
     }
-
-    console.log(json.data);
 
     // No runtime validation here, trusting the API shape
     return json.data;
   } catch (error) {
-    console.error("Error fetching dashboard stats:", error);
+    env.NEXT_PUBLIC_APP_ENV === "development" &&
+      console.error("Error fetching dashboard stats:", error);
     return null;
   }
 }

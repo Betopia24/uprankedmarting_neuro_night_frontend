@@ -54,7 +54,6 @@ export default function FileUpload({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const me = useAuth();
-  console.log(me?.token);
 
   const validateFile = (file: File) => {
     if (file.size > maxSize * 1024 * 1024) return `File exceeds ${maxSize}MB`;
@@ -106,7 +105,7 @@ export default function FileUpload({
     setUploading(true);
 
     for (const f of files) {
-      if (f.uploaded) continue; 
+      if (f.uploaded) continue;
 
       const formData = new FormData();
       // 🔑 If it's human agent upload
@@ -322,7 +321,6 @@ function formatFileSize(bytes: number) {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
 }
-
 
 // "use client";
 

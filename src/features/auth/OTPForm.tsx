@@ -62,7 +62,8 @@ export default function OTPForm() {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       window.location.href = "/auth/login";
     } catch (error) {
-      console.error("Error verifying OTP:", error);
+      env.NEXT_PUBLIC_APP_ENV === "development" &&
+        console.error("Error verifying OTP:", error);
       if (error instanceof Error) {
         toast.error(error.message);
       } else {
