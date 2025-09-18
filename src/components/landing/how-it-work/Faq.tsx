@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Container, Section } from "@/components";
 import { Accordion } from "@/components";
 import { ParallaxEffect, StaggerFadeUp } from "@/components/animations";
+import ScrollAnimation from "@/components/animations/ScrollAnimation";
 
 const accordionData = [
   {
@@ -29,16 +30,14 @@ const accordionData = [
 export default function FAQ() {
   return (
     <Section>
-      <ParallaxEffect>
-        <StaggerFadeUp>
-          <Section.Header>
-            <Section.Heading className="mb-8">FAQ</Section.Heading>
-          </Section.Header>
-          <Container>
-            <Accordion accordionData={accordionData} />
-          </Container>
-        </StaggerFadeUp>
-      </ParallaxEffect>
+      <Section.Header>
+        <ScrollAnimation>
+          <Section.Heading className="mb-8">FAQ</Section.Heading>
+        </ScrollAnimation>
+      </Section.Header>
+      <Container>
+        <Accordion accordionData={accordionData} />
+      </Container>
     </Section>
   );
 }

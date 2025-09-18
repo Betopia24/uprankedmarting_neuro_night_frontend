@@ -51,7 +51,7 @@ interface TableProps {
 }
 
 const DEFAULT_PAGE = 1;
-const DEFAULT_LIMIT = 5;
+const DEFAULT_LIMIT = 10;
 const DEFAULT_SORT = "";
 
 function filterData(data: TableData[], searchQuery: string): TableData[] {
@@ -214,7 +214,7 @@ export default async function OrganizationNumbersPage({
                             <span
                               key={capKey}
                               className={`px-1 rounded text-white text-xs ${
-                                enabled ? "bg-green-500" : "bg-gray-400"
+                                enabled ? "bg-green-500" : "bg-gray-500"
                               }`}
                               title={capKey}
                             >
@@ -233,7 +233,7 @@ export default async function OrganizationNumbersPage({
                         >
                           <span
                             className={`px-2 py-1 rounded text-xs font-semibold text-white ${
-                              value ? "bg-green-500" : "bg-gray-400"
+                              value ? "bg-gray-500" : "bg-emerald-400"
                             }`}
                           >
                             {value ? "Purchased" : "Available"}

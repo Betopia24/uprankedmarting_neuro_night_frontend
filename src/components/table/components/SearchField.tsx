@@ -52,7 +52,7 @@ export default function SearchField({
         type="text"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder="Search..."
+        placeholder="Search by name..."
         className={cn(
           "w-full pl-10 pr-10 py-2 rounded-lg border border-gray-300 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm"
         )}

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { LucideChevronDown } from "lucide-react";
 import { motion } from "framer-motion";
+import ScrollAnimation from "./animations/ScrollAnimation";
 
 type AccordionItem = {
   id: number | string;
@@ -34,7 +35,7 @@ export default function Accordion<T extends AccordionItem>({
       {accordionData.map((item) => {
         const isActive = activeIndex === item.id;
         return (
-          <div
+          <ScrollAnimation
             className="space-y-2.5 border-b border-gray-300 pb-2"
             key={item.id}
           >
@@ -65,7 +66,7 @@ export default function Accordion<T extends AccordionItem>({
             >
               <p className="pt-2">{item.content}</p>
             </motion.div>
-          </div>
+          </ScrollAnimation>
         );
       })}
     </div>

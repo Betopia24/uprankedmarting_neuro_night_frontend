@@ -64,7 +64,7 @@ export default function AgentProfileCard({
 function Stats({ progress, label }: { progress: number; label: string }) {
   return (
     <div className="flex flex-col text-center">
-      <span className="text-base font-semibold">{progress}</span>
+      <span className="text-base font-semibold">{progress || 0}</span>
       <span className="text-gray-500 text-xs">{label}</span>
     </div>
   );
