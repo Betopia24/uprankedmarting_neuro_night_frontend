@@ -40,7 +40,7 @@ export const dashboardNavigation = {
       icon: "phoneCall",
       href: paths.organizationCallLogsPath(),
     },
-    {
+    { 
       name: "Agent Management",
       icon: "userCog",
       href: paths.organizationAgentManagementPath(),

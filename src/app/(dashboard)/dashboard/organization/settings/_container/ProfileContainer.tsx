@@ -1,19 +1,22 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useEffect, useState } from "react"
-import FormField from "@/features/auth/FormField"
-import { Button } from "@/components/ui/button"
-import { useAuth } from "@/components/AuthProvider"
-import { toast } from "sonner"
-import ImageUpload from "./image-upload"
-import { getProfileInfo, updateProfileSettings } from "@/app/api/profile-settings/profile-settings"
+import type React from "react";
+import { useEffect, useState } from "react";
+import FormField from "@/features/auth/FormField";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/components/AuthProvider";
+import { toast } from "sonner";
+import ImageUpload from "./image-upload";
+import {
+  getProfileInfo,
+  updateProfileSettings,
+} from "@/app/api/profile-settings/profile-settings";
 
-const ProfileContainerPage = () => {
-  const auth = useAuth()
-  const token = auth?.token
+const ProfileContainerPage = ({ planLevel }: { planLevel: string }) => {
+  const auth = useAuth();
+  const token = auth?.token;
 
-  const [profileImage, setProfileImage] = useState<File | null>(null)
+  const [profileImage, setProfileImage] = useState<File | null>(null);
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -22,20 +25,18 @@ const ProfileContainerPage = () => {
     industry: "",
     website: "",
     serviceAddress: "",
-  })
+  });
 
   useEffect(() => {
-    if (!token) return
-
     const fetchProfile = async () => {
       try {
-        const res = await getProfileInfo(auth?.user?.id || "", token)
-        if (!res.ok) throw new Error("Failed to load profile")
-        const data = await res.json()
+        const res = await getProfileInfo(auth?.user?.id || "", token || "");
+        if (!res.ok) throw new Error("Failed to load profile");
+        const data = await res.json();
 
-        console.log("Profile info:", data)
+        console.log("Profile info:", data);
 
-        const user = data.data
+        const user = data.data;
 
         setFormData({
           fullName: user.name || "",
@@ -44,29 +45,29 @@ const ProfileContainerPage = () => {
           industry: user.ownedOrganization?.industry || "",
           website: user.ownedOrganization?.websiteLink || "",
           serviceAddress: user.ownedOrganization?.address || "",
-        })
+        });
       } catch (error) {
-        console.error(error)
+        console.error(error);
       }
-    }
+    };
 
-    fetchProfile()
-  }, [token, auth?.user?.id])
+    fetchProfile();
+  }, [token, auth?.user?.id]);
 
   const handleChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleImageChange = (file: File | null) => {
-    setProfileImage(file)
-  }
+    setProfileImage(file);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!token) {
-      toast.error("You must be logged in to update your profile")
-      return
+      toast.error("You must be logged in to update your profile");
+      return;
     }
 
     const payload = {
@@ -80,37 +81,31 @@ const ProfileContainerPage = () => {
         address: formData.serviceAddress,
         websiteLink: formData.website,
       },
-    }
-
-    console.log("getprofileinfo: ", getProfileInfo);
-    console.log("Payload: ", payload)
-    console.log("Token available:", token)
-    console.log("Profile image:", profileImage)
-
+    };
     try {
-      const res = await updateProfileSettings(payload, token, profileImage)
+      const res = await updateProfileSettings(payload, token, profileImage);
 
       if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}))
-        console.error("API Error:", res.status, errorData)
-        throw new Error(`Failed to update profile: ${res.status}`)
+        const errorData = await res.json().catch(() => ({}));
+        console.error("API Error:", res.status, errorData);
+        throw new Error(`Failed to update profile: ${res.status}`);
       }
 
-      const data = await res.json()
-      toast.success("Profile updated successfully")
-      console.log("Profile updated successfully:", data)
+      const data = await res.json();
+      toast.success("Profile updated successfully");
+      console.log("Profile updated successfully:", data);
     } catch (err) {
-      console.error("Profile update failed:", err)
-      toast.error("Failed to update profile settings")
+      console.error("Profile update failed:", err);
+      toast.error("Failed to update profile settings");
     }
-  }
+  };
 
   if (!auth) {
     return (
       <div className="max-w-5xl mx-auto">
         <p>Loading authentication...</p>
       </div>
-    )
+    );
   }
 
   if (!token) {
@@ -118,20 +113,26 @@ const ProfileContainerPage = () => {
       <div className="max-w-5xl mx-auto">
         <p>Please log in to access your profile settings.</p>
       </div>
-    )
+    );
   }
 
   return (
     <div className="max-w-5xl mx-auto p-6">
       <div className="mb-8">
         <ImageUpload
-          currentImage={typeof auth.user?.image === "string" ? auth.user?.image : null}
+          currentImage={
+            typeof auth.user?.image === "string" ? auth.user?.image : null
+          }
           onImageChange={handleImageChange}
         />
+        <p className="text-sm text-emerald-500 font-semibold text-center">
+          Purchased Plan: {planLevel}
+        </p>
       </div>
 
-
-      <h1 className="text-2xl font-semibold text-black mb-6">Personal Information</h1>
+      <h1 className="text-2xl font-semibold text-black mb-6">
+        Personal Information
+      </h1>
 
       <form onSubmit={handleSubmit}>
         <div className="grid md:grid-cols-3 grid-cols-1 gap-4 mb-4">
@@ -204,7 +205,7 @@ const ProfileContainerPage = () => {
         </div>
       </form>
     </div>
-  )
-}
+  );
+};
 
-export default ProfileContainerPage
+export default ProfileContainerPage;

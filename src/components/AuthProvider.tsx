@@ -2,6 +2,22 @@
 
 import React, { createContext, useContext, useState } from "react";
 
+interface Agent {
+  sip_username: string;
+  isAvailable: boolean;
+  totalCalls: number;
+  successCalls: number;
+  jobTitle: string;
+  department: string;
+  status: string;
+  droppedCalls: number;
+}
+
+interface OrganizationInfo {
+  id: string;
+  name: string;
+}
+
 interface User {
   id: string;
   email: string;
@@ -10,20 +26,8 @@ interface User {
   image: string;
   phone: string;
   isVerified: boolean;
-  Agent: {
-    sip_username: string;
-    isAvailable: boolean;
-    totalCalls: number;
-    successCalls: number;
-    jobTitle: string;
-    department: string;
-    status: string;
-    droppedCalls: number;
-  };
-  ownedOrganization: {
-    id: string;
-    name: string;
-  } | null;
+  Agent: Agent | null; // Allow Agent to be null
+  ownedOrganization: OrganizationInfo | null;
 }
 
 interface AuthContextType {
@@ -35,16 +39,44 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Type guard to validate User structure
+function isValidUser(user: User): user is User {
+  return (
+    user &&
+    typeof user.id === "string" &&
+    typeof user.email === "string" &&
+    typeof user.role === "string" &&
+    typeof user.name === "string" &&
+    typeof user.image === "string" &&
+    typeof user.phone === "string" &&
+    typeof user.isVerified === "boolean" &&
+    (user.Agent === null ||
+      (typeof user.Agent === "object" &&
+        typeof user.Agent.sip_username === "string" &&
+        typeof user.Agent.isAvailable === "boolean"))
+  );
+}
+
 export function AuthProvider({
   children,
   initialUser,
   token,
 }: {
   children: React.ReactNode;
-  initialUser?: User | null;
+  initialUser?: any; // Use any temporarily for flexibility
   token?: string;
 }) {
-  const [user, setUser] = useState<User | null>(initialUser || null);
+  // Validate and normalize the initialUser data
+  const normalizedInitialUser =
+    initialUser && isValidUser(initialUser)
+      ? {
+          ...initialUser,
+          Agent: initialUser.Agent || null, // Ensure Agent is null if undefined
+          ownedOrganization: initialUser.ownedOrganization || null, // Ensure ownedOrganization is null if undefined
+        }
+      : null;
+
+  const [user, setUser] = useState<User | null>(normalizedInitialUser);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
@@ -58,9 +90,14 @@ export function AuthProvider({
 
       if (response.ok) {
         const { user: userData } = await response.json();
-        setUser(userData);
-
-        return true;
+        if (isValidUser(userData)) {
+          setUser({
+            ...userData,
+            Agent: userData.Agent || null,
+            ownedOrganization: userData.ownedOrganization || null,
+          });
+          return true;
+        }
       }
       return false;
     } catch {
@@ -75,7 +112,6 @@ export function AuthProvider({
       console.error("Logout error:", error);
     } finally {
       setUser(null);
-
       window.location.href = "/";
     }
   };

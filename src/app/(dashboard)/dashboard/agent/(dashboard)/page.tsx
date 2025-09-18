@@ -66,7 +66,7 @@ const Dashboard: React.FC = () => {
   }
 
   const successRate =
-    user.Agent?.totalCalls > 0
+    user.Agent && user.Agent?.totalCalls > 0
       ? Math.round(
           ((user.Agent.successCalls || 0) / user.Agent.totalCalls) * 100
         )
@@ -158,7 +158,9 @@ const Dashboard: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <TwilioInboundAgent identity={user.Agent.sip_username} />
+              <TwilioInboundAgent
+                identity={(user.Agent && user.Agent.sip_username) || ""}
+              />
             </motion.div>
           </div>
 

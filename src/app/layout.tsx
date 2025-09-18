@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { env } from "@/env";
 import { AuthProvider } from "@/components/AuthProvider";
 import { getServerAuth } from "@/lib/auth";
-import { AuthMe } from "@/types/user";
 
 const inter = Inter({
   variable: "--font-sans",
