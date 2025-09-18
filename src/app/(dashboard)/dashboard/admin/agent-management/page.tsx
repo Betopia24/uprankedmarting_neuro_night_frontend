@@ -76,7 +76,8 @@ async function getAgents(
     if (!res.ok) throw new Error(`Network error: ${res.status}`);
     return res.json();
   } catch (err) {
-    console.error("Server fetch error:", err);
+    env.NEXT_PUBLIC_APP_ENV === "development" &&
+      console.error("Server fetch error:", err);
     return null;
   }
 }

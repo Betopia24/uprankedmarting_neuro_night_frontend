@@ -61,7 +61,6 @@ export async function getMe(): Promise<Me | null> {
     const accessToken = cookieStore.get("accessToken")?.value;
 
     if (!accessToken) {
-      console.log("No access token found");
       return null;
     }
 
@@ -75,19 +74,18 @@ export async function getMe(): Promise<Me | null> {
     });
 
     if (!res.ok) {
-      console.log("Auth check failed:", res.status, res.statusText);
       return null;
     }
 
     const data: AuthResponse = await res.json();
 
     if (!data?.success) {
-      console.log("Invalid auth response:", data);
       return null;
     }
     return data.data;
   } catch (error) {
-    console.error("Auth check error:", error);
+    env.NEXT_PUBLIC_APP_ENV === "development" &&
+      console.error("Auth check error:", error);
     return null;
   }
 }

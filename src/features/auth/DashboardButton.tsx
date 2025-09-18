@@ -25,7 +25,6 @@ export default function DashboardButton({
   ...props
 }: DashboardButtonProps) {
   const { user } = useAuth();
-  console.log(user);
   return (
     <Button
       className={cn("rounded-full", className)}

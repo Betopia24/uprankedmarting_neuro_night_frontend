@@ -9,8 +9,8 @@ import { AgentUser, StatusType } from "@/types/agent";
 export default function AgentsList({
   users,
   statusParam,
-  // metadata,
-}: {
+}: // metadata,
+{
   users: AgentUser[];
   statusParam: StatusType;
   metadata: { page: number; limit: number; total: number; totalPages: number };
@@ -30,8 +30,6 @@ export default function AgentsList({
       prevAgents.filter((agent) => agent.id !== agentId)
     );
   };
-
-  // console.log("agents", agents);
 
   return (
     <div className="space-y-4">

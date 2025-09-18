@@ -170,7 +170,8 @@ export default function UpdateAgentForm({
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Update failed:", response.status, errorText);
+        env.NEXT_PUBLIC_APP_ENV === "development" &&
+          console.error("Update failed:", response.status, errorText);
         toast.error(`Failed: ${response.status} ${response.statusText}`);
         return;
       }
@@ -183,7 +184,8 @@ export default function UpdateAgentForm({
 
       toast.success(json.message || "Agent updated successfully!");
     } catch (error) {
-      console.error("Unexpected error:", error);
+      env.NEXT_PUBLIC_APP_ENV === "development" &&
+        console.error("Unexpected error:", error);
       toast.error("Unexpected error occurred. Please check your connection.");
     }
   };

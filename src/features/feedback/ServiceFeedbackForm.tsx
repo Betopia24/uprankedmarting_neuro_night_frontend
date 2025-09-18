@@ -148,7 +148,8 @@ export default function ServiceFeedbackForm() {
         errorMessage = err;
       }
 
-      console.error("Feedback submission error:", err);
+      env.NEXT_PUBLIC_APP_ENV === "development" &&
+        console.error("Feedback submission error:", err);
       toast.error(errorMessage);
     }
   };

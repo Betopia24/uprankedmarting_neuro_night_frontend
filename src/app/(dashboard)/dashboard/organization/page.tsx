@@ -62,8 +62,6 @@ async function fetchDashboardStats(): Promise<DashboardStatsData | null> {
       return null;
     }
 
-    console.log(json.data);
-
     // No runtime validation here, trusting the API shape
     return json.data;
   } catch (error) {

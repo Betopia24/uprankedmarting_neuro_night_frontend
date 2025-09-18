@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Heading } from "@/components";
 import HumanUploadedList from "./HumanUploadedFiles";
 import { useAuth } from "@/components/AuthProvider";
+import { env } from "@/env";
 
 type HumanFile = { id: string; fileName: string };
 
@@ -49,11 +50,9 @@ export default function HumanFilesWrapper({
         })
       );
 
-      console.log(data);
-
       setFiles(normalizedData);
     } catch (err) {
-      console.error(err);
+      env.NEXT_PUBLIC_APP_ENV === "development" && console.error(err);
       toast.error("Failed to fetch files");
     } finally {
       setLoading(false);

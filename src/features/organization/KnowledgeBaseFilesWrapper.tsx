@@ -5,6 +5,7 @@ import FileUpload from "@/components/FileUpload";
 import KnowledgeBaseFiles from "./KnowledgeBaseFiles";
 import { useCallback, useEffect, useState } from "react";
 import { Heading } from "@/components";
+import { env } from "@/env";
 
 type KnowledgeFile = {
   knowledgeBaseId: string;
@@ -39,7 +40,7 @@ export default function KnowledgeBaseFilesWrapper({
       const data = await response.json();
       setFiles(data.knowledgeBaseList || []);
     } catch (err) {
-      console.error(err);
+      env.NEXT_PUBLIC_APP_ENV === "development" && console.error(err);
       toast.error("Failed to fetch files");
     } finally {
       setLoading(false);

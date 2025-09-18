@@ -26,8 +26,6 @@ export default async function CheckoutPage({
   const planData = await response.json();
   const only_ai = planData.data.planLevel === "only_ai";
 
-  console.log({ planId, ci, ts, type, np });
-
   return (
     <>
       {

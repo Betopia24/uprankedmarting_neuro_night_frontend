@@ -34,8 +34,6 @@ const ProfileContainerPage = ({ planLevel }: { planLevel: string }) => {
         if (!res.ok) throw new Error("Failed to load profile");
         const data = await res.json();
 
-        console.log("Profile info:", data);
-
         const user = data.data;
 
         setFormData({
@@ -93,7 +91,6 @@ const ProfileContainerPage = ({ planLevel }: { planLevel: string }) => {
 
       const data = await res.json();
       toast.success("Profile updated successfully");
-      console.log("Profile updated successfully:", data);
     } catch (err) {
       console.error("Profile update failed:", err);
       toast.error("Failed to update profile settings");

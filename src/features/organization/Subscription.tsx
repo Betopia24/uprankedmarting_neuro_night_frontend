@@ -13,6 +13,7 @@ import {
   useElements,
 } from "@stripe/react-stripe-js";
 import { useAuth } from "@/components/AuthProvider";
+import { env } from "@/env";
 
 interface FormData {
   cardholderName: string;
@@ -141,8 +142,6 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
         paymentMethodId: paymentMethod.id, // <-- server needs this
       };
 
-      console.log({ subscriptionData });
-
       const createdSubscriptionResponse = await fetch(
         process.env.NEXT_PUBLIC_API_URL + "/subscriptions/create-subscription",
         {
@@ -195,7 +194,7 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
         );
       }
     } catch (err: unknown) {
-      console.error("Error:", err);
+      env.NEXT_PUBLIC_APP_ENV === "development" && console.error("Error:", err);
 
       let message = "Failed to process subscription";
 
