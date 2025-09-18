@@ -55,7 +55,6 @@ const GoogleSheetsIntegration: React.FC<GoogleSheetsIntegrationProps> = ({
       );
       if (error.response?.status === 401) {
         toast.error("Session expired. Please log in again.");
-        localStorage.removeItem("token");
         router.push("/auth/login");
       } else {
         toast.error(
@@ -70,7 +69,8 @@ const GoogleSheetsIntegration: React.FC<GoogleSheetsIntegrationProps> = ({
 
   // Handle Google Sheets connection
   const handleConnect = async () => {
-    const token = localStorage.getItem("token");
+    const token = auth?.token;
+
     if (!token) {
       toast.error("Please log in to connect Google Sheets");
       router.push("/auth/login");
@@ -92,7 +92,6 @@ const GoogleSheetsIntegration: React.FC<GoogleSheetsIntegrationProps> = ({
       console.error("Connect error:", error.response?.data || error.message);
       if (error.response?.status === 401) {
         toast.error("Session expired. Please log in again.");
-        localStorage.removeItem("token");
         router.push("/auth/login");
       } else {
         toast.error(
@@ -106,7 +105,7 @@ const GoogleSheetsIntegration: React.FC<GoogleSheetsIntegrationProps> = ({
 
   // Handle Google Sheets disconnection
   const handleDisconnect = async () => {
-    const token = localStorage.getItem("token");
+    const token = auth?.token;
     if (!token) {
       toast.error("Please log in to disconnect Google Sheets");
       router.push("/auth/login");
@@ -127,7 +126,6 @@ const GoogleSheetsIntegration: React.FC<GoogleSheetsIntegrationProps> = ({
       console.error("Disconnect error:", error.response?.data || error.message);
       if (error.response?.status === 401) {
         toast.error("Session expired. Please log in again.");
-        localStorage.removeItem("token");
         router.push("/auth/login");
       } else {
         toast.error(
