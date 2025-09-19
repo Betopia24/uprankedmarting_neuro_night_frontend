@@ -25,8 +25,10 @@ import {
   PhoneIncoming,
   Clock,
   Signal,
+  X,
 } from "lucide-react";
 import { getErrorMessage } from "@/lib/getErrorMessage";
+import { Button } from "./ui/button";
 
 // Configuration constants
 const CONFIG = {
@@ -1468,17 +1470,20 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
     if (!showSettings) return null;
 
     return (
-      <div className="bg-white rounded-lg shadow-lg p-6 border border-slate-200">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="font-semibold text-gray-900">Audio Settings</h4>
+      <div className="max-w-lg w-full mx-auto rounded-lg p-6 relative overflow-hidden border border-gray-300 bg-gradient-to-br from-emerald-50 via-gray-50 to-white shadow-lg text-gray-900">
+        <div className="flex items-center justify-between mb-6">
+          <h4 className="font-semibold text-emerald-600 text-lg">
+            Audio Settings
+          </h4>
           <button
             onClick={() => setShowSettings(false)}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-gray-400 hover:text-emerald-600 transition-colors"
             aria-label="Close settings"
           >
-            <Settings className="w-5 h-5" />
+            <X className="w-5 h-5" />
           </button>
         </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1487,7 +1492,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
             <select
               value={audioState.selectedInput || ""}
               onChange={(e) => setInputDevice(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 rounded-md text-sm bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-400"
             >
               <option value="">Default</option>
               {audioState.inputDevices.map((device) => (
@@ -1496,13 +1501,13 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
                 </option>
               ))}
             </select>
-            <div className="mt-2">
+            <div className="mt-3">
               <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                 <div
                   style={{
                     width: `${Math.min(audioState.inputLevel * 100, 100)}%`,
                   }}
-                  className="h-full bg-green-500 transition-all duration-100 rounded-full"
+                  className="h-full bg-emerald-400 transition-all duration-100 rounded-full"
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1">
@@ -1512,6 +1517,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
               </p>
             </div>
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Speaker
@@ -1519,7 +1525,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
             <select
               value={audioState.selectedOutput || ""}
               onChange={(e) => setOutputDevice(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 rounded-md text-sm bg-white border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-400"
             >
               <option value="">Default</option>
               {audioState.outputDevices.map((device) => (
@@ -1530,17 +1536,20 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
             </select>
             <button
               onClick={testAudioDevices}
-              className="mt-2 text-xs bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded transition-colors"
+              className="mt-3 text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1 rounded transition-colors"
             >
               Test Speaker
             </button>
           </div>
         </div>
-        <div className="mt-6 pt-4 border-t border-gray-200">
-          <h5 className="font-medium text-gray-900 mb-3">Connection Status</h5>
-          <div className="grid grid-cols-2 gap-4 text-sm">
+
+        <div className="mt-8 pt-6 border-t border-gray-300">
+          <h5 className="font-semibold text-emerald-600 mb-4 text-lg">
+            Connection Status
+          </h5>
+          <div className="grid grid-cols-2 gap-6 text-sm text-gray-700">
             <div>
-              <span className="text-gray-600">WebSocket:</span>
+              <span>WebSocket:</span>
               <span
                 className={`ml-2 font-medium ${
                   connectionState.websocket === "connected"
@@ -1552,7 +1561,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
               </span>
             </div>
             <div>
-              <span className="text-gray-600">Device:</span>
+              <span>Device:</span>
               <span
                 className={`ml-2 font-medium ${
                   connectionState.device === "registered"
@@ -1564,13 +1573,13 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
               </span>
             </div>
             <div>
-              <span className="text-gray-600">Reconnect attempts:</span>
+              <span>Reconnect attempts:</span>
               <span className="ml-2 font-medium text-gray-900">
                 {connectionState.reconnectAttempts}
               </span>
             </div>
             <div>
-              <span className="text-gray-600">Health:</span>
+              <span>Health:</span>
               <span
                 className={`ml-2 font-medium ${
                   connectionState.isHealthy ? "text-green-600" : "text-red-600"
@@ -1581,24 +1590,23 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
             </div>
           </div>
         </div>
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <div className="flex gap-2">
-            {connectionState.device !== "registered" && (
-              <button
-                onClick={initializeSystem}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
-              >
-                Initialize System
-              </button>
-            )}
+
+        <div className="mt-6 pt-6 border-t border-gray-300 flex gap-4">
+          {connectionState.device !== "registered" && (
             <button
-              onClick={connectWebSocket}
-              disabled={connectionState.websocket === "connected"}
-              className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+              onClick={initializeSystem}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded text-sm font-semibold transition-colors"
             >
-              Reconnect
+              Initialize System
             </button>
-          </div>
+          )}
+          <button
+            onClick={connectWebSocket}
+            disabled={connectionState.websocket === "connected"}
+            className="bg-green-700 hover:bg-green-800 disabled:bg-gray-400 text-white px-5 py-2 rounded text-sm font-semibold transition-colors"
+          >
+            Reconnect
+          </button>
         </div>
       </div>
     );
@@ -1647,7 +1655,17 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
           </div>
         </div>
       )}
-      <div className="px-4">{CallInterface}</div>
+      <div className="relative">
+        <Button
+          size="icon"
+          variant="ghost"
+          className="absolute z-20 right-0 top-0"
+          onClick={() => setShowSettings(!showSettings)}
+        >
+          <Settings size={16} />
+        </Button>
+        {CallInterface}
+      </div>
       {SettingsPanel}
     </div>
   );
