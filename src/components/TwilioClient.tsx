@@ -27,6 +27,7 @@ import {
   Signal,
 } from "lucide-react";
 import { getErrorMessage } from "@/lib/getErrorMessage";
+import { Button } from "./ui/button";
 
 // Configuration constants
 const CONFIG = {
@@ -1199,19 +1200,17 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
                 </button>
               )}
             </div>
-            {audioState.inputLevel > CONFIG.AUDIO_LEVEL_THRESHOLD && (
-              <div className="mt-6">
-                <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
-                  <div
-                    style={{
-                      width: `${Math.min(audioState.inputLevel * 100, 100)}%`,
-                    }}
-                    className="h-full bg-green-400 transition-all duration-100 rounded-full"
-                  />
-                </div>
-                <p className="text-xs text-slate-400 mt-1">Microphone Active</p>
+            <div className="mt-6">
+              <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
+                <div
+                  style={{
+                    width: `${Math.min(audioState.inputLevel * 100, 100)}%`,
+                  }}
+                  className="h-full bg-green-400 transition-all duration-100 rounded-full"
+                />
               </div>
-            )}
+              <p className="text-xs text-slate-400 mt-1">Microphone Active</p>
+            </div>
           </div>
         </div>
       );
@@ -1382,44 +1381,40 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
               </div>
               {(audioState.inputLevel > 0 || audioState.outputLevel > 0) && (
                 <div className="space-y-2">
-                  {audioState.inputLevel > 0 && (
-                    <div>
-                      <div className="flex justify-between text-xs text-slate-500 mb-1">
-                        <span>Input</span>
-                        <span>{Math.round(audioState.inputLevel * 100)}%</span>
-                      </div>
-                      <div className="w-full h-1 bg-slate-700 rounded-full overflow-hidden">
-                        <div
-                          style={{
-                            width: `${Math.min(
-                              audioState.inputLevel * 100,
-                              100
-                            )}%`,
-                          }}
-                          className="h-full bg-green-400 transition-all duration-100 rounded-full"
-                        />
-                      </div>
+                  <div>
+                    <div className="flex justify-between text-xs text-slate-500 mb-1">
+                      <span>Input</span>
+                      <span>{Math.round(audioState.inputLevel * 100)}%</span>
                     </div>
-                  )}
-                  {audioState.outputLevel > 0 && (
-                    <div>
-                      <div className="flex justify-between text-xs text-slate-500 mb-1">
-                        <span>Output</span>
-                        <span>{Math.round(audioState.outputLevel * 100)}%</span>
-                      </div>
-                      <div className="w-full h-1 bg-slate-700 rounded-full overflow-hidden">
-                        <div
-                          style={{
-                            width: `${Math.min(
-                              audioState.outputLevel * 100,
-                              100
-                            )}%`,
-                          }}
-                          className="h-full bg-blue-400 transition-all duration-100 rounded-full"
-                        />
-                      </div>
+                    <div className="w-full h-1 bg-slate-700 rounded-full overflow-hidden">
+                      <div
+                        style={{
+                          width: `${Math.min(
+                            audioState.inputLevel * 100,
+                            100
+                          )}%`,
+                        }}
+                        className="h-full bg-green-400 transition-all duration-100 rounded-full"
+                      />
                     </div>
-                  )}
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-xs text-slate-500 mb-1">
+                      <span>Output</span>
+                      <span>{Math.round(audioState.outputLevel * 100)}%</span>
+                    </div>
+                    <div className="w-full h-1 bg-slate-700 rounded-full overflow-hidden">
+                      <div
+                        style={{
+                          width: `${Math.min(
+                            audioState.outputLevel * 100,
+                            100
+                          )}%`,
+                        }}
+                        className="h-full bg-blue-400 transition-all duration-100 rounded-full"
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -1598,7 +1593,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
     <div className="space-y-6">
       {NotificationSystem}
 
-      {connectionState.device !== "registered" && (
+      {/* {connectionState.device !== "registered" && (
         <div className="bg-white rounded-lg shadow p-6 border border-slate-200">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
             Call Center Setup
@@ -1627,8 +1622,20 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
             </button>
           </div>
         </div>
-      )}
-      {CallInterface}
+      )} */}
+      <div className="relative">
+        <div className="absolute z-20 -right-1 top-0">
+          <Button
+            className="rounded-full"
+            onClick={() => setShowSettings(!showSettings)}
+            size="icon"
+            variant="ghost"
+          >
+            <Settings />
+          </Button>
+        </div>
+        {CallInterface}
+      </div>
       {SettingsPanel}
     </div>
   );
