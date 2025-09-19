@@ -27,7 +27,6 @@ import {
   Signal,
 } from "lucide-react";
 import { getErrorMessage } from "@/lib/getErrorMessage";
-import { env } from "@/env";
 
 // Configuration constants
 const CONFIG = {
@@ -280,6 +279,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       try {
         const newToken = await fetchToken();
         deviceRef.current.updateToken(newToken);
+        console.log("Token refreshed successfully");
         updateStatusMessage("Token refreshed");
         scheduleTokenRefresh();
       } catch (err) {
@@ -291,6 +291,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
             try {
               const newToken = await fetchToken();
               deviceRef.current.updateToken(newToken);
+              console.log("Token refresh retry successful");
               scheduleTokenRefresh();
             } catch (retryErr) {
               console.error("Token refresh retry failed:", retryErr);
@@ -326,6 +327,8 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
   // Call handlers
   const attachCallHandlers = useCallback(
     (call: Call) => {
+      console.log("Attaching enhanced call handlers");
+
       call.on("accept", () => {
         if (!isMountedRef.current) return;
 
@@ -350,6 +353,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       call.on("disconnect", () => {
         if (!isMountedRef.current) return;
 
+        console.log("Call disconnected");
         setCallState({
           state: "none",
           call: null,
@@ -380,6 +384,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       call.on("cancel", () => {
         if (!isMountedRef.current) return;
 
+        console.log("Call cancelled by caller");
         setCallState({
           state: "none",
           call: null,
@@ -430,6 +435,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       });
 
       call.on("warning-cleared", (name: string) => {
+        console.log("Call quality warning cleared:", name);
         setCallState((prev) => ({ ...prev, quality: "good" }));
       });
     },
@@ -439,6 +445,8 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
   // Device initialization and management
   const initializeDevice = useCallback(
     async (accessToken: string): Promise<Device> => {
+      console.log("Initializing Twilio Device with enhanced configuration...");
+
       if (deviceRef.current) {
         try {
           deviceRef.current.destroy();
@@ -465,6 +473,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
           isHealthy: true,
         }));
         updateStatusMessage("Device registered - Ready for calls");
+        console.log("Device registered successfully");
       });
 
       device.on("unregistered", () => {
@@ -502,6 +511,8 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       device.on("incoming", (call: Call) => {
         if (!isMountedRef.current) return;
 
+        console.log("Incoming call received:", call.parameters);
+
         const from = call.parameters.From || "Unknown";
 
         setCallState({
@@ -534,6 +545,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       });
 
       device.on("tokenWillExpire", async () => {
+        console.log("Token will expire, refreshing...");
         try {
           const newToken = await fetchToken();
           device.updateToken(newToken);
@@ -544,10 +556,12 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       });
 
       device.audio?.on("deviceChange", () => {
+        console.log("Audio devices changed");
         updateAudioDevices(device);
       });
 
       await updateAudioDevices(device);
+      console.log("Device initialized successfully");
       return device;
     },
     [
@@ -597,8 +611,11 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
   // WebSocket management with enhanced reliability
   const connectWebSocket = useCallback(() => {
     if (!user?.id || !token || !isMountedRef.current) {
+      console.log("Waiting for authentication...");
       return;
     }
+
+    console.log("Connecting WebSocket for user:", user.id);
 
     const wsUrl = getWebSocketUrl(user.id);
 
@@ -620,6 +637,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         }
 
         clearTimeout(connectionTimeout);
+        console.log("WebSocket connected");
 
         setConnectionState((prev) => ({
           ...prev,
@@ -671,6 +689,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         if (!isMountedRef.current) return;
 
         clearTimeout(connectionTimeout);
+        console.log("WebSocket disconnected:", event.code, event.reason);
 
         setConnectionState((prev) => ({
           ...prev,
@@ -683,8 +702,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         }
       };
     } catch (error) {
-      env.NEXT_PUBLIC_APP_ENV === "development" &&
-        console.error("WebSocket creation error:", error);
+      console.error("WebSocket creation error:", error);
       updateStatusMessage("Failed to create WebSocket connection", "error");
       scheduleReconnect();
     }
@@ -731,15 +749,19 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
 
   const handleWebSocketMessage = useCallback(
     (message: { type: string; data: { message?: string } }) => {
+      console.log("WebSocket message:", message);
+
       switch (message.type) {
         case "registration_success":
           updateStatusMessage("Agent registered successfully");
           break;
 
         case "incoming_call":
+          console.log("Call notification received via WebSocket");
           break;
 
         case "call_ended":
+          console.log("Call ended notification received");
           break;
 
         case "registration_error":
@@ -758,6 +780,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
           break;
 
         default:
+          console.log("Unknown message type:", message.type);
       }
     },
     [updateStatusMessage]
@@ -783,8 +806,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
 
       updateStatusMessage("Call accepted");
     } catch (err) {
-      env.NEXT_PUBLIC_APP_ENV === "development" &&
-        console.error("Failed to accept call:", err);
+      console.error("Failed to accept call:", err);
       updateStatusMessage("Failed to accept call", "error");
     }
   }, [updateStatusMessage]);
@@ -807,8 +829,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
 
       currentCallRef.current = null;
     } catch (err) {
-      env.NEXT_PUBLIC_APP_ENV === "development" &&
-        console.error("Failed to reject call:", err);
+      console.error("Failed to reject call:", err);
       updateStatusMessage("Failed to reject call", "error");
     }
   }, [updateStatusMessage]);
@@ -839,8 +860,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       });
       currentCallRef.current = null;
     } catch (err) {
-      env.NEXT_PUBLIC_APP_ENV === "development" &&
-        console.error("Failed to end call:", err);
+      console.error("Failed to end call:", err);
       updateStatusMessage("Failed to end call", "error");
     } finally {
       if (callTimerRef.current) clearInterval(callTimerRef.current);
@@ -860,43 +880,37 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       setAudioState((prev) => ({ ...prev, isMuted: newMutedState }));
       updateStatusMessage(newMutedState ? "Muted" : "Unmuted");
     } catch (err) {
-      env.NEXT_PUBLIC_APP_ENV === "development" &&
-        console.error("Failed to toggle mute:", err);
+      console.error("Failed to toggle mute:", err);
       updateStatusMessage("Failed to toggle mute", "error");
     }
   }, [audioState.isMuted, updateStatusMessage]);
 
   // Main initialization flow
-  useEffect(() => {
-    const initializeSystem = async () => {
-      try {
-        updateStatusMessage("Requesting microphone permission...");
-        await initializeAudioMonitoring();
+  const initializeSystem = useCallback(async () => {
+    try {
+      updateStatusMessage("Requesting microphone permission...");
+      await initializeAudioMonitoring();
 
-        updateStatusMessage("Fetching access token...");
-        const accessToken = await fetchToken();
+      updateStatusMessage("Fetching access token...");
+      const accessToken = await fetchToken();
 
-        updateStatusMessage("Initializing device...");
-        await initializeDevice(accessToken);
+      updateStatusMessage("Initializing device...");
+      await initializeDevice(accessToken);
 
-        updateStatusMessage("Registering device...");
-        await registerDevice();
+      updateStatusMessage("Registering device...");
+      await registerDevice();
 
-        scheduleTokenRefresh();
+      scheduleTokenRefresh();
 
-        if ("Notification" in window && Notification.permission === "default") {
-          await Notification.requestPermission();
-        }
-      } catch (err) {
-        env.NEXT_PUBLIC_APP_ENV === "development" &&
-          console.error("System initialization failed:", err);
-
-        const message = getErrorMessage(err, "System initialization failed");
-        updateStatusMessage(`Initialization failed: ${message}`, "error");
+      if ("Notification" in window && Notification.permission === "default") {
+        await Notification.requestPermission();
       }
-    };
+    } catch (err: unknown) {
+      console.error("System initialization failed:", err);
 
-    initializeSystem();
+      const message = getErrorMessage(err, "System initialization failed");
+      updateStatusMessage(`Initialization failed: ${message}`, "error");
+    }
   }, [
     initializeAudioMonitoring,
     fetchToken,
@@ -908,6 +922,8 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
 
   // Cleanup function
   const cleanup = useCallback(() => {
+    console.log("Cleaning up resources...");
+
     [
       reconnectTimeoutRef,
       heartbeatIntervalRef,
@@ -1011,8 +1027,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         setAudioState((prev) => ({ ...prev, selectedInput: deviceId }));
         updateStatusMessage("Input device updated");
       } catch (err) {
-        env.NEXT_PUBLIC_APP_ENV === "development" &&
-          console.error("Failed to set input device:", err);
+        console.error("Failed to set input device:", err);
         updateStatusMessage("Failed to update input device", "error");
       }
     },
@@ -1028,8 +1043,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         setAudioState((prev) => ({ ...prev, selectedOutput: deviceId }));
         updateStatusMessage("Output device updated");
       } catch (err) {
-        env.NEXT_PUBLIC_APP_ENV === "development" &&
-          console.error("Failed to set output device:", err);
+        console.error("Failed to set output device:", err);
         updateStatusMessage("Failed to update output device", "error");
       }
     },
@@ -1043,8 +1057,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       await deviceRef.current.audio.speakerDevices.test();
       updateStatusMessage("Audio test completed");
     } catch (err) {
-      env.NEXT_PUBLIC_APP_ENV === "development" &&
-        console.error("Failed to test audio devices:", err);
+      console.error("Failed to test audio devices:", err);
       updateStatusMessage("Audio test failed", "error");
     }
   }, [updateStatusMessage]);
@@ -1125,45 +1138,41 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
   const CallInterface = useMemo(() => {
     if (callState.state === "none") {
       return (
-        <div className="max-w-sm mx-auto bg-white/5 backdrop-blur-xl rounded-2xl p-6 shadow-2xl border border-white/10">
+        <div className="max-w-md mx-auto bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-8 shadow-2xl border border-slate-700">
           <div className="text-center">
-            <div className="mb-6 flex justify-center">
+            <div className="mb-4 flex justify-center">
               {ConnectionStatusIndicator}
             </div>
-            <div className="w-16 h-16 bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-6 relative shadow-lg">
-              <Phone className="w-7 h-7 text-slate-300" />
+            <div className="w-20 h-20 bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-6 relative">
+              <Phone className="w-8 h-8 text-slate-400" />
               {connectionState.isHealthy && (
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center shadow-sm">
+                <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
                   <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
                 </div>
               )}
             </div>
-            <h3 className="text-lg font-medium text-white mb-1">
+            <h3 className="text-xl font-semibold text-white mb-2">
               Ready for Calls
             </h3>
-            <p className="text-slate-400 text-sm mb-6">Agent: {identity}</p>
-            <div className="space-y-3 text-sm">
-              <div className="flex items-center justify-between bg-white/5 rounded-xl p-3">
-                <span className="text-slate-400">Status</span>
+            <p className="text-slate-400 mb-4">Agent: {identity}</p>
+            <div className="space-y-2 text-sm">
+              <p className="text-slate-500">
+                Status:{" "}
                 <span
-                  className={`font-medium text-xs px-2 py-1 rounded-lg ${
+                  className={`font-medium ${
                     connectionState.device === "registered"
-                      ? "text-emerald-400 bg-emerald-500/10"
-                      : "text-amber-400 bg-amber-500/10"
+                      ? "text-green-400"
+                      : "text-yellow-400"
                   }`}
                 >
                   {statusMessage}
                 </span>
-              </div>
+              </p>
               {connectionState.lastHeartbeat && (
-                <div className="flex items-center justify-between bg-white/5 rounded-xl p-3">
-                  <span className="text-slate-400">Last ping</span>
-                  <span className="text-slate-300 text-xs">
-                    {new Date(
-                      connectionState.lastHeartbeat
-                    ).toLocaleTimeString()}
-                  </span>
-                </div>
+                <p className="text-slate-500">
+                  Last ping:{" "}
+                  {new Date(connectionState.lastHeartbeat).toLocaleTimeString()}
+                </p>
               )}
               {!connectionState.isHealthy && (
                 <button
@@ -1171,35 +1180,25 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
                     connectWebSocket();
                     registerDevice();
                   }}
-                  className="w-full mt-4 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 hover:shadow-lg"
+                  className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
                 >
                   Reconnect
                 </button>
               )}
             </div>
-            <div className="h-[100px]">
-              <div
-                className={`overflow-hidden transition-all duration-500 ${
-                  audioState.inputLevel > CONFIG.AUDIO_LEVEL_THRESHOLD
-                    ? "max-h-32 opacity-100 mt-6"
-                    : "max-h-0 opacity-0 mt-0"
-                }`}
-              >
-                <div className="bg-white/5 rounded-xl p-4 transform transition-all duration-300">
-                  <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden mb-2">
-                    <div
-                      style={{
-                        width: `${Math.min(audioState.inputLevel * 100, 100)}%`,
-                      }}
-                      className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-100 rounded-full"
-                    />
-                  </div>
-                  <p className="text-xs text-slate-400 text-center">
-                    Microphone Active
-                  </p>
+            {audioState.inputLevel > CONFIG.AUDIO_LEVEL_THRESHOLD && (
+              <div className="mt-6">
+                <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
+                  <div
+                    style={{
+                      width: `${Math.min(audioState.inputLevel * 100, 100)}%`,
+                    }}
+                    className="h-full bg-green-400 transition-all duration-100 rounded-full"
+                  />
                 </div>
+                <p className="text-xs text-slate-400 mt-1">Microphone Active</p>
               </div>
-            </div>
+            )}
           </div>
         </div>
       );
@@ -1207,20 +1206,20 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
 
     if (callState.state === "incoming") {
       return (
-        <div className="max-w-sm mx-auto bg-white/5 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/10 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-blue-500/5 animate-pulse" />
+        <div className="max-w-md mx-auto bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-8 shadow-2xl border border-slate-700 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-green-400/10 to-blue-400/10 animate-pulse" />
           <div className="relative z-10">
             <div className="text-center mb-6">
-              <div className="text-sm font-medium text-emerald-400 mb-2 flex items-center justify-center gap-2">
+              <div className="text-sm font-medium text-green-400 mb-2 flex items-center justify-center gap-2">
                 <PhoneIncoming className="w-4 h-4 animate-bounce" />
                 Incoming Call
               </div>
             </div>
             <div className="text-center mb-8">
-              <div className="w-20 h-20 bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse shadow-lg">
-                <User className="w-10 h-10 text-slate-300" />
+              <div className="w-24 h-24 bg-gradient-to-br from-slate-600 to-slate-700 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+                <User className="w-12 h-12 text-slate-300" />
               </div>
-              <h2 className="text-xl font-semibold text-white mb-1">
+              <h2 className="text-2xl font-bold text-white mb-1">
                 {callState.from}
               </h2>
               <p className="text-slate-400 text-sm">Incoming Voice Call</p>
@@ -1228,17 +1227,17 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
             <div className="flex justify-center items-center gap-6 mb-6">
               <button
                 onClick={rejectCall}
-                className="w-14 h-14 bg-red-500/90 hover:bg-red-500 rounded-2xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95 backdrop-blur-sm"
+                className="w-16 h-16 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
                 aria-label="Reject call"
               >
-                <PhoneOff className="w-6 h-6 text-white" />
+                <PhoneOff className="w-7 h-7 text-white" />
               </button>
               <button
                 onClick={acceptCall}
-                className="w-16 h-16 bg-emerald-500/90 hover:bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95 animate-pulse backdrop-blur-sm"
+                className="w-20 h-20 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95 animate-pulse"
                 aria-label="Accept call"
               >
-                <PhoneCall className="w-7 h-7 text-white" />
+                <PhoneCall className="w-8 h-8 text-white" />
               </button>
               <button
                 onClick={() => {
@@ -1246,18 +1245,18 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
                     callState.call.ignore();
                   }
                 }}
-                className="w-14 h-14 bg-slate-600/90 hover:bg-slate-600 rounded-2xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95 backdrop-blur-sm"
+                className="w-16 h-16 bg-slate-600 hover:bg-slate-700 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
                 aria-label="Ignore call"
               >
-                <MessageCircle className="w-6 h-6 text-white" />
+                <MessageCircle className="w-7 h-7 text-white" />
               </button>
             </div>
             <div className="flex justify-center gap-6 text-xs text-slate-400">
-              <span className="w-14 text-center">Decline</span>
-              <span className="w-16 text-center font-medium text-emerald-400">
+              <span className="w-16 text-center">Decline</span>
+              <span className="w-20 text-center font-medium text-green-400">
                 Answer
               </span>
-              <span className="w-14 text-center">Ignore</span>
+              <span className="w-16 text-center">Ignore</span>
             </div>
           </div>
         </div>
@@ -1266,18 +1265,18 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
 
     if (callState.state === "active") {
       return (
-        <div className="max-w-sm mx-auto bg-white/5 backdrop-blur-xl rounded-3xl p-6 shadow-2xl border border-white/10">
+        <div className="max-w-md mx-auto bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-8 shadow-2xl border border-slate-700">
           <div className="relative z-10">
             <div className="text-center mb-6">
-              <div className="flex items-center justify-center gap-2 text-sm font-medium text-emerald-400 mb-3">
-                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+              <div className="flex items-center justify-center gap-2 text-sm font-medium text-green-400 mb-3">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                 Call Active
                 <div
                   className={`w-2 h-2 rounded-full ${
                     callState.quality === "excellent"
-                      ? "bg-emerald-400"
+                      ? "bg-green-400"
                       : callState.quality === "good"
-                      ? "bg-amber-400"
+                      ? "bg-yellow-400"
                       : callState.quality === "fair"
                       ? "bg-orange-400"
                       : "bg-red-400"
@@ -1290,162 +1289,126 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
               </div>
             </div>
             <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-gradient-to-br from-slate-700 to-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                <User className="w-8 h-8 text-slate-300" />
+              <div className="w-20 h-20 bg-gradient-to-br from-slate-600 to-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                <User className="w-10 h-10 text-slate-300" />
               </div>
-              <h2 className="text-lg font-medium text-white mb-1">
+              <h2 className="text-xl font-semibold text-white mb-1">
                 {callState.from}
               </h2>
-              <div className="flex items-center justify-center gap-2 min-h-[24px]">
-                <span className="text-slate-400 text-sm">Connected</span>
-                <div
-                  className={`overflow-hidden transition-all duration-300 ${
-                    callState.quality !== "excellent"
-                      ? "max-w-32 opacity-100"
-                      : "max-w-0 opacity-0"
-                  }`}
-                >
+              <p className="text-slate-400 text-sm flex items-center justify-center gap-2">
+                <span>Connected</span>
+                {callState.quality !== "excellent" && (
                   <span
-                    className={`text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap transition-all duration-300 ${
+                    className={`text-xs px-2 py-1 rounded-full ${
                       callState.quality === "good"
-                        ? "bg-amber-500/10 text-amber-400"
+                        ? "bg-yellow-900/50 text-yellow-300"
                         : callState.quality === "fair"
-                        ? "bg-orange-500/10 text-orange-400"
-                        : "bg-red-500/10 text-red-400"
+                        ? "bg-orange-900/50 text-orange-300"
+                        : "bg-red-900/50 text-red-300"
                     }`}
                   >
                     {callState.quality} quality
                   </span>
-                </div>
-              </div>
+                )}
+              </p>
             </div>
             <div className="flex justify-center items-center gap-4 mb-6">
               <button
                 onClick={toggleMute}
-                className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 ${
+                className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 ${
                   audioState.isMuted
-                    ? "bg-red-500/90 hover:bg-red-500"
-                    : "bg-slate-600/90 hover:bg-slate-600"
+                    ? "bg-red-500 hover:bg-red-600"
+                    : "bg-slate-600 hover:bg-slate-700"
                 }`}
                 aria-label={audioState.isMuted ? "Unmute" : "Mute"}
               >
                 {audioState.isMuted ? (
-                  <MicOff className="w-5 h-5 text-white" />
+                  <MicOff className="w-6 h-6 text-white" />
                 ) : (
-                  <Mic className="w-5 h-5 text-white" />
+                  <Mic className="w-6 h-6 text-white" />
                 )}
               </button>
               <button
                 onClick={endCall}
-                className="w-14 h-14 bg-red-500/90 hover:bg-red-500 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
+                className="w-16 h-16 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
                 aria-label="End call"
               >
-                <PhoneOff className="w-6 h-6 text-white" />
+                <PhoneOff className="w-7 h-7 text-white" />
               </button>
               <button
                 onClick={() => setShowSettings(!showSettings)}
-                className="w-12 h-12 bg-slate-600/90 hover:bg-slate-600 rounded-xl flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
+                className="w-14 h-14 bg-slate-600 hover:bg-slate-700 rounded-full flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
                 aria-label="Settings"
               >
-                <Settings className="w-5 h-5 text-white" />
+                <Settings className="w-6 h-6 text-white" />
               </button>
             </div>
             <div className="flex justify-center gap-4 mb-6">
-              <span className="text-xs text-slate-400 w-12 text-center">
+              <span className="text-xs text-slate-400 w-14 text-center">
                 {audioState.isMuted ? "Unmute" : "Mute"}
               </span>
-              <span className="text-xs text-slate-400 w-14 text-center">
+              <span className="text-xs text-slate-400 w-16 text-center">
                 End Call
               </span>
-              <span className="text-xs text-slate-400 w-12 text-center">
+              <span className="text-xs text-slate-400 w-14 text-center">
                 Settings
               </span>
             </div>
-            <div className="border-t border-white/10 pt-4 min-h-[120px]">
-              <div className="flex justify-between items-center text-xs text-slate-400 mb-3 h-[20px]">
+            <div className="border-t border-slate-700 pt-4">
+              <div className="flex justify-between items-center text-xs text-slate-400 mb-2">
                 <span className="flex items-center gap-2">
                   <Volume2 className="w-3 h-3" />
                   Audio Quality: {callState.quality}
                 </span>
-                <div
-                  className={`overflow-hidden transition-all duration-300 ${
-                    audioState.isMuted
-                      ? "max-w-20 opacity-100"
-                      : "max-w-0 opacity-0"
-                  }`}
-                >
-                  <span className="flex items-center gap-1 text-red-400 whitespace-nowrap">
+                {audioState.isMuted && (
+                  <span className="flex items-center gap-1 text-red-400">
                     <MicOff className="w-3 h-3" />
                     Muted
                   </span>
-                </div>
+                )}
               </div>
-              <div className="min-h-[80px]">
-                <div
-                  className={`overflow-hidden transition-all duration-500 ${
-                    audioState.inputLevel > 0 || audioState.outputLevel > 0
-                      ? "max-h-96 opacity-100"
-                      : "max-h-0 opacity-0"
-                  }`}
-                >
-                  <div className="space-y-3 transform transition-all duration-300">
-                    <div
-                      className={`overflow-hidden transition-all duration-300 ${
-                        audioState.inputLevel > 0
-                          ? "max-h-24 opacity-100"
-                          : "max-h-0 opacity-0"
-                      }`}
-                    >
-                      <div className="bg-white/5 rounded-lg p-3">
-                        <div className="flex justify-between text-xs text-slate-400 mb-2">
-                          <span>Input</span>
-                          <span>
-                            {Math.round(audioState.inputLevel * 100)}%
-                          </span>
-                        </div>
-                        <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                          <div
-                            style={{
-                              width: `${Math.min(
-                                audioState.inputLevel * 100,
-                                100
-                              )}%`,
-                            }}
-                            className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-100 rounded-full"
-                          />
-                        </div>
+              {(audioState.inputLevel > 0 || audioState.outputLevel > 0) && (
+                <div className="space-y-2">
+                  {audioState.inputLevel > 0 && (
+                    <div>
+                      <div className="flex justify-between text-xs text-slate-500 mb-1">
+                        <span>Input</span>
+                        <span>{Math.round(audioState.inputLevel * 100)}%</span>
+                      </div>
+                      <div className="w-full h-1 bg-slate-700 rounded-full overflow-hidden">
+                        <div
+                          style={{
+                            width: `${Math.min(
+                              audioState.inputLevel * 100,
+                              100
+                            )}%`,
+                          }}
+                          className="h-full bg-green-400 transition-all duration-100 rounded-full"
+                        />
                       </div>
                     </div>
-                    <div
-                      className={`overflow-hidden transition-all duration-300 ${
-                        audioState.outputLevel > 0
-                          ? "max-h-24 opacity-100"
-                          : "max-h-0 opacity-0"
-                      }`}
-                    >
-                      <div className="bg-white/5 rounded-lg p-3">
-                        <div className="flex justify-between text-xs text-slate-400 mb-2">
-                          <span>Output</span>
-                          <span>
-                            {Math.round(audioState.outputLevel * 100)}%
-                          </span>
-                        </div>
-                        <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                          <div
-                            style={{
-                              width: `${Math.min(
-                                audioState.outputLevel * 100,
-                                100
-                              )}%`,
-                            }}
-                            className="h-full bg-gradient-to-r from-blue-500 to-blue-400 transition-all duration-100 rounded-full"
-                          />
-                        </div>
+                  )}
+                  {audioState.outputLevel > 0 && (
+                    <div>
+                      <div className="flex justify-between text-xs text-slate-500 mb-1">
+                        <span>Output</span>
+                        <span>{Math.round(audioState.outputLevel * 100)}%</span>
+                      </div>
+                      <div className="w-full h-1 bg-slate-700 rounded-full overflow-hidden">
+                        <div
+                          style={{
+                            width: `${Math.min(
+                              audioState.outputLevel * 100,
+                              100
+                            )}%`,
+                          }}
+                          className="h-full bg-blue-400 transition-all duration-100 rounded-full"
+                        />
                       </div>
                     </div>
-                  </div>
+                  )}
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -1467,6 +1430,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
     toggleMute,
     endCall,
   ]);
+
   // Settings panel
   const SettingsPanel = useMemo(() => {
     if (!showSettings) return null;
@@ -1585,6 +1549,25 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
             </div>
           </div>
         </div>
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <div className="flex gap-2">
+            {connectionState.device !== "registered" && (
+              <button
+                onClick={initializeSystem}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+              >
+                Initialize System
+              </button>
+            )}
+            <button
+              onClick={connectWebSocket}
+              disabled={connectionState.websocket === "connected"}
+              className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+            >
+              Reconnect
+            </button>
+          </div>
+        </div>
       </div>
     );
   }, [
@@ -1594,11 +1577,44 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
     setInputDevice,
     setOutputDevice,
     testAudioDevices,
+    initializeSystem,
     connectWebSocket,
   ]);
 
   return (
     <div className="space-y-6">
+      {NotificationSystem}
+
+      {connectionState.device !== "registered" && (
+        <div className="bg-white rounded-lg shadow p-6 border border-slate-200">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+            Call Center Setup
+          </h3>
+          <p className="text-sm text-gray-600 mb-4">
+            Status: <span className="font-medium">{statusMessage}</span>
+          </p>
+          <p className="text-xs text-gray-500 mb-4">
+            Server: {API_BASE_URL} | Identity: {identity}
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={initializeSystem}
+              disabled={connectionState.device === "initializing"}
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+            >
+              {connectionState.device === "initializing"
+                ? "Initializing..."
+                : "Initialize System"}
+            </button>
+            <button
+              onClick={() => setShowSettings(!showSettings)}
+              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+            >
+              Settings
+            </button>
+          </div>
+        </div>
+      )}
       {CallInterface}
       {SettingsPanel}
     </div>
