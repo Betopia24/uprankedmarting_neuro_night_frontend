@@ -11,6 +11,7 @@ import {
 import { env } from "@/env";
 import { getServerAuth } from "@/lib/auth";
 import Link from "next/link";
+import clsx from "clsx";
 
 const config = {
   basePath: organizationExploreNumbersPath(),
@@ -98,9 +99,12 @@ export default async function OrganizationNumbersPage({
     headers: { Authorization: auth.accessToken },
   });
   if (!res.ok) throw new Error("Failed to fetch active numbers");
+  console.log("API responded with status:", res.status);
 
   const json = await res.json();
   const rawTableData: TableData[] = Array.isArray(json?.data) ? json.data : [];
+
+  console.log("Raw table data:", rawTableData);
 
   const queryParams = await searchParams;
   const page = Number(queryParams.page) || DEFAULT_PAGE;
@@ -253,17 +257,32 @@ export default async function OrganizationNumbersPage({
                   })}
 
                   {/* Buy button */}
+
                   <td className="border border-gray-200 px-3 py-2">
-                    <Link
-                      href={`${organizationBuyNumberPath()}?ts=${
-                        item.sid
-                      }&ci=${orgId}&np=${item.phoneNumber}`}
-                      passHref
-                    >
-                      <button className="px-3 cursor-pointer py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-                        Buy
+                    {item.isPurchased ? (
+                      <button
+                        type="button"
+                        disabled
+                        aria-disabled="true"
+                        className="px-3 py-1 rounded bg-gray-400 text-white cursor-not-allowed opacity-70"
+                      >
+                        Purchased
                       </button>
-                    </Link>
+                    ) : (
+                      <Link
+                        href={`${organizationBuyNumberPath()}?ts=${
+                          item.sid
+                        }&ci=${orgId}&np=${item.phoneNumber}`}
+                        passHref
+                      >
+                        <button
+                          type="button"
+                          className="px-3 w-full py-1 rounded bg-blue-600 text-white hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        >
+                          Buy
+                        </button>
+                      </Link>
+                    )}
                   </td>
                 </tr>
               ))}

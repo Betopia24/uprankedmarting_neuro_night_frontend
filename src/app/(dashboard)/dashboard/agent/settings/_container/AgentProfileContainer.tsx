@@ -4,18 +4,19 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import {
-  getAgentInfo,
-  uploadAgentProfileImage,
-} from "@/app/api/profile-settings/profile-settings";
+import { getAgentInfo, uploadAgentProfileImage } from "@/app/api/profile-settings/profile-settings";
 import ImageUpload from "../../../organization/settings/_container/image-upload";
-import { env } from "@/env";
+import { env } from "process";
 
 const AgentProfileContainerPage = () => {
   const auth = useAuth();
   const token = auth?.token;
+
+
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [bio, setBio] = useState<string>("");
+  const [isEditingBio, setIsEditingBio] = useState<boolean>(false);
 
   useEffect(() => {
     if (!token) {
@@ -26,8 +27,10 @@ const AgentProfileContainerPage = () => {
     const fetchAgentInfo = async () => {
       try {
         const response = await getAgentInfo(token);
+        console.log("Agent info:", response);
         if (response.success) {
           setUserData(response.data);
+          setBio(response.data.bio || "");
         } else {
           toast.error("Failed to load profile information");
         }
@@ -43,10 +46,28 @@ const AgentProfileContainerPage = () => {
     fetchAgentInfo();
   }, [token]);
 
+  const updateBio = async () => {
+    if (!token) return;
+    try {
+      await uploadAgentProfileImage((null as unknown) as File, token, bio);
+      toast.success("Bio updated successfully");
+      const refreshed = await getAgentInfo(token);
+      if (refreshed.success) {
+        setUserData(refreshed.data);
+        setBio(refreshed.data.bio || "");
+      }
+      setIsEditingBio(false);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Bio update failed");
+    }
+  };
+
+
   const handleImageChange = async (file: File | null) => {
     if (!token || !file) return;
     try {
-      await uploadAgentProfileImage(file, token);
+      await uploadAgentProfileImage(file, token, userData?.bio || "");
       toast.success("Image updated successfully");
       const refreshed = await getAgentInfo(token);
       if (refreshed.success) setUserData(refreshed.data);
@@ -71,7 +92,7 @@ const AgentProfileContainerPage = () => {
       </p>
     );
 
-  // Format date helper
+  // Date format helper
   const formatDate = (dateString: string) => {
     try {
       return new Date(dateString).toLocaleDateString("en-US");
@@ -80,10 +101,9 @@ const AgentProfileContainerPage = () => {
     }
   };
 
-  // Format time helper
+  // Time format helper
   const formatTime = (timeString: string) => {
     try {
-      // Convert 24-hour format to 12-hour format with AM/PM
       const [hours, minutes] = timeString.split(":");
       const hour = parseInt(hours);
       const ampm = hour >= 12 ? "PM" : "AM";
@@ -97,24 +117,42 @@ const AgentProfileContainerPage = () => {
   return (
     <div className="max-w-4xl mx-auto p-8">
       <div className="mb-8">
-        <ImageUpload
-          currentImage={userData.image || null}
-          onImageChange={handleImageChange}
-        />
+        <ImageUpload currentImage={userData.image || null} onImageChange={handleImageChange} />
       </div>
 
-      {/* Main Title */}
-      <h1 className="text-4xl font-bold text-black mb-16">
-        Profile Information
-      </h1>
+      {/* Bio Section */}
+      <h1 className="text-2xl font-bold text-black mb-4">Profile Bio</h1>
+      <div className="flex flex-col items-start gap-2 mb-4">
+        <textarea
+          value={bio}
+          onChange={(e) => setBio(e.target.value)}
+          readOnly={!isEditingBio}
+          className={`h-16 w-full text-gray-600 p-2 resize-none focus:outline-none focus:ring-0 bg-transparent border border-gray-300 ${isEditingBio ? "bg-white" : "bg-gray-100"
+            }`}
+        />
+
+        {!isEditingBio ? (
+          <button
+            type="button"
+            onClick={() => setIsEditingBio(true)}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Edit
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={updateBio}
+            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          >
+            Okay
+          </button>
+        )}
+      </div>
 
       {/* Personal Information Section */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-semibold text-black mb-9">
-          Personal Information
-        </h2>
-
-        {/* Three column grid for main personal info */}
+      <div className="mb-8 mt-10">
+        <h2 className="text-2xl font-semibold text-black mb-9">Personal Information</h2>
         <div className="grid grid-cols-3 gap-6 mb-6">
           <div className="bg-gray-50 border border-gray-300">
             <Label className="text-base font-bold text-black mb-2 block border-b-1 border-black p-2">
@@ -132,11 +170,7 @@ const AgentProfileContainerPage = () => {
               Date of Birth (MM/DD/YYYY)
             </Label>
             <textarea
-              value={
-                userData.Agent?.dateOfBirth
-                  ? formatDate(userData.Agent.dateOfBirth)
-                  : ""
-              }
+              value={userData.Agent?.dateOfBirth ? formatDate(userData.Agent.dateOfBirth) : ""}
               className="h-20 w-full text-gray-600 p-2 resize-none focus:outline-none focus:ring-0 bg-transparent"
               readOnly
             />
@@ -149,8 +183,7 @@ const AgentProfileContainerPage = () => {
             <textarea
               value={
                 userData.Agent?.gender
-                  ? userData.Agent.gender.charAt(0).toUpperCase() +
-                    userData.Agent.gender.slice(1)
+                  ? userData.Agent.gender.charAt(0).toUpperCase() + userData.Agent.gender.slice(1)
                   : ""
               }
               className="h-20 w-full text-gray-600 p-2 resize-none focus:outline-none focus:ring-0 bg-transparent"
@@ -254,8 +287,8 @@ const AgentProfileContainerPage = () => {
               value={
                 userData.Agent?.employmentType
                   ? userData.Agent.employmentType
-                      .replace("_", " ")
-                      .toUpperCase()
+                    .replace("_", " ")
+                    .toUpperCase()
                   : ""
               }
               className="h-20 w-full text-gray-600 p-2 resize-none focus:outline-none focus:ring-0 bg-transparent"
@@ -282,8 +315,8 @@ const AgentProfileContainerPage = () => {
               value={
                 userData.Agent?.workStartTime && userData.Agent?.workEndTime
                   ? `${formatTime(userData.Agent.workStartTime)} - ${formatTime(
-                      userData.Agent.workEndTime
-                    )}`
+                    userData.Agent.workEndTime
+                  )}`
                   : ""
               }
               className="h-20 w-full text-gray-600 p-2 resize-none focus:outline-none focus:ring-0 bg-transparent"
@@ -313,3 +346,4 @@ const AgentProfileContainerPage = () => {
 };
 
 export default AgentProfileContainerPage;
+

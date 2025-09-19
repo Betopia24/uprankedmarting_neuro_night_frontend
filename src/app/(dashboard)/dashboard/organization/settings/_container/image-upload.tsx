@@ -7,12 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Camera, X } from "lucide-react"
 import { toast } from "sonner"
 
-// interface ImageUploadProps {
-//   currentImage?: string
-//   onImageChange: (file: File | null) => void
-//   className?: string
-// }
-
 interface ImageUploadProps {
   currentImage?: string | null | undefined;
   onImageChange: (file: File | null) => void;
@@ -79,7 +73,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ currentImage, onImageChange, 
 
         {/* Overlay with camera icon */}
         <div
-          className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+          className="absolute inset-0 bg-black/20 bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
           onClick={triggerFileInput}
         >
           <Camera className="w-6 h-6 text-white" />

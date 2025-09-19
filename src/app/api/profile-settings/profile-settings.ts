@@ -65,9 +65,10 @@ export const getProfileInfo = async (
 
 //! AGENT Profile settings
 
-export const uploadAgentProfileImage = async (file: File, token: string) => {
+export const uploadAgentProfileImage = async (file: File, token: string, bio: string) => {
   const formData = new FormData();
   formData.append("file", file);
+  formData.append("bio", bio);
 
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/users/agents/profile`,
