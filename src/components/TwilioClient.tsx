@@ -581,10 +581,18 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       return;
     }
 
+    // Check device state before registering
+    if (deviceRef.current.state === "registered") {
+      updateStatusMessage("Device already registered");
+      setConnectionState((prev) => ({ ...prev, device: "registered" }));
+      return; // Skip registering again
+    }
+
     try {
       setConnectionState((prev) => ({ ...prev, device: "initializing" }));
-      await deviceRef.current.register();
       updateStatusMessage("Registering device...");
+      await deviceRef.current.register();
+      setConnectionState((prev) => ({ ...prev, device: "registered" }));
     } catch (err) {
       console.error("Device registration failed:", err);
       setConnectionState((prev) => ({ ...prev, device: "error" }));
@@ -595,11 +603,12 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
           (connectionState.reconnectAttempts + 1),
         30000
       );
+
       setTimeout(async () => {
         if (isMountedRef.current) {
           try {
             const newToken = await fetchToken();
-            deviceRef?.current?.updateToken(newToken);
+            deviceRef.current?.updateToken(newToken);
             await registerDevice();
           } catch (retryErr) {
             console.error("Retry registration failed:", retryErr);
