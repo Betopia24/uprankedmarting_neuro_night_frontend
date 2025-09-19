@@ -922,6 +922,10 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
     updateStatusMessage,
   ]);
 
+  useEffect(() => {
+    initializeSystem();
+  }, [initializeSystem]);
+
   // Cleanup function
   const cleanup = useCallback(() => {
     console.log("Cleaning up resources...");
@@ -1625,36 +1629,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
     <div className="space-y-6">
       {NotificationSystem}
 
-      {connectionState.device !== "registered" && (
-        <div className="bg-white rounded-lg shadow p-6 border border-slate-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Call Center Setup
-          </h3>
-          <p className="text-sm text-gray-600 mb-4">
-            Status: <span className="font-medium">{statusMessage}</span>
-          </p>
-          <p className="text-xs text-gray-500 mb-4">
-            Server: {API_BASE_URL} | Identity: {identity}
-          </p>
-          <div className="flex gap-2">
-            <button
-              onClick={initializeSystem}
-              disabled={connectionState.device === "initializing"}
-              className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
-            >
-              {connectionState.device === "initializing"
-                ? "Initializing..."
-                : "Initialize System"}
-            </button>
-            <button
-              onClick={() => setShowSettings(!showSettings)}
-              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
-            >
-              Settings
-            </button>
-          </div>
-        </div>
-      )}
       <div className="relative">
         <Button
           size="icon"
