@@ -51,7 +51,7 @@ const classes = {
 
 export default function CallGraph({ callStats }: { callStats: CallStats }) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
       <Circle
         value={callStats.totalCalls}
         label="Total Calls"
@@ -131,7 +131,7 @@ function Circle({
       </Heading>
       <div
         className={cn(
-          "flex items-center justify-center rounded-full border-4 md:border-8 size-20 md:size-24 lg:size-32 font-bold text-lg md:text-xl lg:text-2xl shrink-0 mx-auto",
+          "flex items-center justify-center rounded-full border-4 md:border-8 size-20 lg:size-24 xl:size-30 font-bold text-lg md:text-xl lg:text-2xl shrink-0 mx-auto",
           variant.border,
           variant.text
         )}

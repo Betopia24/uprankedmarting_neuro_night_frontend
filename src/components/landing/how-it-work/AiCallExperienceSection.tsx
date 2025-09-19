@@ -88,7 +88,9 @@ export default function AiCallExperienceSection() {
           </ScrollAnimation>
         </div>
         <div className="text-center mt-10">
-          <ButtonWithIcon size="sm">Get Started</ButtonWithIcon>
+          <ScrollAnimation>
+            <ButtonWithIcon size="sm">Get Started</ButtonWithIcon>
+          </ScrollAnimation>
         </div>
       </Container>
     </Section>

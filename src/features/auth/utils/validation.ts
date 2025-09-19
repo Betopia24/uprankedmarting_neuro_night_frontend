@@ -110,10 +110,7 @@ export const organizationSignupSchema = z.object({
       .string({ message: "Business name is required" })
       .min(6, { message: "Business name must be at least 6 characters long" }),
     industry: z.string({ message: "Industry is required" }),
-    websiteLink: z
-      .string({ message: "Website is required" })
-      .url("Invalid URL")
-      .optional(),
+    websiteLink: z.string().optional(),
 
     address: z
       .string({ message: "Address is required" })

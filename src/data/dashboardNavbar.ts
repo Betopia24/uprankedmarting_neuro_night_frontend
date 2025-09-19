@@ -23,6 +23,11 @@ export const dashboardNavigation = {
       href: paths.adminOrganizationManagementPath(),
     },
     { name: "Approval", icon: "userCog", href: paths.adminApprovalPath() },
+    {
+      name: "Payments",
+      icon: "creditCard",
+      href: paths.adminPaymentsPath(),
+    },
   ],
   organization: [
     {
@@ -40,7 +45,7 @@ export const dashboardNavigation = {
       icon: "phoneCall",
       href: paths.organizationCallLogsPath(),
     },
-    { 
+    {
       name: "Agent Management",
       icon: "userCog",
       href: paths.organizationAgentManagementPath(),
