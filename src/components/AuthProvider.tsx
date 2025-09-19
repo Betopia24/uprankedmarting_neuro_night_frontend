@@ -11,6 +11,11 @@ interface Agent {
   department: string;
   status: string;
   droppedCalls: number;
+  organization: {
+    id: string;
+    name: string;
+    organizationNumber: string;
+  };
 }
 
 interface OrganizationInfo {
@@ -28,6 +33,10 @@ interface User {
   isVerified: boolean;
   Agent: Agent | null; // Allow Agent to be null
   ownedOrganization: OrganizationInfo | null;
+  callStatistics: {
+    totalSuccessCalls: number;
+    totalCalls: number;
+  };
 }
 
 interface AuthContextType {
