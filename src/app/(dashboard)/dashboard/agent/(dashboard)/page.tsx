@@ -209,7 +209,7 @@ const Dashboard = () => {
                     Organization Name
                   </label>
                   <p className="text-sm font-medium text-gray-900 mt-1">
-                    {user.Agent?.organization.name ||
+                    {user.Agent?.organization?.name ||
                       "No organization assigned"}
                   </p>
                 </div>
@@ -219,7 +219,7 @@ const Dashboard = () => {
                     Organization Number
                   </label>
                   <p className="text-sm font-medium text-gray-900 mt-1">
-                    {user.Agent?.organization.organizationNumber ||
+                    {user.Agent?.organization?.organizationNumber ||
                       "Organization number unavailable"}
                   </p>
                 </div>
