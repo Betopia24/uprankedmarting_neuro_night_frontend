@@ -16,18 +16,11 @@ import {
   ChartBarIcon,
   SignalIcon,
 } from "@heroicons/react/24/solid";
+import useTimeOfDay from "@/hooks/useTimeOfDay";
 
-const Dashboard: React.FC = () => {
+const Dashboard = () => {
   const { user } = useAuth();
   const { currentCall, callStatus } = useCall();
-  const [timeOfDay, setTimeOfDay] = useState<string>("");
-
-  useEffect(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) setTimeOfDay("morning");
-    else if (hour < 18) setTimeOfDay("afternoon");
-    else setTimeOfDay("evening");
-  }, []);
 
   const getStatusText = (status: string) => {
     switch (status) {
@@ -65,13 +58,6 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  const successRate =
-    user.Agent && user.Agent?.totalCalls > 0
-      ? Math.round(
-          ((user.Agent.successCalls || 0) / user.Agent.totalCalls) * 100
-        )
-      : 0;
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Container>
@@ -84,7 +70,7 @@ const Dashboard: React.FC = () => {
           {/* Welcome Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Good {timeOfDay}, {user.name.split(" ")[0]}
+              Good {useTimeOfDay()}, {user.name.split(" ")[0]}
             </h1>
             <p className="text-gray-600">Welcome to your dashboard</p>
           </div>
