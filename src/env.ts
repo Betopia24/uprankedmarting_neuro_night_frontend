@@ -7,6 +7,11 @@ export const env = createEnv({
     API_BASE_URL_AI: z.url(),
     API_BASE_URL_LEAD: z.url(),
     CALL_CENTER_API_URL: z.url(),
+    
+    HUBSPOT_CLIENT_ID: z.string().min(1),
+    HUBSPOT_CLIENT_SECRET: z.string().min(1),
+    HUBSPOT_REDIRECT_URI: z.string().url(),
+    HUBSPOT_SCOPES: z.string().min(1),
   },
   client: {
     NEXT_PUBLIC_API_URL: z.url(),
@@ -16,6 +21,10 @@ export const env = createEnv({
     NEXT_PUBLIC_API_BASE_URL_AI: z.url(),
     NEXT_PUBLIC_API_BASE_URL_LEAD: z.url(),
     NEXT_PUBLIC_CALL_CENTER_API_URL: z.url(),
+
+    NEXT_PUBLIC_HUBSPOT_CLIENT_ID: z.string().min(1),
+    NEXT_PUBLIC_HUBSPOT_REDIRECT_URI: z.string().url(),
+    NEXT_PUBLIC_HUBSPOT_SCOPES: z.string().min(1),
   },
   runtimeEnv: {
     API_BASE_URL: process.env.API_BASE_URL,
@@ -30,5 +39,20 @@ export const env = createEnv({
     CALL_CENTER_API_URL: process.env.CALL_CENTER_API_URL,
     NEXT_PUBLIC_CALL_CENTER_API_URL:
       process.env.NEXT_PUBLIC_CALL_CENTER_API_URL,
+
+    // HubSpot (server)
+    HUBSPOT_CLIENT_ID: process.env.HUBSPOT_CLIENT_ID,
+    HUBSPOT_CLIENT_SECRET: process.env.HUBSPOT_CLIENT_SECRET,
+    HUBSPOT_REDIRECT_URI: process.env.HUBSPOT_REDIRECT_URI,
+    HUBSPOT_SCOPES: process.env.HUBSPOT_SCOPES,
+
+    // HubSpot (client)
+    NEXT_PUBLIC_HUBSPOT_CLIENT_ID: process.env.NEXT_PUBLIC_HUBSPOT_CLIENT_ID,
+    NEXT_PUBLIC_HUBSPOT_REDIRECT_URI: process.env.NEXT_PUBLIC_HUBSPOT_REDIRECT_URI,
+    NEXT_PUBLIC_HUBSPOT_SCOPES: process.env.NEXT_PUBLIC_HUBSPOT_SCOPES,
+
+    
   },
 });
+
+
