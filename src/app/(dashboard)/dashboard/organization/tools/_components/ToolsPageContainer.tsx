@@ -176,6 +176,8 @@ const ToolsPageContainerPage = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
 
+  console.log("OrgId: ", orgId);
+
   // ✅ Handle success/error toast after OAuth callback
   useEffect(() => {
     const success = searchParams.get("success");
