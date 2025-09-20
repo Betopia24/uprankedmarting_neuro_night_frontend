@@ -74,7 +74,7 @@ export default function Pagination({
           disabled={!hasPrevPage || isPending}
           onClick={() => navigate(currentPage - 1)}
           className={cn(
-            "flex items-center px-3 py-2 text-sm font-medium rounded-full border transition-all",
+            "flex cursor-pointer items-center px-3 py-2 text-sm font-medium rounded-full border transition-all",
             !hasPrevPage || isPending
               ? "opacity-50 bg-gray-100 text-gray-400"
               : "bg-white border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-800"
@@ -107,7 +107,7 @@ export default function Pagination({
           disabled={!hasNextPage || isPending}
           onClick={() => navigate(currentPage + 1)}
           className={cn(
-            "flex items-center px-3 py-2 text-sm font-medium rounded-full border transition-all",
+            "flex cursor-pointer items-center px-3 py-2 text-sm font-medium rounded-full border transition-all",
             !hasNextPage || isPending
               ? "opacity-50 cursor-not-allowed bg-gray-100 text-gray-400"
               : "bg-white border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-800"
