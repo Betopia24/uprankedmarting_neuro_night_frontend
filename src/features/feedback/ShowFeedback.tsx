@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { env } from "@/env";
 import Image from "next/image";
-import { Button, Heading } from "@/components";
+import { Button } from "@/components";
 import { LucideStar, LucideTrash2 } from "lucide-react";
 
 type Mode = "agent" | "service";
