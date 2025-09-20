@@ -15,11 +15,11 @@ export default function AgentProfileCard({
 }) {
   const userId = user.id;
 
-  const approvalRequest = user.Agent.assignments.find((assignment) =>
+  const approvalRequest = user?.Agent?.assignments?.find((assignment) =>
     status === "approval" ? assignment.status === "PENDING" : ""
   );
 
-  const removalRequest = user.Agent.assignments.find((assignment) =>
+  const removalRequest = user?.Agent?.assignments?.find((assignment) =>
     status === "removal" ? assignment.status === "REMOVAL_REQUESTED" : ""
   );
 
@@ -41,7 +41,7 @@ export default function AgentProfileCard({
           />
         ) : (
           <div className="size-24 border border-gray-400 rounded-full mx-auto flex items-center justify-center text-4xl font-semibold">
-            {user.name.slice(0, 1)}
+            {user?.name?.slice(0, 1)}
           </div>
         )}
 
@@ -50,12 +50,12 @@ export default function AgentProfileCard({
             {user.name}
           </Heading>
           <span className="text-xs text-black/70 leading-none capitalize truncate px-4">
-            {user.Agent.skills.slice(0, 2).join(", ")}
+            {user?.Agent?.skills.slice(0, 2).join(", ")}
           </span>
         </div>
 
         <div className="flex justify-center">
-          <RatingViewer rating={user.Agent.avgRating} />
+          <RatingViewer rating={user?.Agent?.avgRating} />
         </div>
 
         <p className="text-xs line-clamp-3">{user.bio || "No bio"}</p>

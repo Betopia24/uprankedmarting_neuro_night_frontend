@@ -126,9 +126,9 @@ function filterData(data: TableRow[], query: string): TableRow[] {
   const q = query.toLowerCase();
   return data.filter(
     (item) =>
-      item.name.toLowerCase().includes(q) ||
-      item.serviceType.toLowerCase().includes(q) ||
-      item.packageType.toLowerCase().includes(q)
+      item?.name.toLowerCase().includes(q) ||
+      item?.serviceType.toLowerCase().includes(q) ||
+      item?.packageType.toLowerCase().includes(q)
   );
 }
 

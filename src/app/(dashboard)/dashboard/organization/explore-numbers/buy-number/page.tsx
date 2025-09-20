@@ -96,7 +96,7 @@ export default async function Pricing({
               </div>
 
               <div className="space-y-3">
-                {plan.features.map((feature, idx) => (
+                {plan?.features.map((feature, idx) => (
                   <div key={idx} className="flex items-start gap-3">
                     <div className="w-4 h-4 mt-0.5 flex-shrink-0">
                       <LucideCheck size={16} />

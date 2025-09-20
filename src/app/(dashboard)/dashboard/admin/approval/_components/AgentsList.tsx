@@ -18,7 +18,7 @@ export default function AgentsList({
   const [agents, setAgents] = useState(users);
   const [search, setSearch] = useState("");
   const filteredUsers = agents.filter((agent: AgentUser) => {
-    return agent.name.toLowerCase().includes(search.toLowerCase());
+    return agent?.name.toLowerCase().includes(search.toLowerCase());
   });
 
   useEffect(() => {

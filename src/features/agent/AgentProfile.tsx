@@ -50,16 +50,14 @@ export default async function AgentProfile({ agentId }: { agentId: string }) {
     return notFound();
   }
 
-  console.log(agent);
-
   const agentInformation = {
     name: agent.name,
     image: agent.image,
-    totalCalls: agent.callStatistics.totalCalls ?? 0,
-    avgCallDuration: agent.callStatistics.avgCallDuration,
-    todaySuccessCalls: agent.callStatistics.todaySuccessCalls,
-    totalCallDuration: agent.callStatistics.totalCallDuration,
-    totalSuccessCalls: agent.callStatistics.totalSuccessCalls,
+    totalCalls: agent?.callStatistics?.totalCalls ?? 0,
+    avgCallDuration: agent?.callStatistics?.avgCallDuration,
+    todaySuccessCalls: agent?.callStatistics?.todaySuccessCalls,
+    totalCallDuration: agent?.callStatistics?.totalCallDuration,
+    totalSuccessCalls: agent?.callStatistics?.totalSuccessCalls,
   };
 
   console.log({ agentInformation });
@@ -77,7 +75,7 @@ export default async function AgentProfile({ agentId }: { agentId: string }) {
           />
         ) : (
           <div className="size-24 md:32 lg:size-44 border border-gray-400 rounded-full mx-auto flex items-center justify-center text-4xl font-semibold uppercase">
-            {agentInformation.name.slice(0, 1)}
+            {agentInformation?.name.slice(0, 1)}
           </div>
         )}
         <Heading size="h5" as="h4" className="capitalize text-center">

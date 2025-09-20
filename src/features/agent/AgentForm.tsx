@@ -146,15 +146,16 @@ export default function AgentForm() {
         userData: data.userData,
         agentData: {
           ...data.agentData,
-          workStartTime: getShiftStartEnd(data.agentData.shift ?? "morning")
+          workStartTime: getShiftStartEnd(data?.agentData?.shift ?? "morning")
             .start,
-          workEndTime: getShiftStartEnd(data.agentData.shift ?? "morning").end,
+          workEndTime: getShiftStartEnd(data?.agentData?.shift ?? "morning")
+            .end,
           sip_password:
-            data.agentData.sip_password || generateStrongSipPassword(),
-          skills: parseSkills(data.agentData.skills),
+            data?.agentData?.sip_password || generateStrongSipPassword(),
+          skills: parseSkills(data?.agentData?.skills),
         },
       };
-      delete payload.agentData.shift;
+      delete payload?.agentData?.shift;
 
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/users/register-agent`,

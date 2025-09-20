@@ -109,16 +109,16 @@ export default async function OrganizationDashboardPage({
   }
 
   const callStats = {
-    totalCalls: statsData.totalCalls,
-    totalHumanCalls: statsData.totalHumanCalls,
-    totalAICalls: statsData.totalAICalls,
-    totalSuccessCalls: statsData.totalSuccessCalls,
-    todayHumanCalls: statsData.todayHumanCalls,
-    todayAICalls: statsData.todayAICalls,
-    todaySuccessCalls: statsData.todaySuccessCalls,
-    avgCallTime: statsData.callTiming.avgTotalCallTime,
-    avgAICallTime: statsData.callTiming.avgAICallTime,
-    avgHumanCallTime: statsData.callTiming.avgHumanCallTime,
+    totalCalls: statsData?.totalCalls,
+    totalHumanCalls: statsData?.totalHumanCalls,
+    totalAICalls: statsData?.totalAICalls,
+    totalSuccessCalls: statsData?.totalSuccessCalls,
+    todayHumanCalls: statsData?.todayHumanCalls,
+    todayAICalls: statsData?.todayAICalls,
+    todaySuccessCalls: statsData?.todaySuccessCalls,
+    avgCallTime: statsData?.callTiming?.avgTotalCallTime,
+    avgAICallTime: statsData?.callTiming?.avgAICallTime,
+    avgHumanCallTime: statsData?.callTiming?.avgHumanCallTime,
   };
 
   return (
