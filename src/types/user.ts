@@ -43,7 +43,11 @@ export type AuthMe = {
     role: "super_admin" | "organization_admin" | "agent";
     createdAt: string;
     updatedAt: string;
-    Agent: unknown | null;
+    Agent: {
+      organization: {
+        id: string;
+      };
+    };
     ownedOrganization: OrganizationInfo | null;
   };
 };

@@ -85,7 +85,7 @@ export default async function Pricing({
               <div className="border-t border-b border-gray-300 pt-8 pb-2">
                 <div className="flex items-baseline gap-1">
                   <span className="text-4xl font-bold text-gray-900 uppercase">
-                    {plan.currency} {plan.amount}
+                    ${plan.amount}
                   </span>
                   <span className="text-gray-600">
                     /{plan.intervalCount} {plan.interval}

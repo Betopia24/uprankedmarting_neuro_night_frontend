@@ -23,7 +23,10 @@ export default async function AdminDashboardLayout({
           header={<DashboardHeader />}
           sidebar={
             <DashboardSidebar>
-              <SidebarContent mainItems={dashboardNavigation.admin} />
+              <SidebarContent
+                mainItems={dashboardNavigation.admin}
+                subItems={dashboardNavigation?.subItems?.admin}
+              />
             </DashboardSidebar>
           }
         >

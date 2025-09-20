@@ -106,7 +106,7 @@ export default function Pricing({ monthlyPlans, yearlyPlans }: PricingProps) {
                   <div className="border-t border-b border-gray-300 pt-8 pb-2">
                     <div className="flex items-baseline gap-1">
                       <span className="text-4xl font-bold text-gray-900 uppercase">
-                        ${plan.currency} ${plan.amount}
+                        ${plan.amount}
                       </span>
                       <span className="text-gray-600">
                         /{plan.interval === "month" ? "mo" : "yr"}

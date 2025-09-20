@@ -29,29 +29,40 @@ const ProfileContainerPage = ({ planLevel }: { planLevel: string }) => {
 
   useEffect(() => {
     const fetchProfile = async () => {
+      if (!auth?.user?.id || !token) return; // Early return if missing
+
       try {
-        const res = await getProfileInfo(auth?.user?.id || "", token || "");
-        if (!res.ok) throw new Error("Failed to load profile");
-        const data = await res.json();
+        const res = await getProfileInfo(auth.user.id, token);
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData?.message || "Failed to load profile");
+        }
+
+        const data = await res.json(); // Type-safe
 
         const user = data.data;
 
         setFormData({
-          fullName: user.name || "",
-          serviceName: user.ownedOrganization?.name || "",
-          phoneNumber: user.phone || "",
-          industry: user.ownedOrganization?.industry || "",
-          website: user.ownedOrganization?.websiteLink || "",
-          serviceAddress: user.ownedOrganization?.address || "",
+          fullName: user.name ?? "",
+          serviceName: user.ownedOrganization?.name ?? "",
+          phoneNumber: user.phone ?? "",
+          industry: user.ownedOrganization?.industry ?? "",
+          website: user.ownedOrganization?.websiteLink ?? "",
+          serviceAddress: user.ownedOrganization?.address ?? "",
         });
-      } catch (error) {
+      } catch (error: unknown) {
         console.error(error);
+        if (error instanceof Error) {
+          toast.error(error.message); // Sonner toast
+        } else {
+          toast.error("Something went wrong");
+        }
       }
     };
 
     fetchProfile();
   }, [token, auth?.user?.id]);
-
   const handleChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -89,7 +100,6 @@ const ProfileContainerPage = ({ planLevel }: { planLevel: string }) => {
         throw new Error(`Failed to update profile: ${res.status}`);
       }
 
-      const data = await res.json();
       toast.success("Profile updated successfully");
     } catch (err) {
       console.error("Profile update failed:", err);
@@ -197,7 +207,7 @@ const ProfileContainerPage = ({ planLevel }: { planLevel: string }) => {
 
         <div className="flex justify-end">
           <Button type="submit" className="px-6">
-            Submit
+            Update
           </Button>
         </div>
       </form>
