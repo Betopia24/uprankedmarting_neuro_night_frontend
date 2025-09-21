@@ -1,9 +1,21 @@
+"use client";
+
 import { Section, Container } from "@/components";
 import { ParallaxEffect, StaggerFadeUp } from "@/components/animations";
-import shakeImage from "@/images/shake.png";
-import Image from "next/image";
+import { useEffect, useRef } from "react";
+import Player, { LottieRefCurrentProps } from 'lottie-react';
+import Robot from "./_animation/robot.json";
 
 export default function OurFeatures() {
+
+  const lottieRef = useRef<LottieRefCurrentProps>(null);
+
+  useEffect(() => {
+    if (lottieRef.current) {
+      lottieRef.current.setSpeed(0.5); // 0.5x speed
+    }
+  }, []);
+
   return (
     <Section>
       <Container>
@@ -53,11 +65,15 @@ export default function OurFeatures() {
                   </ul>
                 </div>
               </div>
-              <Image
-                className="max-w-sm mx-auto scale-150 object-contain order-1 lg:order-2"
-                src={shakeImage}
-                alt="shake"
-              />
+              <div className="order-1 lg:order-1 flex flex-col justify-center items-center">
+                <Player
+                  lottieRef={lottieRef}
+                  animationData={Robot}
+                  loop={true}
+                  autoplay={true}
+                  style={{ width: 500, height: 500 }}
+                />
+              </div>
             </div>
           </StaggerFadeUp>
         </ParallaxEffect>
