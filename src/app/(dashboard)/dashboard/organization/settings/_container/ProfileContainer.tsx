@@ -136,7 +136,7 @@ const ProfileContainerPage = ({ planLevel }: { planLevel: string }) => {
           <FormField
             label="Full Name"
             name="fullName"
-            placeholder="Shafiqu"
+            placeholder="Write Full Name"
             value={formData.fullName}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               handleChange("fullName", e.target.value)

@@ -15,6 +15,7 @@ interface ImageUploadProps {
 
 const ImageUpload: React.FC<ImageUploadProps> = ({ currentImage, onImageChange, className = "" }) => {
   const [preview, setPreview] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,10 +35,12 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ currentImage, onImageChange, 
       return
     }
 
+    setLoading(true)
     // Create preview
     const reader = new FileReader()
     reader.onload = (e) => {
       setPreview(e.target?.result as string)
+      setLoading(false)
     }
     reader.readAsDataURL(file)
 
@@ -61,14 +64,39 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ currentImage, onImageChange, 
   return (
     <div className={`flex flex-col items-center space-y-4 ${className}`}>
       <div className="relative group">
-        <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-gray-200 shadow-lg">
-          <Image
-            src={displayImage || "/placeholder.svg"}
-            alt="Profile"
-            width={96}
-            height={96}
-            className="w-full h-full object-cover"
-          />
+        <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-gray-200 shadow-lg flex items-center justify-center">
+          {loading ? (
+            <div className="flex items-center justify-center w-full h-full">
+              <svg
+                className="animate-spin h-6 w-6 text-gray-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8H4z"
+                ></path>
+              </svg>
+            </div>
+          ) : (
+            <Image
+              src={displayImage || "/placeholder.svg"}
+              alt="Profile"
+              width={96}
+              height={96}
+              className="w-full h-full object-cover"
+            />
+          )}
         </div>
 
         {/* Overlay with camera icon */}
@@ -87,12 +115,13 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ currentImage, onImageChange, 
           size="sm"
           onClick={triggerFileInput}
           className="flex items-center gap-2 bg-transparent"
+          disabled={loading}
         >
           <Camera className="w-4 h-4" />
-          Change Photo
+          {loading ? "Uploading..." : "Change Photo"}
         </Button>
 
-        {(preview || currentImage) && (
+        {preview && !loading && (
           <Button
             type="button"
             variant="outline"
@@ -112,3 +141,4 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ currentImage, onImageChange, 
 }
 
 export default ImageUpload
+
