@@ -17,6 +17,7 @@ const ProfileContainerPage = ({ planLevel }: { planLevel: string }) => {
   const token = auth?.token;
 
   const [profileImage, setProfileImage] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -29,9 +30,10 @@ const ProfileContainerPage = ({ planLevel }: { planLevel: string }) => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!auth?.user?.id || !token) return; // Early return if missing
+      if (!auth?.user?.id || !token) return;
 
       try {
+        setLoading(true);
         const res = await getProfileInfo(auth.user.id, token);
 
         if (!res.ok) {
@@ -39,8 +41,7 @@ const ProfileContainerPage = ({ planLevel }: { planLevel: string }) => {
           throw new Error(errorData?.message || "Failed to load profile");
         }
 
-        const data = await res.json(); // Type-safe
-
+        const data = await res.json();
         const user = data.data;
 
         setFormData({
@@ -54,15 +55,18 @@ const ProfileContainerPage = ({ planLevel }: { planLevel: string }) => {
       } catch (error: unknown) {
         console.error(error);
         if (error instanceof Error) {
-          toast.error(error.message); // Sonner toast
+          toast.error(error.message);
         } else {
           toast.error("Something went wrong");
         }
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchProfile();
   }, [token, auth?.user?.id]);
+
   const handleChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -92,6 +96,7 @@ const ProfileContainerPage = ({ planLevel }: { planLevel: string }) => {
       },
     };
     try {
+      setLoading(true);
       const res = await updateProfileSettings(payload, token, profileImage);
 
       if (!res.ok) {
@@ -104,6 +109,8 @@ const ProfileContainerPage = ({ planLevel }: { planLevel: string }) => {
     } catch (err) {
       console.error("Profile update failed:", err);
       toast.error("Failed to update profile settings");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -206,8 +213,12 @@ const ProfileContainerPage = ({ planLevel }: { planLevel: string }) => {
         </div>
 
         <div className="flex justify-end">
-          <Button type="submit" className="px-6">
-            Update
+          <Button
+            type="submit"
+            className="px-6"
+            disabled={loading}
+          >
+            {loading ? "Updating..." : "Update"}
           </Button>
         </div>
       </form>
@@ -216,3 +227,4 @@ const ProfileContainerPage = ({ planLevel }: { planLevel: string }) => {
 };
 
 export default ProfileContainerPage;
+
