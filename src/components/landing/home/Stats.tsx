@@ -8,21 +8,27 @@ import PageLoader from "@/components/PageLoader";
 import { toast } from "sonner";
 import { env } from "@/env";
 import { getPlatformOverviewStats } from "@/app/api/home-stats/home-stats";
+import { formatNumber } from "@/utils/formatNumber";
 
 function Counter({ value, suffix }: { value: number; suffix?: string }) {
   const motionValue = useMotionValue(0);
-  const rounded = useTransform(motionValue, (latest) =>
-    value % 1 === 0 ? Math.round(latest).toLocaleString() : latest.toFixed(2)
-  );
 
-  const [displayValue, setDisplayValue] = useState("0");
+  const rounded = useTransform(motionValue, (latest) => {
+    const isIntegerTarget = Number.isInteger(value);
+    const displayNumber = isIntegerTarget
+      ? Math.round(latest)
+      : Number(latest.toFixed(2));
+    return formatNumber(displayNumber);
+  });
+
+  const [displayValue, setDisplayValue] = useState<string>("0");
 
   useEffect(() => {
     const controls = animate(motionValue, value, {
       duration: 3.5,
       ease: "easeOut",
     });
-    return controls.stop;
+    return () => controls.stop();
   }, [motionValue, value]);
 
   useEffect(() => {
@@ -39,6 +45,7 @@ function Counter({ value, suffix }: { value: number; suffix?: string }) {
     </motion.span>
   );
 }
+
 
 export default function Stats() {
   const [statsData, setStatsData] = useState<
@@ -87,6 +94,7 @@ export default function Stats() {
 
     fetchStats();
   }, []);
+
 
   if (loading) {
     return <PageLoader />;
