@@ -30,7 +30,7 @@ export default function MobileNavigation() {
         <ul className="flex flex-col gap-4">
           {navbarData.map((item) => (
             <li key={item.name}>
-              <ActiveLink className="w-full" href={item.href()}>
+              <ActiveLink className="w-full" href={item.href()} onClick={() => setOpen(false)}>
                 {item.name}
               </ActiveLink>
             </li>
