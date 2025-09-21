@@ -11,7 +11,6 @@ import {
 import { env } from "@/env";
 import { getServerAuth } from "@/lib/auth";
 import Link from "next/link";
-import clsx from "clsx";
 
 const config = {
   basePath: organizationExploreNumbersPath(),
