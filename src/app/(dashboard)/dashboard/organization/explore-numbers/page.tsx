@@ -99,12 +99,9 @@ export default async function OrganizationNumbersPage({
     headers: { Authorization: auth.accessToken },
   });
   if (!res.ok) throw new Error("Failed to fetch active numbers");
-  console.log("API responded with status:", res.status);
 
   const json = await res.json();
   const rawTableData: TableData[] = Array.isArray(json?.data) ? json.data : [];
-
-  console.log("Raw table data:", rawTableData);
 
   const queryParams = await searchParams;
   const page = Number(queryParams.page) || DEFAULT_PAGE;

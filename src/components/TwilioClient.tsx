@@ -281,7 +281,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       try {
         const newToken = await fetchToken();
         deviceRef.current.updateToken(newToken);
-        console.log("Token refreshed successfully");
         updateStatusMessage("Token refreshed");
         scheduleTokenRefresh();
       } catch (err) {
@@ -293,7 +292,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
             try {
               const newToken = await fetchToken();
               deviceRef.current.updateToken(newToken);
-              console.log("Token refresh retry successful");
               scheduleTokenRefresh();
             } catch (retryErr) {
               console.error("Token refresh retry failed:", retryErr);
@@ -329,8 +327,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
   // Call handlers
   const attachCallHandlers = useCallback(
     (call: Call) => {
-      console.log("Attaching enhanced call handlers");
-
       call.on("accept", () => {
         if (!isMountedRef.current) return;
 
@@ -355,7 +351,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       call.on("disconnect", () => {
         if (!isMountedRef.current) return;
 
-        console.log("Call disconnected");
         setCallState({
           state: "none",
           call: null,
@@ -386,7 +381,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       call.on("cancel", () => {
         if (!isMountedRef.current) return;
 
-        console.log("Call cancelled by caller");
         setCallState({
           state: "none",
           call: null,
@@ -437,7 +431,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       });
 
       call.on("warning-cleared", (name: string) => {
-        console.log("Call quality warning cleared:", name);
         setCallState((prev) => ({ ...prev, quality: "good" }));
       });
     },
@@ -447,8 +440,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
   // Device initialization and management
   const initializeDevice = useCallback(
     async (accessToken: string): Promise<Device> => {
-      console.log("Initializing Twilio Device with enhanced configuration...");
-
       if (deviceRef.current) {
         try {
           deviceRef.current.destroy();
@@ -475,7 +466,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
           isHealthy: true,
         }));
         updateStatusMessage("Device registered - Ready for calls");
-        console.log("Device registered successfully");
       });
 
       device.on("unregistered", () => {
@@ -513,8 +503,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       device.on("incoming", (call: Call) => {
         if (!isMountedRef.current) return;
 
-        console.log("Incoming call received:", call.parameters);
-
         const from = call.parameters.From || "Unknown";
 
         setCallState({
@@ -547,7 +535,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       });
 
       device.on("tokenWillExpire", async () => {
-        console.log("Token will expire, refreshing...");
         try {
           const newToken = await fetchToken();
           device.updateToken(newToken);
@@ -558,12 +545,10 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       });
 
       device.audio?.on("deviceChange", () => {
-        console.log("Audio devices changed");
         updateAudioDevices(device);
       });
 
       await updateAudioDevices(device);
-      console.log("Device initialized successfully");
       return device;
     },
     [
@@ -622,11 +607,8 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
   // WebSocket management with enhanced reliability
   const connectWebSocket = useCallback(() => {
     if (!user?.id || !token || !isMountedRef.current) {
-      console.log("Waiting for authentication...");
       return;
     }
-
-    console.log("Connecting WebSocket for user:", user.id);
 
     const wsUrl = getWebSocketUrl(user.id);
 
@@ -648,7 +630,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         }
 
         clearTimeout(connectionTimeout);
-        console.log("WebSocket connected");
 
         setConnectionState((prev) => ({
           ...prev,
@@ -700,7 +681,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         if (!isMountedRef.current) return;
 
         clearTimeout(connectionTimeout);
-        console.log("WebSocket disconnected:", event.code, event.reason);
 
         setConnectionState((prev) => ({
           ...prev,
@@ -760,19 +740,15 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
 
   const handleWebSocketMessage = useCallback(
     (message: { type: string; data: { message?: string } }) => {
-      console.log("WebSocket message:", message);
-
       switch (message.type) {
         case "registration_success":
           updateStatusMessage("Agent registered successfully");
           break;
 
         case "incoming_call":
-          console.log("Call notification received via WebSocket");
           break;
 
         case "call_ended":
-          console.log("Call ended notification received");
           break;
 
         case "registration_error":
@@ -791,7 +767,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
           break;
 
         default:
-          console.log("Unknown message type:", message.type);
+          break;
       }
     },
     [updateStatusMessage]
@@ -937,8 +913,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
 
   // Cleanup function
   const cleanup = useCallback(() => {
-    console.log("Cleaning up resources...");
-
     [
       reconnectTimeoutRef,
       heartbeatIntervalRef,

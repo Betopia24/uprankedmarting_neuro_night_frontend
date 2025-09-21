@@ -30,7 +30,6 @@ const AgentProfileContainerPage = () => {
     const fetchAgentInfo = async () => {
       try {
         const response = await getAgentInfo(token);
-        console.log("Agent info:", response);
         if (response.success) {
           setUserData(response.data);
           setBio(response.data.bio || "");
@@ -87,8 +86,7 @@ const AgentProfileContainerPage = () => {
         Please log in to access your profile.
       </p>
     );
-  if (loading)
-    return <PageLoader />;
+  if (loading) return <PageLoader />;
   if (!userData)
     return (
       <p className="text-center text-gray-600 mt-8">

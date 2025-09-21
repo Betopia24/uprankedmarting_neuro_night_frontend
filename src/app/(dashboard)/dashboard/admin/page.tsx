@@ -96,8 +96,6 @@ export default async function OrganizationDashboardPage({
   const params = await searchParams;
   const year = params.year;
 
-  console.log("Dashboard rendering with year:", year); // Debug log
-
   const statsData = await fetchDashboardStats(year);
 
   if (!statsData) {

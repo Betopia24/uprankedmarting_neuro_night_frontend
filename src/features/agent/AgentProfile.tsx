@@ -60,8 +60,6 @@ export default async function AgentProfile({ agentId }: { agentId: string }) {
     totalSuccessCalls: agent?.callStatistics?.totalSuccessCalls,
   };
 
-  console.log({ agentInformation });
-
   return (
     <div className="mb-10 space-y-6">
       <div className="space-y-6">

@@ -61,8 +61,6 @@ export default function SidebarContent({
   const { isCollapsedSidebar } = useSidebar();
   const auth = useAuth();
 
-  console.log(auth);
-
   const [orgMenu, setOrgMenu] = useState<SidebarItemType[] | null>(null);
   const [loading, setLoading] = useState(false);
 
