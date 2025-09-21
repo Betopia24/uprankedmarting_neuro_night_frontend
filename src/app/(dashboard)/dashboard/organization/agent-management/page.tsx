@@ -194,7 +194,7 @@ export default async function AgentManagementPage({ searchParams }: Props) {
         <div className="max-w-md">
           <h1 className="text-5xl font-bold text-red-600 mb-4">Oops!</h1>
           <p className="text-lg text-gray-700 mb-6">
-            Your current plan does not allow uploading documents for Agent
+            Your current plan does not allow access for Agent
             Management.
           </p>
           <Button variant="link" className="mt-4">
