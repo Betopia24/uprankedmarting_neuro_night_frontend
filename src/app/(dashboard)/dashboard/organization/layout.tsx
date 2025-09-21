@@ -27,7 +27,7 @@ export default async function OrganizationDashboardLayout({
             <DashboardSidebar>
               <SidebarContent
                 mainItems={dashboardNavigation.organization}
-                subItems={dashboardNavigation.subItems.organization}
+                subItems={dashboardNavigation?.subItems?.organization}
               />
             </DashboardSidebar>
           }

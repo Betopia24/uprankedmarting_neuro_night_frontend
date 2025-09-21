@@ -54,7 +54,7 @@ export default async function AgentDetailsPage({ params }: Props) {
   }
 
   return (
-    <div className="p-4">
+    <>
       {agent ? (
         <>
           <AgentProfile agentId={agentId} />
@@ -63,6 +63,6 @@ export default async function AgentDetailsPage({ params }: Props) {
       ) : (
         <p className="text-gray-500">No agent data available</p>
       )}
-    </div>
+    </>
   );
 }

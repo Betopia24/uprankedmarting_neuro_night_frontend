@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { env } from "@/env";
 import RatingViewer from "@/components/RatingViewer";
+import ScrollAnimation from "@/components/animations/ScrollAnimation";
 
 type TestimonialData = {
   id: string;
@@ -131,7 +132,9 @@ function Carousel() {
 
   return data.map((item) => (
     <Embla.Slide key={item.id} index={0}>
-      <TestimonialCard data={item} />
+      <ScrollAnimation>
+        <TestimonialCard data={item} />
+      </ScrollAnimation>
     </Embla.Slide>
   ));
 }

@@ -30,6 +30,7 @@ export const adminOrganizationManagementPath = () =>
 export const adminNumberManagementPath = () =>
   `${adminDashboardPath()}/number-management`;
 export const adminApprovalPath = () => `${adminDashboardPath()}/approval`;
+export const adminPaymentsPath = () => `${adminDashboardPath()}/payments`;
 
 // organization dashboard paths
 export const organizationDashboardPath = () =>
@@ -70,6 +71,7 @@ export const agentDashboardPath = () => `${agentDashboardPrefix()}`;
 export const agentCallManagementPath = () =>
   `${agentDashboardPath()}/call-management`;
 export const agentSettingsPath = () => `${agentDashboardPath()}/settings`;
+export const agentDocumentsPath = () => `${agentDashboardPath()}/documents`;
 
 // API paths
 export const API_PREFIX = "/api";

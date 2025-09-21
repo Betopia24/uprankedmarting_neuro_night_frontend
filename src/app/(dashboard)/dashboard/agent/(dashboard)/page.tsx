@@ -16,18 +16,11 @@ import {
   ChartBarIcon,
   SignalIcon,
 } from "@heroicons/react/24/solid";
+import useTimeOfDay from "@/hooks/useTimeOfDay";
 
-const Dashboard: React.FC = () => {
+const Dashboard = () => {
   const { user } = useAuth();
   const { currentCall, callStatus } = useCall();
-  const [timeOfDay, setTimeOfDay] = useState<string>("");
-
-  useEffect(() => {
-    const hour = new Date().getHours();
-    if (hour < 12) setTimeOfDay("morning");
-    else if (hour < 18) setTimeOfDay("afternoon");
-    else setTimeOfDay("evening");
-  }, []);
 
   const getStatusText = (status: string) => {
     switch (status) {
@@ -63,13 +56,6 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  const successRate =
-    user.Agent && user.Agent?.totalCalls > 0
-      ? Math.round(
-          ((user.Agent.successCalls || 0) / user.Agent.totalCalls) * 100
-        )
-      : 0;
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Container>
@@ -82,7 +68,7 @@ const Dashboard: React.FC = () => {
           {/* Welcome Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Good {timeOfDay}, {user.name.split(" ")[0]}
+              Good {useTimeOfDay()}, {user.name.split(" ")[0]}
             </h1>
             <p className="text-gray-600">Welcome to your dashboard</p>
           </div>
@@ -203,7 +189,7 @@ const Dashboard: React.FC = () => {
                 <div>
                   <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                     Role
-                  </label>
+                  </label>{" "}
                   <span className="inline-block mt-1 px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded capitalize">
                     {user.role}
                   </span>
@@ -214,6 +200,25 @@ const Dashboard: React.FC = () => {
                   </label>
                   <p className="text-sm font-medium text-gray-900 mt-1">
                     {user.phone || "Not provided"}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                    Organization Name
+                  </label>
+                  <p className="text-sm font-medium text-gray-900 mt-1">
+                    {user.Agent?.organization?.name ||
+                      "No organization assigned"}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                    Organization Number
+                  </label>
+                  <p className="text-sm font-medium text-gray-900 mt-1">
+                    {user.Agent?.organization?.organizationNumber ||
+                      "Organization number unavailable"}
                   </p>
                 </div>
                 <div>
@@ -333,7 +338,7 @@ const Dashboard: React.FC = () => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <div className="text-center p-4 bg-gray-50 rounded-lg">
                   <div className="text-2xl font-bold text-gray-900 mb-1">
-                    {user.Agent.totalCalls || 0}
+                    {user.callStatistics.totalCalls || 0}
                   </div>
                   <div className="text-xs text-gray-600 font-medium">
                     Total Calls
@@ -341,7 +346,7 @@ const Dashboard: React.FC = () => {
                 </div>
                 <div className="text-center p-4 bg-green-50 rounded-lg">
                   <div className="text-2xl font-bold text-green-600 mb-1">
-                    {user.Agent.successCalls || 0}
+                    {user.callStatistics.totalSuccessCalls || 0}
                   </div>
                   <div className="text-xs text-green-700 font-medium">
                     Successful
@@ -349,7 +354,8 @@ const Dashboard: React.FC = () => {
                 </div>
                 <div className="text-center p-4 bg-red-50 rounded-lg">
                   <div className="text-2xl font-bold text-red-600 mb-1">
-                    {user.Agent.droppedCalls || 0}
+                    {Number(user.callStatistics.totalCalls) -
+                      Number(user.callStatistics.totalSuccessCalls) || 0}
                   </div>
                   <div className="text-xs text-red-700 font-medium">
                     Dropped
@@ -357,29 +363,16 @@ const Dashboard: React.FC = () => {
                 </div>
                 <div className="text-center p-4 bg-blue-50 rounded-lg">
                   <div className="text-2xl font-bold text-blue-600 mb-1">
-                    {successRate}%
+                    {(
+                      (Number(user.callStatistics.totalSuccessCalls) /
+                        Number(user.callStatistics.totalCalls)) *
+                      100
+                    ).toFixed(2) || 0}
+                    %
                   </div>
                   <div className="text-xs text-blue-700 font-medium">
                     Success Rate
                   </div>
-                </div>
-              </div>
-
-              {/* Simple Progress Bar */}
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium text-gray-700">
-                    Success Rate
-                  </span>
-                  <span className="text-sm text-gray-600">{successRate}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <motion.div
-                    className="h-2 bg-blue-500 rounded-full"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${successRate}%` }}
-                    transition={{ duration: 1, ease: "easeOut" }}
-                  />
                 </div>
               </div>
             </motion.div>

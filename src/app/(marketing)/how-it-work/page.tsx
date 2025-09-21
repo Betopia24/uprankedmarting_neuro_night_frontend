@@ -13,7 +13,6 @@ export default function HowItWorksPage() {
       <AiAgentCapabilities />
       <AiAgentQuickStart />
       <AgentManagement />
-      {/* <AutoAnswerNumberHighlight /> */}
       <FAQ />
     </>
   );

@@ -609,12 +609,12 @@ export default function AudioUploadRecorder({
 
                       {/* File Info */}
                       <div className="flex items-center gap-4 text-sm text-slate-500 mb-3">
-                        <span>{formatFileSize(f.file.size)}</span>
+                        <span>{formatFileSize(f?.file?.size)}</span>
                         <span>•</span>
-                        <span>{f.file.type || "Audio file"}</span>
+                        <span>{f?.file?.type || "Audio file"}</span>
                         <span>•</span>
                         <span className="text-xs text-slate-400">
-                          Original: {f.file.name}
+                          Original: {f?.file?.name}
                         </span>
                       </div>
 

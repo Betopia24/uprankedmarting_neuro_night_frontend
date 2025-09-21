@@ -11,6 +11,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import YearFilter from "./YearFilter";
 
 interface MonthlyReportItem {
   month: string;
@@ -81,7 +82,7 @@ export default function DashboardChart({
 
   // Calculate max value for Y-axis scale
   const maxValue = React.useMemo(() => {
-    if (data.length === 0) return 10; // Default max value when no data
+    if (data.length === 0) return 10;
 
     let max = 0;
     data.forEach((item) => {
@@ -95,17 +96,18 @@ export default function DashboardChart({
         item.humanTotalCallDuration
       );
     });
-    return max > 0 ? max : 10; // fallback to 10 if max is 0
+    return max > 0 ? max : 10;
   }, [data]);
 
   const ticks = React.useMemo(() => {
     const step = Math.ceil(maxValue / 10);
-    if (step === 0) return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; // fallback ticks
+    if (step === 0) return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
     return Array.from({ length: 11 }, (_, i) => i * step);
   }, [maxValue]);
 
   return (
     <section className="-mx-12">
+      <YearFilter />
       <div style={{ width: "100%", height: 480 }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
@@ -153,31 +155,31 @@ export default function DashboardChart({
             <Bar
               dataKey="successCalls"
               fill={COLORS.successCalls}
-              name="Successful Calls"
+              name="Total Successful Calls"
               radius={[4, 4, 0, 0]}
             />
             <Bar
               dataKey="aiCalls"
               fill={COLORS.aiCalls}
-              name="AI Calls"
+              name="AI Successful Calls"
               radius={[4, 4, 0, 0]}
             />
             <Bar
               dataKey="humanCalls"
               fill={COLORS.humanCalls}
-              name="Human Calls"
+              name="Human Successful Calls"
               radius={[4, 4, 0, 0]}
             />
             <Bar
               dataKey="aiTotalCallDuration"
               fill={COLORS.aiTotalCallDuration}
-              name="AI Call Duration (sec)"
+              name="AI Successful Call Duration (sec)"
               radius={[4, 4, 0, 0]}
             />
             <Bar
               dataKey="humanTotalCallDuration"
               fill={COLORS.humanTotalCallDuration}
-              name="Human Call Duration (sec)"
+              name="Human Successful Call Duration (sec)"
               radius={[4, 4, 0, 0]}
             />
           </BarChart>

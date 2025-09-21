@@ -6,7 +6,8 @@ import { env } from "@/env";
 
 interface PlayCallRecordProps {
   sid?: string;
-  callTime?: string; // optional display
+  callTime?: string;
+  conversationId?: string;
 }
 
 export default function PlayCallRecord({ sid, callTime }: PlayCallRecordProps) {
@@ -16,11 +17,15 @@ export default function PlayCallRecord({ sid, callTime }: PlayCallRecordProps) {
   const [animationStep, setAnimationStep] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  const aiCall = sid?.startsWith("conv_");
+
   if (!sid) {
     return <span className="text-xs text-gray-400">No recording</span>;
   }
 
-  const url = `${env.NEXT_PUBLIC_API_URL}/call-logs/recordings/play/${sid}`;
+  const url = aiCall
+    ? `${env.NEXT_PUBLIC_API_BASE_URL_AI}/webhook/elevenlabs/conversation/${sid}/audio`
+    : `${env.NEXT_PUBLIC_API_URL}/call-logs/recordings/play/${sid}`;
 
   const togglePlay = async () => {
     if (!audioRef.current) return;

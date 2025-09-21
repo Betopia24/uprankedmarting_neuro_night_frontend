@@ -14,17 +14,12 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
   }, [error]);
 
   return (
-    <div
-      style={{
-        height: "calc(100vh - var(--_sidebar-header-height))",
-      }}
-      className="flex flex-col items-center justify-center  bg-gray-50 px-4 text-center -mt-20"
-    >
+    <div className="flex flex-col items-center justify-center h-screen bg-gray-50 px-4 text-center -mt-20">
       <div className="max-w-2xl">
         <h1 className="text-5xl font-bold text-red-600 mb-4">Oops!</h1>
         <p className="text-lg text-gray-700 mb-6">Something went wrong.</p>
         {env.NEXT_PUBLIC_APP_ENV === "development" && (
-          <pre className="bg-gray-100 p-4 rounded-lg text-sm text-red-500 overflow-x-auto mb-6">
+          <pre className="bg-gray-100 p-4 rounded-lg text-sm text-rose-500 overflow-x-auto mb-6">
             {error instanceof Error ? error.stack : String(error)}
           </pre>
         )}

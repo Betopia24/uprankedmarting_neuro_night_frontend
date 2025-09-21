@@ -48,7 +48,6 @@ interface TableRow {
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 10;
-const DEFAULT_SORT = "";
 
 /** Fetch agents from backend with pagination + search */
 async function getAgents(

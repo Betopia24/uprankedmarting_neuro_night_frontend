@@ -35,6 +35,7 @@ interface OrganizationAdmin {
   agent_name: string;
   recording_url: string;
   call_sid: string;
+  conversation_id: string;
 }
 
 interface OrganizationApiResponse {
@@ -61,7 +62,6 @@ interface TableRow {
   receivedBy: string;
   agentName: string;
   callRecord: string;
-
   // raw fields for sorting
   _rawCallTime: string;
   _rawCallDuration: number;
@@ -149,7 +149,6 @@ function filterData(data: TableRow[], query: string): TableRow[] {
 export default async function OrganizationAdminPage({
   searchParams,
 }: TableProps) {
-  // Await searchParams for Next.js 15
   const sp = searchParams ? await searchParams : {};
 
   const queryParams: TableSearchParams = {
@@ -192,7 +191,7 @@ export default async function OrganizationAdminPage({
     callDuration: formatSecondsToHMS(org.call_duration),
     receivedBy: org.type.toUpperCase(),
     agentName: org.agent_name || "AI",
-    callRecord: org.call_sid,
+    callRecord: org.conversation_id || org.call_sid,
     _rawCallTime: org.call_time,
     _rawCallDuration: org.call_duration,
   }));

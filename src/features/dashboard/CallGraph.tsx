@@ -1,5 +1,6 @@
 import { Heading } from "@/components";
 import { cn } from "@/lib/utils";
+import { formatCallTime } from "@/utils/formatCallTime";
 
 type CallStats = {
   totalCalls: number | string;
@@ -51,53 +52,55 @@ const classes = {
 
 export default function CallGraph({ callStats }: { callStats: CallStats }) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
       <Circle
-        value={callStats.totalCalls}
+        value={formatNumber(callStats.totalCalls)}
         label="Total Calls"
         variant={classes.variant1}
       />
       <Circle
-        value={callStats.totalHumanCalls}
+        value={formatNumber(callStats.totalHumanCalls)}
         label="Total Human Calls"
         variant={classes.variant2}
       />
       <Circle
-        value={callStats.totalAICalls}
+        value={formatNumber(callStats.totalAICalls)}
         label="Total AI Calls"
         variant={classes.variant3}
       />
       <Circle
-        value={callStats.totalSuccessCalls}
+        value={formatNumber(callStats.totalSuccessCalls)}
         label="Successful Calls"
         variant={classes.variant4}
       />
       <Circle
-        value={callStats.todayHumanCalls}
+        value={formatNumber(callStats.todayHumanCalls)}
         label="Today's Human Calls"
         variant={classes.variant5}
       />
       <Circle
-        value={callStats.todayAICalls}
+        value={formatNumber(callStats.todayAICalls)}
         label="Today's AI Calls"
         variant={classes.variant6}
       />
       <Circle
-        value={callStats.todaySuccessCalls}
+        value={formatNumber(callStats.todaySuccessCalls)}
         label="Today's Success Calls"
         variant={classes.variant7}
       />
       <Circle
-        value={Number(callStats.avgCallTime).toFixed(2)}
-        label="Avg. Call Time (s)"
+        value={formatCallTime(Number(callStats.avgCallTime))}
+        label="Avg. Call Time"
         variant={classes.variant8}
       />{" "}
     </div>
   );
 }
 
-function formatNumber(value: number): string {
-  if (value < 1000) return value.toString();
+function formatNumber(value: number | string): string {
+  const numValue = Number(value);
+  if (isNaN(numValue)) return value.toString();
+  if (numValue < 1000) return value.toString();
 
   const suffixes = ["", "k", "m", "b", "t"];
   const suffixNum = Math.floor(("" + value).length / 3);
@@ -105,7 +108,7 @@ function formatNumber(value: number): string {
 
   for (let precision = 2; precision >= 1; precision--) {
     shortValue = parseFloat(
-      (value / Math.pow(1000, suffixNum)).toFixed(precision)
+      (numValue / Math.pow(1000, suffixNum)).toFixed(precision)
     );
     const shortValueStr = shortValue.toString().replace(/\.0$/, "");
     if (shortValueStr.length <= 3) {
@@ -131,12 +134,12 @@ function Circle({
       </Heading>
       <div
         className={cn(
-          "flex items-center justify-center rounded-full border-4 md:border-8 size-20 md:size-24 lg:size-32 font-bold text-lg md:text-xl lg:text-2xl shrink-0 mx-auto",
+          "flex items-center justify-center rounded-full border-4 md:border-8 size-20 lg:size-24 xl:size-30 font-bold text-lg md:text-xl lg:text-2xl shrink-0 mx-auto",
           variant.border,
           variant.text
         )}
       >
-        {formatNumber(Number(value || 0))}
+        {value || 0}
       </div>
     </div>
   );

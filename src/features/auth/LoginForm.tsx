@@ -42,7 +42,6 @@ export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
       callbackUrl: callbackUrl,
     },
   });
-  const rememberMe = form.watch("rememberMe");
 
   const onSubmit = async (formData: LoginFormSchema) => {
     try {
@@ -135,18 +134,11 @@ export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
                   </Link>
                 }
               />
-              <CheckboxField
-                label="Remember me for 30 days"
-                name="rememberMe"
-                checked={rememberMe}
-              />
             </fieldset>
             <div className="mt-4">
               <AuthButton
                 disabled={
-                  !form.formState.isValid ||
-                  form.formState.isSubmitting ||
-                  !rememberMe
+                  !form.formState.isValid || form.formState.isSubmitting
                 }
                 isLoading={form.formState.isSubmitting}
                 className="w-full"

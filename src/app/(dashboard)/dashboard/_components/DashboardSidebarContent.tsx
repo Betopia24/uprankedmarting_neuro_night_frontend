@@ -71,20 +71,18 @@ export default function SidebarContent({
         try {
           const subscription = await getSubscriptionType(auth.token);
 
-          const allSubs =
-            subscription?.data?.organization?.subscriptions || [];
+          const allSubs = subscription?.data?.organization?.subscriptions || [];
 
           const hasActive =
             Array.isArray(allSubs) &&
             allSubs.some((s: any) => s.status === "ACTIVE");
 
           if (hasActive) {
-            setOrgMenu(dashboardNavigation.organization); // পুরো মেনু
+            setOrgMenu(dashboardNavigation.organization);
           } else {
-            setOrgMenu(dashboardNavigation.organization.slice(0, 2)); // শুধু ২টা
+            setOrgMenu(dashboardNavigation.organization.slice(0, 2));
           }
         } catch (error) {
-          // error হলে কেবল ২টা item
           setOrgMenu(dashboardNavigation.organization.slice(0, 2));
         } finally {
           setLoading(false);
@@ -100,6 +98,7 @@ export default function SidebarContent({
 
   if (auth?.user?.role === "super_admin") {
     finalMainItems = dashboardNavigation.admin;
+    finalSubItems = dashboardNavigation.subItems.admin;
   } else if (auth?.user?.role === "organization_admin") {
     if (orgMenu) {
       finalMainItems = orgMenu;
@@ -113,7 +112,6 @@ export default function SidebarContent({
     finalSubItems = subItems || [];
   }
 
-  // subscription loading অথবা orgMenu null থাকলে skeleton দেখাবে
   if (auth?.user?.role === "organization_admin" && (loading || !orgMenu)) {
     return <SkeletonSidebar />;
   }
@@ -187,4 +185,3 @@ function AnimatedLabel({ children }: React.PropsWithChildren) {
     )
   );
 }
-

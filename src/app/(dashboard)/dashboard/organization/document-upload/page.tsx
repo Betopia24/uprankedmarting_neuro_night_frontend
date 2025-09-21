@@ -9,6 +9,18 @@ export default async function OrganizationDocumentUploadPage() {
   const me = await getServerAuth();
   const subscriptionRes = await getSubscriptionType(me?.accessToken || "");
   const subscription = subscriptionRes?.data;
+  const AI_AGENT_BASE_URL = env.NEXT_PUBLIC_API_BASE_URL_AI;
+  const HUMAN_AGENT_BASE_URL = env.NEXT_PUBLIC_API_URL;
+  const AI_AGENT_UPLOAD_URL = () =>
+    `${AI_AGENT_BASE_URL}/organization-knowledge/knowledge-base/file`;
+  const AI_AGENT_FETCH_URL = (organizationId: string) =>
+    `${AI_AGENT_BASE_URL}/organization-knowledge/knowledge-base/${organizationId}`;
+  const AI_AGENT_DELETE_URL = `${AI_AGENT_BASE_URL}/organization-knowledge/knowledge-base`;
+
+  const HUMAN_AGENT_UPLOAD_URL = () => `${HUMAN_AGENT_BASE_URL}/company-docs`;
+  const HUMAN_AGENT_LIST_URL = () =>
+    `${HUMAN_AGENT_BASE_URL}/company-docs/organization`;
+  const HUMAN_AGENT_DELETE_FILE = () => `${HUMAN_AGENT_BASE_URL}/company-docs`;
 
   if (!subscription || subscription.status !== "ACTIVE") {
     return (
@@ -34,28 +46,16 @@ export default async function OrganizationDocumentUploadPage() {
     );
   }
 
-  const AI_AGENT_BASE_URL = env.NEXT_PUBLIC_API_BASE_URL_AI;
-  const HUMAN_AGENT_BASE_URL = env.NEXT_PUBLIC_API_URL;
-  const AI_AGENT_UPLOAD_URL = () =>
-    `${AI_AGENT_BASE_URL}/organization-knowledge/knowledge-base/file`;
-  const AI_AGENT_FETCH_URL = (organizationId: string) =>
-    `${AI_AGENT_BASE_URL}/organization-knowledge/knowledge-base/${organizationId}`;
-  const AI_AGENT_DELETE_URL = `${AI_AGENT_BASE_URL}/organization-knowledge/knowledge-base`;
-
-  const HUMAN_AGENT_UPLOAD_URL = () => `${HUMAN_AGENT_BASE_URL}/company-docs`;
-  const HUMAN_AGENT_LIST_URL = () =>
-    `${HUMAN_AGENT_BASE_URL}/company-docs/organization`;
-  const HUMAN_AGENT_DELETE_FILE = () => `${HUMAN_AGENT_BASE_URL}/company-docs`;
   return (
     <>
       {subscription.planLevel === "only_real_agent" && (
         <div className="space-y-10">
-          <DocumentUploads
+          <HumanDocumentUploads
             organizationId={me?.data?.ownedOrganization?.id || ""}
             title="Upload Document for Human Agent"
             uploadUrl={HUMAN_AGENT_UPLOAD_URL()}
-            deleteUrl={AI_AGENT_DELETE_URL}
-            fetchUrl={AI_AGENT_FETCH_URL(me?.data?.ownedOrganization?.id || "")}
+            deleteUrl={HUMAN_AGENT_DELETE_FILE()}
+            fetchUrl={HUMAN_AGENT_LIST_URL()}
           />
         </div>
       )}

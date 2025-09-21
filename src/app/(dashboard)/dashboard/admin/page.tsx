@@ -1,14 +1,15 @@
 import { env } from "@/env";
 import CallGraph from "@/features/dashboard/CallGraph";
 import CallGraphBarChart from "@/features/dashboard/CallGraphBarChart";
-import Feedback from "@/features/dashboard/Feedback";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
+
 import { getServerAuth } from "@/lib/auth";
 
 const DEFAULT_MONTH = 12;
 const DEFAULT_YEAR = new Date().getFullYear();
-const API_URL = `${env.API_BASE_URL}/dashboard/admin-dashboard-stats?month=${DEFAULT_MONTH}&year=${DEFAULT_YEAR}`;
 
 type MonthlyReport = {
   month: string;
@@ -44,38 +45,58 @@ type DashboardStatsResponse = {
   data: DashboardStatsData;
 };
 
-async function fetchDashboardStats(): Promise<DashboardStatsData | null> {
+async function fetchDashboardStats(
+  year?: string | number
+): Promise<DashboardStatsData | null> {
   const auth = await getServerAuth();
+  // Add timestamp to prevent caching
+  const timestamp = Date.now();
+  const API_URL = `${
+    env.API_BASE_URL
+  }/dashboard/admin-dashboard-stats?month=${DEFAULT_MONTH}&year=${
+    year || DEFAULT_YEAR
+  }&_t=${timestamp}`;
+
   try {
     const res = await fetch(API_URL, {
-      next: { revalidate: 60 },
-      headers: { Authorization: auth?.accessToken || "" },
+      cache: "no-store",
+      headers: {
+        Authorization: auth?.accessToken || "",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        Pragma: "no-cache",
+        Expires: "0",
+      },
     });
 
     if (!res.ok) {
-      env.NEXT_PUBLIC_APP_ENV === "development" &&
-        console.error("API responded with status:", res.status);
+      console.error("API responded with status:", res.status);
       return null;
     }
 
     const json: DashboardStatsResponse = await res.json();
     if (!json.success) {
-      env.NEXT_PUBLIC_APP_ENV === "development" &&
-        console.error("API success flag false:", json.message);
+      console.error("API success flag false:", json.message);
       return null;
     }
 
-    // No runtime validation here, trusting the API shape
     return json.data;
   } catch (error) {
-    env.NEXT_PUBLIC_APP_ENV === "development" &&
-      console.error("Error fetching dashboard stats:", error);
+    console.error("Error fetching dashboard stats:", error);
     return null;
   }
 }
 
-export default async function OrganizationDashboardPage() {
-  const statsData = await fetchDashboardStats();
+type Props = {
+  searchParams: Promise<{ year?: string }>;
+};
+
+export default async function OrganizationDashboardPage({
+  searchParams,
+}: Props) {
+  const params = await searchParams;
+  const year = params.year;
+
+  const statsData = await fetchDashboardStats(year);
 
   if (!statsData) {
     return (
@@ -86,27 +107,26 @@ export default async function OrganizationDashboardPage() {
   }
 
   const callStats = {
-    totalCalls: statsData.totalCalls,
-    totalHumanCalls: statsData.totalHumanCalls,
-    totalAICalls: statsData.totalAICalls,
-    totalSuccessCalls: statsData.totalSuccessCalls,
-    todayHumanCalls: statsData.todayHumanCalls,
-    todayAICalls: statsData.todayAICalls,
-    todaySuccessCalls: statsData.todaySuccessCalls,
-    avgCallTime: statsData.callTiming.avgTotalCallTime,
-    avgAICallTime: statsData.callTiming.avgAICallTime,
-    avgHumanCallTime: statsData.callTiming.avgHumanCallTime,
+    totalCalls: statsData?.totalCalls,
+    totalHumanCalls: statsData?.totalHumanCalls,
+    totalAICalls: statsData?.totalAICalls,
+    totalSuccessCalls: statsData?.totalSuccessCalls,
+    todayHumanCalls: statsData?.todayHumanCalls,
+    todayAICalls: statsData?.todayAICalls,
+    todaySuccessCalls: statsData?.todaySuccessCalls,
+    avgCallTime: statsData?.callTiming?.avgTotalCallTime,
+    avgAICallTime: statsData?.callTiming?.avgAICallTime,
+    avgHumanCallTime: statsData?.callTiming?.avgHumanCallTime,
   };
 
   return (
-    <div className="lg:flex gap-10">
-      <div className="space-y-6 flex-1">
-        <CallGraph callStats={callStats} />
-        <CallGraphBarChart monthlyReport={statsData.monthlyReport} />
-      </div>
-      <div className="basis-72 max-w-72">
-        <Feedback />
-      </div>
+    <div className="space-y-6 flex-1">
+      {/* Add key prop to force re-render when year changes */}
+      <CallGraph key={`graph-${year}`} callStats={callStats} />
+      <CallGraphBarChart
+        key={`chart-${year}`}
+        monthlyReport={statsData.monthlyReport}
+      />
     </div>
   );
 }

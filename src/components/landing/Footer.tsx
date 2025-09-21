@@ -2,12 +2,11 @@ import logoImage from "@/images/logo.svg";
 import Image from "next/image";
 import Container from "../Container";
 import {
-  aboutUsPath,
   contactPath,
   homePath,
   howItWork,
+  pricingPath,
   privacyPolicyPath,
-  servicePath,
   supportPath,
   termsAndConditionsPath,
 } from "@/paths";
@@ -20,9 +19,7 @@ import linkedinIcon from "@/images/linkedin.svg";
 const links = [
   { id: 1, name: "Home", href: homePath },
   { id: 2, name: "How It Work", href: howItWork },
-  { id: 3, name: "Service", href: servicePath },
-  { id: 4, name: "Contact Us", href: contactPath },
-  { id: 5, name: "About Us", href: aboutUsPath },
+  { id: 3, name: "Pricing", href: pricingPath },
 ];
 
 const socialLinks = [
@@ -67,13 +64,13 @@ export default function Footer() {
           ))}
         </ul>
         <div className="mt-10 border-t border-primary flex justify-between items-center gap-2 py-4">
-          <ul className="flex flex-wrap gap-4 justify-center text-[10px]">
+          {/* <ul className="flex flex-wrap gap-4 justify-center text-[10px]">
             {externalLinks.slice(0, 2).map((link) => (
               <li key={link.id}>
                 <Link href={link.href()}>{link.name}</Link>
               </li>
             ))}
-          </ul>
+          </ul> */}
           <span className="text-sm">
             &copy;{new Date().getFullYear()} Autoawnser.ai. All rights reserved.
           </span>

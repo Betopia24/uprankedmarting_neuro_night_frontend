@@ -14,6 +14,7 @@ import AuthLayout from "./AuthLayout";
 import { useSearchParams } from "next/navigation";
 import { env } from "@/env";
 import { toast } from "sonner";
+import OTPButton from "./OTPButton";
 
 export default function OTPForm() {
   const searchParams = useSearchParams();
@@ -110,6 +111,9 @@ export default function OTPForm() {
             </Button>
           </div>
         </AuthCard.Content>
+        <AuthCard.Footer>
+          <OTPButton />
+        </AuthCard.Footer>
       </AuthCard>
     </AuthLayout>
   );

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { env } from "@/env";
 import Image from "next/image";
-import { Button, Heading } from "@/components";
+import { Button } from "@/components";
 import { LucideStar, LucideTrash2 } from "lucide-react";
 
 type Mode = "agent" | "service";
@@ -225,25 +225,25 @@ function Review({
           className="p-2 border border-gray-200 rounded shadow flex gap-4 items-center hover:bg-red-50"
         >
           <div className="shrink-0">
-            {review.client.image ? (
+            {review?.client?.image ? (
               <Image
-                src={review.client.image}
-                alt={review.client.name}
+                src={review?.client?.image}
+                alt={review?.client?.name}
                 width={32}
                 height={32}
                 className="rounded-full"
               />
             ) : (
               <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold">
-                {review.client.name[0].toUpperCase()}
+                {review?.client?.name[0].toUpperCase()}
               </div>
             )}
           </div>
           <div className="flex-1 flex flex-col text-xs">
-            <span className="font-semibold">{review.client.name}</span>
+            <span className="font-semibold">{review?.client?.name}</span>
             <span className="break-all inline-block line-clamp-2 max-w-xs">
-              {review.feedbackText.slice(0, 50)}
-              {review.feedbackText.length > 50 && "..."}
+              {review?.feedbackText.slice(0, 50)}
+              {review?.feedbackText?.length > 50 && "..."}
             </span>
             <RatingViewer rating={review.rating} size={12} />
           </div>

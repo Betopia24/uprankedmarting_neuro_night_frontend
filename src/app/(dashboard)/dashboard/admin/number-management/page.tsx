@@ -5,6 +5,7 @@ import { sortData } from "@/components/table/utils/sortData";
 import { adminNumberManagementPath } from "@/paths";
 import { env } from "@/env";
 import { getServerAuth } from "@/lib/auth";
+import Link from "next/link";
 
 const config = {
   basePath: adminNumberManagementPath(),
@@ -35,6 +36,8 @@ export interface TableData {
 export interface TableSearchParams {
   sort?: string;
   query?: string;
+  page?: string;
+  limit?: string;
 }
 
 interface TableProps {
@@ -42,6 +45,8 @@ interface TableProps {
 }
 
 const DEFAULT_SORT = "";
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 10;
 
 export default async function NumberManagementPage({
   searchParams,
@@ -64,7 +69,13 @@ export default async function NumberManagementPage({
     queryParams.sort || DEFAULT_SORT
   ).split(":");
 
-  // Filter data by search query if provided
+  // Pagination params
+  const page = Number(queryParams.page) || DEFAULT_PAGE;
+  const limit = Number(queryParams.limit) || DEFAULT_LIMIT;
+  const startIndex = (page - 1) * limit;
+  const endIndex = page * limit;
+
+  // Filter data
   const filteredData = tableData.filter((item) => {
     if (!searchQuery) return true;
     return (
@@ -79,6 +90,11 @@ export default async function NumberManagementPage({
     sortField,
     sortDirection
   );
+
+  // Paginated data
+  const paginatedData = sortedData.slice(startIndex, endIndex);
+
+  const totalPages = Math.ceil(sortedData.length / limit);
 
   const allowedKeys = [
     "id",
@@ -113,8 +129,8 @@ export default async function NumberManagementPage({
                   field={field}
                   currentSort={sortField}
                   sortDirection={sortDirection}
-                  currentPage={1}
-                  limit={sortedData.length}
+                  currentPage={page}
+                  limit={limit}
                   searchQuery={searchQuery}
                   basePath={config.basePath}
                 />
@@ -122,8 +138,8 @@ export default async function NumberManagementPage({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {sortedData.length > 0 ? (
-              sortedData.map((item) => (
+            {paginatedData.length > 0 ? (
+              paginatedData.map((item) => (
                 <tr
                   key={item.id}
                   className="hover:bg-gray-50 transition-colors cursor-pointer"
@@ -198,6 +214,25 @@ export default async function NumberManagementPage({
           </tbody>
         </table>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center gap-2 mt-4">
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+            <Link
+              key={p}
+              href={`${config.basePath}?query=${searchQuery}&sort=${sortField}:${sortDirection}&page=${p}&limit=${limit}`}
+              className={`px-3 py-1 rounded border ${
+                p === page
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+              }`}
+            >
+              {p}
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

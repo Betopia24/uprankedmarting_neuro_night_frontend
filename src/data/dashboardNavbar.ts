@@ -40,7 +40,7 @@ export const dashboardNavigation = {
       icon: "phoneCall",
       href: paths.organizationCallLogsPath(),
     },
-    { 
+    {
       name: "Agent Management",
       icon: "userCog",
       href: paths.organizationAgentManagementPath(),
@@ -88,8 +88,20 @@ export const dashboardNavigation = {
       icon: "phone",
       href: paths.agentCallManagementPath(),
     },
+    {
+      name: "Documents",
+      icon: "fileUp",
+      href: paths.agentDocumentsPath(),
+    },
   ],
   subItems: {
+    admin: [
+      {
+        name: "Payments",
+        icon: "creditCard",
+        href: paths.adminPaymentsPath(),
+      },
+    ],
     organization: [
       {
         name: "Settings",

@@ -1,351 +1,218 @@
+import React from "react";
 import Pagination from "@/components/table/components/Pagination";
 import SearchField from "@/components/table/components/SearchField";
 import TableHeaderItem from "@/components/table/components/TableHeaderItem";
-import { sortData } from "@/components/table/utils/sortData";
-import paginateData from "@/components/table/utils/paginateData";
-
 import { agentCallManagementPath } from "@/paths";
-import {
-  applyFilters,
-  filterData,
-  parseFilters,
-} from "@/components/table/utils/filters";
-import Filter, { FilterField } from "@/components/table/components/Filter";
-
-// Dummy table data
-const tableData = [
-  {
-    id: 1,
-    name: "John",
-    email: "john@example.com",
-    createdAt: new Date("2024-01-15").getDate(),
-    earning: 2500,
-    status: "active",
-    role: "user",
-  },
-  {
-    id: 2,
-    name: "Jane",
-    email: "jane@example.com",
-    createdAt: new Date("2024-02-20").getDate(),
-    earning: 5200,
-    status: "inactive",
-    role: "admin",
-  },
-  {
-    id: 3,
-    name: "Bob",
-    email: "bob@example.com",
-    createdAt: new Date("2024-01-10").getDate(),
-    earning: 7800,
-    status: "active",
-    role: "user",
-  },
-  {
-    id: 4,
-    name: "Alice",
-    email: "alice@example.com",
-    createdAt: new Date("2024-03-05").getDate(),
-    earning: 3400,
-    status: "active",
-    role: "admin",
-  },
-  {
-    id: 5,
-    name: "Charlie",
-    email: "charlie@example.com",
-    createdAt: new Date("2024-02-28").getDate(),
-    earning: 1200,
-    status: "inactive",
-    role: "user",
-  },
-  {
-    id: 6,
-    name: "David",
-    email: "david@example.com",
-    createdAt: new Date("2024-03-15").getDate(),
-    earning: 4600,
-    status: "active",
-    role: "user",
-  },
-  {
-    id: 7,
-    name: "Emma",
-    email: "emma@example.com",
-    createdAt: new Date("2024-01-25").getDate(),
-    earning: 3800,
-    status: "active",
-    role: "admin",
-  },
-  {
-    id: 8,
-    name: "Frank",
-    email: "frank@example.com",
-    createdAt: new Date("2024-02-10").getDate(),
-    earning: 5900,
-    status: "inactive",
-    role: "user",
-  },
-  {
-    id: 9,
-    name: "Grace",
-    email: "grace@example.com",
-    createdAt: new Date("2024-03-20").getDate(),
-    earning: 2200,
-    status: "active",
-    role: "user",
-  },
-  {
-    id: 10,
-    name: "Henry",
-    email: "henry@example.com",
-    createdAt: new Date("2024-01-05").getDate(),
-    earning: 6700,
-    status: "inactive",
-    role: "admin",
-  },
-  {
-    id: 11,
-    name: "Ivy",
-    email: "ivy@example.com",
-    createdAt: new Date("2024-02-15").getDate(),
-    earning: 4100,
-    status: "active",
-    role: "user",
-  },
-  {
-    id: 12,
-    name: "Jack",
-    email: "jack@example.com",
-    createdAt: new Date("2024-03-10").getDate(),
-    earning: 3300,
-    status: "active",
-    role: "user",
-  },
-  {
-    id: 13,
-    name: "Kelly",
-    email: "kelly@example.com",
-    createdAt: new Date("2024-01-12").getDate(),
-    earning: 5600,
-    status: "inactive",
-    role: "admin",
-  },
-  {
-    id: 14,
-    name: "Liam",
-    email: "liam@example.com",
-    createdAt: new Date("2024-02-18").getDate(),
-    earning: 4700,
-    status: "active",
-    role: "user",
-  },
-  {
-    id: 15,
-    name: "Mia",
-    email: "mia@example.com",
-    createdAt: new Date("2024-03-08").getDate(),
-    earning: 3900,
-    status: "inactive",
-    role: "user",
-  },
-  {
-    id: 16,
-    name: "Noah",
-    email: "noah@example.com",
-    createdAt: new Date("2024-01-22").getDate(),
-    earning: 6100,
-    status: "active",
-    role: "admin",
-  },
-  {
-    id: 17,
-    name: "Olivia",
-    email: "olivia@example.com",
-    createdAt: new Date("2024-02-25").getDate(),
-    earning: 2800,
-    status: "active",
-    role: "user",
-  },
-  {
-    id: 18,
-    name: "Paul",
-    email: "paul@example.com",
-    createdAt: new Date("2024-03-12").getDate(),
-    earning: 5300,
-    status: "inactive",
-    role: "admin",
-  },
-  {
-    id: 19,
-    name: "Quinn",
-    email: "quinn@example.com",
-    createdAt: new Date("2024-01-18").getDate(),
-    earning: 3600,
-    status: "active",
-    role: "user",
-  },
-  {
-    id: 20,
-    name: "Rachel",
-    email: "rachel@example.com",
-    createdAt: new Date("2024-02-05").getDate(),
-    earning: 4400,
-    status: "active",
-    role: "admin",
-  },
-];
-
-const config = {
-  basePath: agentCallManagementPath(),
-};
+import { parseFilters } from "@/components/table/utils/filters";
+import { env } from "@/env";
+import { getServerAuth } from "@/lib/auth";
+import { formatDateTime } from "@/utils/formatDateTime";
+import { formatSecondsToHMS } from "@/utils/formatSecondsToHMS";
 
 export interface TableSearchParams {
   page?: number;
   limit?: number;
   sort?: string;
   query?: string;
-  status?: string | string[];
-  role?: string | string[];
-  earning_range?: string;
-  [key: string]: string | string[] | undefined | number;
+  [key: string]: string | string[] | number | undefined;
 }
 
 interface TableProps {
-  searchParams: Promise<TableSearchParams>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}
+
+interface AgentCall {
+  id: string;
+  to_number: string;
+  callType: string;
+  call_status: string;
+  call_duration: number;
+  call_time: string;
+}
+
+interface AgentCallApiResponse {
+  success: boolean;
+  message: string;
+  data: {
+    meta: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    };
+    data: AgentCall[];
+  };
+}
+
+interface TableRow {
+  id: string;
+  calledNumber: string;
+  callType: string;
+  callStatus: string;
+  callTime: string; // formatted date and time
+  callDuration: string; // formatted H:M:S
+
+  // raw for sorting if needed
+  _rawCallTime: string;
+  _rawCallDuration: number;
 }
 
 const DEFAULT_PAGE = 1;
-const DEFAULT_LIMIT = 5;
+const DEFAULT_LIMIT = 10;
 const DEFAULT_SORT = "";
 
-const filterFields: FilterField[] = [
-  {
-    key: "status",
-    label: "Status",
-    type: "multi-select",
-    options: [
-      { label: "Active", value: "active" },
-      { label: "Inactive", value: "inactive" },
-    ],
-  },
-  {
-    key: "role",
-    label: "Role",
-    type: "select",
-    options: [
-      { label: "User", value: "user" },
-      { label: "Admin", value: "admin" },
-    ],
-  },
-  // {
-  //   key: "earning_range",
-  //   label: "Earning Range",
-  //   type: "select",
-  //   options: [
-  //     { label: "Under $3,000", value: "under_3000" },
-  //     { label: "$3,000 - $5,000", value: "3000_5000" },
-  //     { label: "Above $5,000", value: "above_5000" },
-  //   ],
-  // },
-];
+async function getAgentCalls(
+  params: TableSearchParams
+): Promise<AgentCallApiResponse | null> {
+  const auth = await getServerAuth();
+  if (!auth?.accessToken) return null;
 
-export default async function CallManageAndLogsPage({
+  const url = new URL(`${env.API_BASE_URL}/agents/agent-calls-management-info`);
+  url.searchParams.set("page", String(params.page ?? DEFAULT_PAGE));
+  url.searchParams.set("limit", String(params.limit ?? DEFAULT_LIMIT));
+  if (params.sort) url.searchParams.set("sort", String(params.sort));
+  if (params.query) url.searchParams.set("searchTerm", String(params.query));
+
+  const res = await fetch(url.toString(), {
+    headers: { Authorization: auth.accessToken },
+    cache: "no-cache",
+  });
+  if (!res.ok) return null;
+
+  const json: AgentCallApiResponse = await res.json();
+  return json;
+}
+
+export default async function AgentCallManagementPage({
   searchParams,
 }: TableProps) {
-  const data = tableData || [];
-  const queryParams = await searchParams;
-  const page = Number(queryParams.page) || DEFAULT_PAGE;
-  const limit = Number(queryParams.limit) || DEFAULT_LIMIT;
-  const [sortField, sortDirection = ""] = (
-    queryParams.sort || DEFAULT_SORT
-  ).split(":");
-  const searchQuery = queryParams.query || "";
+  const sp: Record<string, string | string[] | undefined> = searchParams
+    ? await searchParams
+    : {};
 
-  const tableHeader = Object.keys(tableData[0]);
+  const queryParams: TableSearchParams = {
+    page: sp.page
+      ? parseInt(Array.isArray(sp.page) ? sp.page[0] : sp.page, 10)
+      : DEFAULT_PAGE,
+    limit: sp.limit
+      ? parseInt(Array.isArray(sp.limit) ? sp.limit[0] : sp.limit, 10)
+      : DEFAULT_LIMIT,
+    sort: sp.sort
+      ? Array.isArray(sp.sort)
+        ? sp.sort[0]
+        : sp.sort
+      : DEFAULT_SORT,
+    query: sp.query ? (Array.isArray(sp.query) ? sp.query[0] : sp.query) : "",
+  };
 
-  // Parse filters from URL
+  const response = await getAgentCalls(queryParams);
+  if (!response || !response.data)
+    return (
+      <div className="py-16 text-center text-gray-500 bg-white shadow-sm rounded-lg">
+        Failed to load agent calls.
+      </div>
+    );
+
+  const { data: calls, meta } = response.data;
+
+  const tableData: TableRow[] = calls.map((call) => ({
+    id: call.id,
+    calledNumber: call.to_number,
+    callType: call.callType.charAt(0).toUpperCase() + call.callType.slice(1),
+    callStatus:
+      call.call_status.charAt(0).toUpperCase() + call.call_status.slice(1),
+    callTime: formatDateTime(call.call_time),
+    callDuration: formatSecondsToHMS(call.call_duration),
+    _rawCallTime: call.call_time,
+    _rawCallDuration: call.call_duration,
+  }));
+
+  const tableHeader: (keyof TableRow)[] = [
+    "calledNumber",
+    "callType",
+    "callStatus",
+    "callTime",
+    "callDuration",
+  ];
+
   const currentFilters = parseFilters(queryParams);
-
-  // Apply filtering (but not sorting or pagination yet)
-  let filteredData = [...data];
-
-  // Apply search filter
-  filteredData = filterData(filteredData, searchQuery);
-
-  // Apply field filters
-  filteredData = applyFilters(filteredData, currentFilters);
-
-  // Calculate pagination info based on filtered data
-  const totalItems = filteredData.length;
-  const totalPages = Math.ceil(totalItems / limit);
-  const hasNextPage = page < totalPages;
-  const hasPrevPage = page > 1;
-
-  const paginatedData = paginateData(data, page, limit);
-
-  const sortedPaginatedData = sortData(paginatedData, sortField, sortDirection);
+  const basePath = agentCallManagementPath();
 
   return (
-    <div className="space-y-4">
-      <div className="flex gap-4 justify-between">
-        <SearchField basePath={config.basePath} defaultQuery={searchQuery} />
-
-        <Filter
-          filterFields={filterFields}
-          currentFilters={currentFilters}
-          searchQuery={searchQuery}
-          currentPage={page}
-          limit={limit}
-          sortField={sortField}
-          sortDirection={sortDirection}
-          basePath={config.basePath}
+    <div className="space-y-6 px-4 sm:px-6 lg:px-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <SearchField
+          basePath={basePath}
+          defaultQuery={queryParams.query ?? ""}
         />
       </div>
 
-      <table className="table-auto border-collapse border border-gray-200 w-full text-gray-800">
-        <thead>
-          <tr className="bg-gray-100">
-            {tableHeader.map((field) => (
-              <TableHeaderItem
-                key={field}
-                field={field}
-                currentSort={sortField}
-                sortDirection={sortDirection}
-                currentPage={page}
-                limit={limit}
-                searchQuery={searchQuery}
-                basePath={config.basePath}
-                currentFilters={currentFilters}
-              />
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {sortedPaginatedData.map((item) => {
-            const fields = Object.values(item);
-            return (
-              <tr key={item.id}>
-                {fields.map((field, index) => (
-                  <td key={index} className="border border-gray-200 p-2">
-                    {field}
+      <div className="w-full overflow-x-auto bg-white shadow rounded-lg border border-gray-200">
+        <table className="min-w-full text-sm text-left text-gray-700 border-collapse">
+          <thead className="bg-gray-50 text-gray-900 text-sm font-medium border-b border-gray-200">
+            <tr>
+              {tableHeader.map((field) => (
+                <TableHeaderItem
+                  key={field}
+                  field={field}
+                  currentSort={queryParams.sort ?? ""}
+                  sortDirection="asc"
+                  currentPage={queryParams.page ?? 1}
+                  limit={meta.limit}
+                  searchQuery={queryParams.query ?? ""}
+                  basePath={basePath}
+                  currentFilters={currentFilters}
+                />
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {tableData.length > 0 ? (
+              tableData.map((item) => (
+                <tr
+                  key={item.id}
+                  className="hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  <td className="px-4 py-3 border border-gray-200 whitespace-nowrap">
+                    {item.calledNumber}
                   </td>
-                ))}
+                  <td className="px-4 py-3 border border-gray-200 whitespace-nowrap">
+                    {item.callType}
+                  </td>
+                  <td className="px-4 py-3 border border-gray-200 whitespace-nowrap">
+                    {item.callStatus}
+                  </td>
+                  <td className="px-4 py-3 border border-gray-200 whitespace-nowrap">
+                    {item.callTime}
+                  </td>
+                  <td className="px-4 py-3 border border-gray-200 whitespace-nowrap">
+                    {item.callDuration}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan={5}
+                  className="px-4 py-10 text-center text-gray-500 border border-gray-200"
+                >
+                  No agent calls found.
+                </td>
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
+            )}
+          </tbody>
+        </table>
+      </div>
 
       <Pagination
-        currentPage={page}
-        totalPages={totalPages}
-        hasNextPage={hasNextPage}
-        hasPrevPage={hasPrevPage}
-        limit={limit}
-        sortField={sortField}
-        sortDirection={sortDirection}
-        basePath={config.basePath}
+        currentPage={meta.page}
+        totalPages={meta.totalPages}
+        hasNextPage={meta.page < meta.totalPages}
+        hasPrevPage={meta.page > 1}
+        limit={meta.limit}
+        sortField={queryParams.sort ?? ""}
+        sortDirection="asc"
+        basePath={basePath}
       />
     </div>
   );

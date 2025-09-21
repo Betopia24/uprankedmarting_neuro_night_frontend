@@ -24,7 +24,7 @@ export default function AgentProfileCard({
           />
         ) : (
           <div className="size-24 border border-gray-400 rounded-full mx-auto flex items-center justify-center text-4xl font-semibold">
-            {user.name.slice(0, 1)}
+            {user?.name.slice(0, 1)}
           </div>
         )}
 
@@ -33,12 +33,12 @@ export default function AgentProfileCard({
             {user.name}
           </Heading>
           <span className="text-xs text-black/70 leading-none capitalize truncate">
-            {user.Agent.skills.slice(0, 2).join(", ")}
+            {user?.Agent?.skills.slice(0, 2).join(", ")}
           </span>
         </div>
 
         <div className="flex justify-center">
-          <RatingViewer rating={user.Agent.avgRating} />
+          <RatingViewer rating={user?.Agent?.avgRating} />
         </div>
 
         <p className="text-xs">{user.bio}</p>
@@ -47,10 +47,10 @@ export default function AgentProfileCard({
 
         <div className="flex items-center gap-2 justify-between flex-wrap border-t border-t-gray-200 py-4 px-8">
           <Stats
-            progress={user.Agent.AgentFeedbacks.length}
+            progress={user?.Agent?.AgentFeedbacks.length}
             label="Feedbacks"
           />
-          <Stats progress={user.Agent.totalCalls} label="Total Calls" />
+          <Stats progress={user?.Agent?.totalCalls} label="Total Calls" />
         </div>
       </div>
     </div>
@@ -64,7 +64,7 @@ export default function AgentProfileCard({
 function Stats({ progress, label }: { progress: number; label: string }) {
   return (
     <div className="flex flex-col text-center">
-      <span className="text-base font-semibold">{progress}</span>
+      <span className="text-base font-semibold">{progress || 0}</span>
       <span className="text-gray-500 text-xs">{label}</span>
     </div>
   );

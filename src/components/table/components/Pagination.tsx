@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 import { cn } from "@/lib/utils";
 import { LucideChevronLeft, LucideChevronRight } from "lucide-react";
 
@@ -25,6 +26,9 @@ export default function Pagination({
   limit,
   basePath = "/table",
 }: PaginationProps) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
   const buildUrl = (page: number) => {
     const params = new URLSearchParams();
     params.set("page", page.toString());
@@ -33,6 +37,13 @@ export default function Pagination({
       params.set("sort", `${sortField}:${sortDirection}`);
     }
     return `${basePath}?${params.toString()}`;
+  };
+
+  const navigate = (page: number) => {
+    const url = buildUrl(page);
+    startTransition(() => {
+      router.push(url, { scroll: false });
+    });
   };
 
   const getPageNumbers = (): number[] => {
@@ -51,54 +62,60 @@ export default function Pagination({
   const pageNumbers = getPageNumbers();
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between mt-6 gap-2">
-      <div className="text-sm text-gray-500">
-        Page {currentPage} of {totalPages}
+    <div className="flex flex-col sm:flex-row items-center justify-between mt-8 gap-3">
+      <div className="text-sm text-gray-600">
+        Page <span className="font-medium">{currentPage}</span> of{" "}
+        <span className="font-medium">{totalPages}</span>
       </div>
 
-      <div className="flex items-center space-x-1">
+      <div className="flex items-center gap-2">
         {/* Previous */}
-        <Link
-          href={buildUrl(currentPage - 1)}
-          scroll={false}
+        <button
+          disabled={!hasPrevPage || isPending}
+          onClick={() => navigate(currentPage - 1)}
           className={cn(
-            "flex items-center px-3 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors",
-            !hasPrevPage && "opacity-50 cursor-not-allowed pointer-events-none"
+            "flex cursor-pointer items-center px-3 py-2 text-sm font-medium rounded-full border transition-all",
+            !hasPrevPage || isPending
+              ? "opacity-50 bg-gray-100 text-gray-400"
+              : "bg-white border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-800"
           )}
         >
           <LucideChevronLeft className="w-4 h-4 mr-1" />
           Prev
-        </Link>
+        </button>
 
         {/* Page Numbers */}
         {pageNumbers.map((pageNum) => (
-          <Link
+          <button
             key={pageNum}
-            href={buildUrl(pageNum)}
-            scroll={false}
+            disabled={isPending}
+            onClick={() => navigate(pageNum)}
             className={cn(
-              "px-3 py-2 text-sm font-medium border rounded-lg transition-colors",
+              "px-4 py-2 text-sm font-medium rounded-full border transition-all cursor-pointer",
               currentPage === pageNum
-                ? "bg-blue-50 border-blue-500 text-blue-600"
-                : "bg-white border-gray-300 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                ? "bg-blue-600 border-blue-600 text-white shadow-sm"
+                : "bg-white border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-800",
+              isPending && "opacity-50"
             )}
           >
             {pageNum}
-          </Link>
+          </button>
         ))}
 
         {/* Next */}
-        <Link
-          href={buildUrl(currentPage + 1)}
-          scroll={false}
+        <button
+          disabled={!hasNextPage || isPending}
+          onClick={() => navigate(currentPage + 1)}
           className={cn(
-            "flex items-center px-3 py-2 text-sm font-medium rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition-colors",
-            !hasNextPage && "opacity-50 cursor-not-allowed pointer-events-none"
+            "flex cursor-pointer items-center px-3 py-2 text-sm font-medium rounded-full border transition-all",
+            !hasNextPage || isPending
+              ? "opacity-50 cursor-not-allowed bg-gray-100 text-gray-400"
+              : "bg-white border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-800"
           )}
         >
           Next
           <LucideChevronRight className="w-4 h-4 ml-1" />
-        </Link>
+        </button>
       </div>
     </div>
   );

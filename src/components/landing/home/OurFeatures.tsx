@@ -1,13 +1,14 @@
 "use client";
 
 import { Section, Container } from "@/components";
-import { ParallaxEffect, StaggerFadeUp } from "@/components/animations";
+import ScrollAnimation from "@/components/animations/ScrollAnimation";
+import shakeImage from "@/images/shake.png";
+import Image from "next/image";
 import { useEffect, useRef } from "react";
-import Player, { LottieRefCurrentProps } from 'lottie-react';
+import Player, { LottieRefCurrentProps } from "lottie-react";
 import Robot from "./_animation/robot.json";
 
 export default function OurFeatures() {
-
   const lottieRef = useRef<LottieRefCurrentProps>(null);
 
   useEffect(() => {
@@ -19,24 +20,36 @@ export default function OurFeatures() {
   return (
     <Section>
       <Container>
-        <ParallaxEffect>
-          <StaggerFadeUp>
-            <div className="flex flex-col gap-10 lg:gap-0 lg:flex-row text-xl overflow-hidden">
-              <div className="bg-warning space-y-4 flex-1 p-6 text-lg order-2 lg:order-1 rounded">
-                <Section.Heading className="italic">
-                  AI Phone Agent & Virtual Receptionist for Smarter CX
-                </Section.Heading>
-                <p>
-                  Harness the power of Autoawnser.ai to deliver seamless,
-                  natural-sounding phone support that operates 24/7.
-                </p>
-                <p>
-                  Born from Google&apos;s pioneering Duplex tech in Area 120,
-                  Autoawnser.ai equips your business with a local-number phone
-                  AI that:
-                </p>
-                <div className="text-base leading-relaxed space-y-2">
-                  <ul className="list-disc list-inside space-y-2.5 font-medium pl-4">
+        <div className="flex flex-col gap-10 lg:gap-0 lg:flex-row text-xl overflow-hidden">
+          <div className="bg-warning space-y-4 flex-1 p-6 text-lg order-2 lg:order-1 rounded">
+            <ScrollAnimation>
+              <Section.Heading className="italic">
+                AI Phone Agent & Virtual Receptionist for Smarter CX
+              </Section.Heading>
+              <p>
+                Harness the power of Autoawnser.ai to deliver seamless,
+                natural-sounding phone support that operates 24/7.
+              </p>
+              <p>
+                Born from Google&apos;s pioneering Duplex tech in Area 120,
+                Autoawnser.ai equips your business with a local-number phone AI
+                that:
+              </p>
+            </ScrollAnimation>
+
+            <div className="flex flex-col lg:flex-row gap-4">
+              <div className="flex flex-col justify-center items-center">
+                <Player
+                  lottieRef={lottieRef}
+                  animationData={Robot}
+                  loop={true}
+                  autoplay={true}
+                  style={{ width: 500, height: 500 }}
+                />
+              </div>
+              <div className="text-base leading-relaxed space-y-2">
+                <ul className="list-disc list-inside font-medium pl-4">
+                  <ScrollAnimation className="space-y-2.5">
                     <li>
                       Automates customer service, scheduling, and lead capture
                       with intuitive “skills” and logic-driven flows.
@@ -62,21 +75,12 @@ export default function OurFeatures() {
                       integration, or CRM plug‑ins; scalable across solos to
                       enterprise-level operations.
                     </li>
-                  </ul>
-                </div>
-              </div>
-              <div className="order-1 lg:order-1 flex flex-col justify-center items-center">
-                <Player
-                  lottieRef={lottieRef}
-                  animationData={Robot}
-                  loop={true}
-                  autoplay={true}
-                  style={{ width: 500, height: 500 }}
-                />
+                  </ScrollAnimation>
+                </ul>
               </div>
             </div>
-          </StaggerFadeUp>
-        </ParallaxEffect>
+          </div>
+        </div>
       </Container>
     </Section>
   );

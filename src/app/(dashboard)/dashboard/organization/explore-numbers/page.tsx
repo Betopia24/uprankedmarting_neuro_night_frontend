@@ -51,7 +51,7 @@ interface TableProps {
 }
 
 const DEFAULT_PAGE = 1;
-const DEFAULT_LIMIT = 5;
+const DEFAULT_LIMIT = 10;
 const DEFAULT_SORT = "";
 
 function filterData(data: TableData[], searchQuery: string): TableData[] {
@@ -98,12 +98,9 @@ export default async function OrganizationNumbersPage({
     headers: { Authorization: auth.accessToken },
   });
   if (!res.ok) throw new Error("Failed to fetch active numbers");
-  console.log("API responded with status:", res.status);
 
   const json = await res.json();
   const rawTableData: TableData[] = Array.isArray(json?.data) ? json.data : [];
-
-  console.log("Raw table data:", rawTableData);
 
   const queryParams = await searchParams;
   const page = Number(queryParams.page) || DEFAULT_PAGE;
@@ -140,8 +137,8 @@ export default async function OrganizationNumbersPage({
   const tableHeader =
     sortedPaginatedData.length > 0
       ? allowedKeys.filter((key) =>
-        Object.keys(sortedPaginatedData[0]).includes(key)
-      )
+          Object.keys(sortedPaginatedData[0]).includes(key)
+        )
       : allowedKeys;
 
   return (
@@ -157,8 +154,9 @@ export default async function OrganizationNumbersPage({
       {searchQuery && (
         <div className="text-sm text-gray-600">
           {totalItems > 0
-            ? `Found ${totalItems} result${totalItems === 1 ? "" : "s"
-            } for "${searchQuery}"`
+            ? `Found ${totalItems} result${
+                totalItems === 1 ? "" : "s"
+              } for "${searchQuery}"`
             : `No results found for "${searchQuery}"`}
         </div>
       )}
@@ -215,8 +213,9 @@ export default async function OrganizationNumbersPage({
                           {Object.entries(caps).map(([capKey, enabled]) => (
                             <span
                               key={capKey}
-                              className={`px-1 rounded text-white text-xs ${enabled ? "bg-green-500" : "bg-gray-400"
-                                }`}
+                              className={`px-1 rounded text-white text-xs ${
+                                enabled ? "bg-green-500" : "bg-gray-500"
+                              }`}
                               title={capKey}
                             >
                               {capKey.toUpperCase()}
@@ -233,8 +232,9 @@ export default async function OrganizationNumbersPage({
                           className="border border-gray-200 px-3 py-2"
                         >
                           <span
-                            className={`px-2 py-1  rounded text-xs font-semibold text-white ${value ? "bg-green-500" : "bg-gray-400"
-                              }`}
+                            className={`px-2 py-1 rounded text-xs font-semibold text-white ${
+                              value ? "bg-gray-500" : "bg-emerald-400"
+                            }`}
                           >
                             {value ? "Purchased" : "Available"}
                           </span>
@@ -266,7 +266,9 @@ export default async function OrganizationNumbersPage({
                       </button>
                     ) : (
                       <Link
-                        href={`${organizationBuyNumberPath()}?ts=${item.sid}&ci=${orgId}&np=${item.phoneNumber}`}
+                        href={`${organizationBuyNumberPath()}?ts=${
+                          item.sid
+                        }&ci=${orgId}&np=${item.phoneNumber}`}
                         passHref
                       >
                         <button
@@ -278,7 +280,6 @@ export default async function OrganizationNumbersPage({
                       </Link>
                     )}
                   </td>
-
                 </tr>
               ))}
             </tbody>

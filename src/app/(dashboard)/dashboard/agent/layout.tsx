@@ -25,7 +25,7 @@ export default async function AgentDashboardLayout({
             <DashboardSidebar>
               <SidebarContent
                 mainItems={dashboardNavigation.agent}
-                subItems={dashboardNavigation.subItems.agent}
+                subItems={dashboardNavigation?.subItems?.agent}
               />
             </DashboardSidebar>
           }

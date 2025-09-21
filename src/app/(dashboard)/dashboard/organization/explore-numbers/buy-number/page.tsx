@@ -25,7 +25,6 @@ export interface Plan {
 
 const MONTHLY = "month";
 const YEARLY = "year";
-const ONLY_AI_AGENT = "only_ai";
 
 export default async function Pricing({
   searchParams,
@@ -45,6 +44,10 @@ export default async function Pricing({
   }
 
   const { data: plans }: { data: Plan[] } = await response.json();
+
+  if (!plans.length) {
+    return <div className="text-center py-6">No plans found</div>;
+  }
 
   const filteredPlans = plans.filter((plan) => plan.interval === planInterval);
 
@@ -85,8 +88,8 @@ export default async function Pricing({
             <div className="px-6 pb-6 space-y-6 flex flex-col justify-stretch flex-1">
               <div className="border-t border-b border-gray-300 pt-8 pb-2">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold text-gray-900">
-                    {plan.currency} {plan.amount}
+                  <span className="text-4xl font-bold text-gray-900 uppercase">
+                    ${plan.amount}
                   </span>
                   <span className="text-gray-600">
                     /{plan.intervalCount} {plan.interval}
@@ -96,7 +99,7 @@ export default async function Pricing({
               </div>
 
               <div className="space-y-3">
-                {plan.features.map((feature, idx) => (
+                {plan?.features.map((feature, idx) => (
                   <div key={idx} className="flex items-start gap-3">
                     <div className="w-4 h-4 mt-0.5 flex-shrink-0">
                       <LucideCheck size={16} />
