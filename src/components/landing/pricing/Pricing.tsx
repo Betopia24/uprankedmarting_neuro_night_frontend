@@ -33,6 +33,10 @@ export default function Pricing({ monthlyPlans, yearlyPlans }: PricingProps) {
 
   const plans = billingPeriod === "monthly" ? monthlyPlans : yearlyPlans;
 
+  if (!plans.length) {
+    return <div className="text-center py-6">No plans found</div>;
+  }
+
   return (
     <Section className="bg-success-500">
       <Container>
