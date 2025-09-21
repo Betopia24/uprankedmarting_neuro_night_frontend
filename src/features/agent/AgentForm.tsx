@@ -7,6 +7,7 @@ import { Button, InputField, SelectDropdown } from "@/components";
 import { toast } from "sonner";
 import { env } from "@/env";
 import { z } from "zod";
+import { cn } from "@/lib/utils";
 
 // --- Options ---
 const genderOptions = ["male", "female", "others"] as const;
@@ -306,7 +307,7 @@ export default function AgentForm() {
         </FormGroup>
 
         <div className="text-right">
-          <Button type="submit">Create Agent</Button>
+          <Button className={cn(form.formState.isSubmitting && "opacity-50 cursor-not-allowed")} disabled={!form.formState.isValid || form.formState.isSubmitting} type="submit">{form.formState.isSubmitting ? "Creating..." : "Create Agent"}</Button>
         </div>
       </form>
     </Form>
