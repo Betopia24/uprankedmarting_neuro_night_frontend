@@ -82,7 +82,7 @@ export default function DashboardChart({
 
   // Calculate max value for Y-axis scale
   const maxValue = React.useMemo(() => {
-    if (data.length === 0) return 10; // Default max value when no data
+    if (data.length === 0) return 10;
 
     let max = 0;
     data.forEach((item) => {
