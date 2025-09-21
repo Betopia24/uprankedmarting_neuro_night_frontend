@@ -45,6 +45,10 @@ export default async function Pricing({
 
   const { data: plans }: { data: Plan[] } = await response.json();
 
+  if (!plans.length) {
+    return <div className="text-center py-6">No plans found</div>;
+  }
+
   const filteredPlans = plans.filter((plan) => plan.interval === planInterval);
 
   return (
