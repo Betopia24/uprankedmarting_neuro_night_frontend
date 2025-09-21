@@ -5,7 +5,7 @@ import recordingAnim from "./_animation/recording-animation.json";
 import Player, { LottieRefCurrentProps } from "lottie-react";
 import { motion } from "framer-motion";
 import { useEffect, useRef } from "react";
-import { Mic } from "lucide-react";
+import { LucideCheck, LucideTrash2, Mic } from "lucide-react";
 import ScrollAnimation from "@/components/animations/ScrollAnimation";
 
 export default function AiCallExperienceSection() {
@@ -63,7 +63,7 @@ export default function AiCallExperienceSection() {
                   whileTap={{ scale: 0.95 }}
                   className="px-5 py-3 rounded-md bg-red-500 text-white font-medium shadow-md hover:bg-red-600 transition"
                 >
-                  Delete audio
+                  <LucideTrash2 className="w-4 h-4" />
                 </motion.button>
 
                 {/* Recording with time */}
@@ -81,7 +81,7 @@ export default function AiCallExperienceSection() {
                   whileTap={{ scale: 0.95 }}
                   className="px-5 py-3 rounded-md bg-green-500 text-white font-medium shadow-md hover:bg-green-600 transition"
                 >
-                  Confirm audio
+                  <LucideCheck className="w-4 h-4" />
                 </motion.button>
               </div>
             </div>

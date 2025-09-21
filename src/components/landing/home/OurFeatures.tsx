@@ -1,9 +1,22 @@
+"use client";
+
 import { Section, Container } from "@/components";
 import ScrollAnimation from "@/components/animations/ScrollAnimation";
 import shakeImage from "@/images/shake.png";
 import Image from "next/image";
+import { useEffect, useRef } from "react";
+import Player, { LottieRefCurrentProps } from "lottie-react";
+import Robot from "./_animation/robot.json";
 
 export default function OurFeatures() {
+  const lottieRef = useRef<LottieRefCurrentProps>(null);
+
+  useEffect(() => {
+    if (lottieRef.current) {
+      lottieRef.current.setSpeed(0.5); // 0.5x speed
+    }
+  }, []);
+
   return (
     <Section>
       <Container>
@@ -24,42 +37,49 @@ export default function OurFeatures() {
               </p>
             </ScrollAnimation>
 
-            <div className="text-base leading-relaxed space-y-2">
-              <ul className="list-disc list-inside  font-medium pl-4">
-                <ScrollAnimation className="space-y-2.5">
-                  <li>
-                    Automates customer service, scheduling, and lead capture
-                    with intuitive “skills” and logic-driven flows.
-                  </li>
-                  <li>
-                    Integrates effortlessly with your CRM, calendars, and tools
-                    like Google Voice, Salesforce, Boulevard, Zendesk—and counts
-                    unique customer calls for transparent billing.
-                  </li>
-                  <li>
-                    Demonstrates lightning-fast response times (under 500ms),
-                    personalized greetings based on CRM lookup, and smart call
-                    routing for high-intent callers.
-                  </li>
-                  <li>
-                    Delivers impactful analytics—call transcripts, intent
-                    detection, sentiment, and customer insights—to help optimize
-                    performance and ROI.
-                  </li>
-                  <li>
-                    Offers setup in minutes via website, Google listing
-                    integration, or CRM plug‑ins; scalable across solos to
-                    enterprise-level operations.
-                  </li>
-                </ScrollAnimation>
-              </ul>
+            <div className="flex flex-col lg:flex-row gap-4">
+              <div className="flex flex-col justify-center items-center">
+                <Player
+                  lottieRef={lottieRef}
+                  animationData={Robot}
+                  loop={true}
+                  autoplay={true}
+                  style={{ width: 500, height: 500 }}
+                />
+              </div>
+              <div className="text-base leading-relaxed space-y-2">
+                <ul className="list-disc list-inside font-medium pl-4">
+                  <ScrollAnimation className="space-y-2.5">
+                    <li>
+                      Automates customer service, scheduling, and lead capture
+                      with intuitive “skills” and logic-driven flows.
+                    </li>
+                    <li>
+                      Integrates effortlessly with your CRM, calendars, and
+                      tools like Google Voice, Salesforce, Boulevard,
+                      Zendesk—and counts unique customer calls for transparent
+                      billing.
+                    </li>
+                    <li>
+                      Demonstrates lightning-fast response times (under 500ms),
+                      personalized greetings based on CRM lookup, and smart call
+                      routing for high-intent callers.
+                    </li>
+                    <li>
+                      Delivers impactful analytics—call transcripts, intent
+                      detection, sentiment, and customer insights—to help
+                      optimize performance and ROI.
+                    </li>
+                    <li>
+                      Offers setup in minutes via website, Google listing
+                      integration, or CRM plug‑ins; scalable across solos to
+                      enterprise-level operations.
+                    </li>
+                  </ScrollAnimation>
+                </ul>
+              </div>
             </div>
           </div>
-          <Image
-            className="max-w-sm mx-auto scale-150 object-contain order-1 lg:order-2"
-            src={shakeImage}
-            alt="shake"
-          />
         </div>
       </Container>
     </Section>

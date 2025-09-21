@@ -10,6 +10,7 @@ import {
 } from "@/app/api/profile-settings/profile-settings";
 import ImageUpload from "../../../organization/settings/_container/image-upload";
 import { env } from "process";
+import PageLoader from "../loading";
 
 const AgentProfileContainerPage = () => {
   const auth = useAuth();
@@ -87,7 +88,7 @@ const AgentProfileContainerPage = () => {
       </p>
     );
   if (loading)
-    return <p className="text-center text-gray-600 mt-8">Loading profile...</p>;
+    return <PageLoader />;
   if (!userData)
     return (
       <p className="text-center text-gray-600 mt-8">

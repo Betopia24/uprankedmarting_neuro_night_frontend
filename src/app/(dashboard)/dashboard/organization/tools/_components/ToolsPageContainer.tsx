@@ -11,13 +11,7 @@ const ToolsPageContainerPage = () => {
   const orgId = auth?.user?.ownedOrganization?.id || ''
   const [selectedTool, setSelectedTool] = useState<string | null>(null);
 
-
-
   const tools = [
-    {
-      name: 'HubSpot',
-      icon: '/hubspot.png',
-    },
     {
       name: 'Google Sheets',
       icon: '/sheet.png',

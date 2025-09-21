@@ -25,5 +25,5 @@ export const getPlatformOverviewStats = async (
   }
 
   const json = await res.json();
-  return json.data as PlatformOverviewStats;
+  return json.data;
 };
