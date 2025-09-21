@@ -129,7 +129,7 @@ function EmblaContainer({
 }) {
   const { emblaRef } = useEmblaContext();
   return (
-    <div className={cn("overflow-hidden h-full")} ref={emblaRef} {...props}>
+    <div className={cn("h-full")} ref={emblaRef} {...props}>
       <div
         className={cn("flex h-full -mx-6 cursor-grab items-stretch", className)}
       >

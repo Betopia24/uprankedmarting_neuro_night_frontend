@@ -104,7 +104,13 @@ function TestimonialCard({ data }: { data: TestimonialData }) {
     <blockquote className="border border-warning-500 rounded-3xl p-2 md:p-6 lg:p-10 h-full space-y-4 text-center">
       {data.image ? (
         <div className="w-24 h-24 rounded-full mx-auto overflow-hidden border">
-          <Image src={data.image} alt={data.author} width={96} height={96} />
+          <Image
+            className="object-cover size-full"
+            src={data.image}
+            alt={data.author}
+            width={96}
+            height={96}
+          />
         </div>
       ) : (
         <div className="w-24 h-24 rounded-full mx-auto border flex items-center justify-center text-xl font-bold bg-gray-200">
