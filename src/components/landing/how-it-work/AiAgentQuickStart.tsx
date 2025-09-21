@@ -19,7 +19,7 @@ export default function AiAgentQuickStart() {
   return (
     <Section bg="bg-success-500">
       <Container>
-        <div className="flex flex-col lg:flex-row items-center gap-12">
+        <div className="flex flex-col lg:flex-row items-center gap-12 overflow-hidden">
           <ScrollAnimation className="order-1 lg:order-1 flex flex-col justify-center items-center">
             <Player
               lottieRef={lottieRef}

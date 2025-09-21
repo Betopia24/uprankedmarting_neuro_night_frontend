@@ -19,7 +19,7 @@ export default function AgentManagement() {
   return (
     <Section>
       <Container>
-        <div className="flex flex-col lg:flex-row gap-6">
+        <div className="flex flex-col lg:flex-row gap-6 overflow-hidden">
           <div className="space-y-4 text-xl order-1 lg:order-1">
             <ScrollAnimation className="space-y-8 text-xl">
               <Section.Heading>
@@ -61,15 +61,17 @@ export default function AgentManagement() {
               </div>
             </ScrollAnimation>
           </div>
-          <ScrollAnimation className="order-2 lg:order-2 flex flex-col justify-center items-center">
-            <Player
-              lottieRef={lottieRef}
-              animationData={AiRobot}
-              loop={true}
-              autoplay={true}
-              style={{ width: 500, height: 500 }}
-            />
-          </ScrollAnimation>
+          <div>
+            <ScrollAnimation className="order-2 lg:order-2 flex flex-col justify-center items-center">
+              <Player
+                lottieRef={lottieRef}
+                animationData={AiRobot}
+                loop={true}
+                autoplay={true}
+                style={{ width: 500, height: 500 }}
+              />
+            </ScrollAnimation>
+          </div>
         </div>
       </Container>
     </Section>

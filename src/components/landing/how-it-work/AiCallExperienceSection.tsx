@@ -21,37 +21,40 @@ export default function AiCallExperienceSection() {
     <Section bg="bg-success-500">
       <Container>
         <div className="flex flex-col lg:flex-row gap-6">
-          <Section.Heading>
-            Easily automate real customer calls without any coding.
-          </Section.Heading>
-          <p>
-            Launch your phone AI agent in just minutes by using your existing
-            business information through voice. As it continuously speaks with
-            customers, the agent learns and improves—helping you build a more
-            efficient and smarter experience. No more missed calls—turn every
-            opportunity into action.
-          </p>
-          <p>
-            Our AI Call Center blends automation and human empathy. Callers are
-            greeted by a smart AI Agent that talks in a real human voice. If the
-            AI detects the need for a human, it instantly passes the call to a
-            Human Agent — without disruption.
-          </p>
-          <p>
-            And yes, the voice you hear from our AI isn&apos;t robotic —
-            it&apos;s powered by recorded human voices, trained and guided by
-            smart instructions.
-          </p>
+          <div className="flex lg:flex-1 flex-col gap-6">
+            <Section.Heading>
+              Easily automate real customer calls without any coding.
+            </Section.Heading>
+            <p>
+              Launch your phone AI agent in just minutes by using your existing
+              business information through voice. As it continuously speaks with
+              customers, the agent learns and improves—helping you build a more
+              efficient and smarter experience. No more missed calls—turn every
+              opportunity into action.
+            </p>
+            <p>
+              Our AI Call Center blends automation and human empathy. Callers are
+              greeted by a smart AI Agent that talks in a real human voice. If the
+              AI detects the need for a human, it instantly passes the call to a
+              Human Agent — without disruption.
+            </p>
+            <p>
+              And yes, the voice you hear from our AI isn&apos;t robotic —
+              it&apos;s powered by recorded human voices, trained and guided by
+              smart instructions.
+            </p>
 
+
+          </div>
           {/* Lottie Animation */}
-          <ScrollAnimation className="order-1 lg:order-2 flex flex-col justify-center items-center scale-90">
+          <ScrollAnimation className="order-1 lg:order-2 flex flex-col justify-center items-center scale-90 overflow-hidden">
             <Player
               lottieRef={lottieRef}
               animationData={recordingAnim}
               loop={true}
               autoplay={true}
               style={{ width: 500, height: 300 }}
-              className="!scale-90"
+              className=""
             />
             <div>
               <div className="flex justify-center gap-6 mt-10">

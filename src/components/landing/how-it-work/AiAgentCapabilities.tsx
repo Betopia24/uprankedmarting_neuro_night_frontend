@@ -19,8 +19,8 @@ export default function AiAgentCapabilities() {
   return (
     <Section>
       <Container>
-        <div className="flex flex-col lg:flex-row gap-6 text-xl">
-          <div className="space-y-4 order-2 lg:order-1">
+        <div className="flex flex-col lg:flex-row gap-6 text-xl overflow-hidden">
+          <div className="space-y-2 order-2 lg:order-1">
             <ScrollAnimation className="space-y-4">
               <Section.Heading>
                 Know Out What Your AI Agent Can Do for You
@@ -65,15 +65,17 @@ export default function AiAgentCapabilities() {
               </ScrollAnimation>{" "}
             </ul>
           </div>
-          <ScrollAnimation className="order-1 lg:order-2 flex flex-col justify-center items-center scale-90">
-            <Player
-              lottieRef={lottieRef}
-              animationData={ChatBotGreetingPeople}
-              loop={true}
-              autoplay={true}
-              style={{ width: 500, height: 500 }}
-            />
-          </ScrollAnimation>
+          <div>
+            <ScrollAnimation className="order-1 lg:order-2 flex flex-col justify-center items-center scale-90">
+              <Player
+                lottieRef={lottieRef}
+                animationData={ChatBotGreetingPeople}
+                loop={true}
+                autoplay={true}
+                style={{ width: 500, height: 500 }}
+              />
+            </ScrollAnimation>
+          </div>
         </div>
       </Container>
     </Section>
