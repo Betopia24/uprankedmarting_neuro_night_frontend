@@ -69,7 +69,7 @@ export default function SelectDropdown({
               <SelectTrigger className="w-full border-transparent">
                 <SelectValue placeholder={placeholder} />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-50 absolute">
                 {options.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
                     {opt.label}

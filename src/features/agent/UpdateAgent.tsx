@@ -262,8 +262,12 @@ export default function UpdateAgentForm({
         </FormGroup>
 
         <div className="text-right">
-          <Button size="sm" type="submit">
-            Update Agent
+          <Button
+            disabled={form.formState.isSubmitting}
+            size="sm"
+            type="submit"
+          >
+            {form.formState.isSubmitting ? "Updating..." : "Update"}
           </Button>
         </div>
       </form>

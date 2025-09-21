@@ -34,7 +34,7 @@ export default function Section({
 
 function SectionHeader({ children }: React.PropsWithChildren) {
   return (
-    <div className="text-center space-y-4 px-6 sm:px-8 lg:px-12">
+    <div className="text-center space-y-4 px-6 sm:px-8 lg:px-12 overflow-x-clip">
       {children}
     </div>
   );

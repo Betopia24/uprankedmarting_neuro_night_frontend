@@ -307,7 +307,15 @@ export default function AgentForm() {
         </FormGroup>
 
         <div className="text-right">
-          <Button className={cn(form.formState.isSubmitting && "opacity-50 cursor-not-allowed")} disabled={!form.formState.isValid || form.formState.isSubmitting} type="submit">{form.formState.isSubmitting ? "Creating..." : "Create Agent"}</Button>
+          <Button
+            className={cn(
+              form.formState.isSubmitting && "opacity-50 cursor-not-allowed"
+            )}
+            disabled={!form.formState.isValid || form.formState.isSubmitting}
+            type="submit"
+          >
+            {form.formState.isSubmitting ? "Creating..." : "Create Agent"}
+          </Button>
         </div>
       </form>
     </Form>
