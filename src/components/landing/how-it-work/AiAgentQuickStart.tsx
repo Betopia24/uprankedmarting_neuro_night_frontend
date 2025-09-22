@@ -17,18 +17,19 @@ export default function AiAgentQuickStart() {
   }, []);
 
   return (
-    <Section bg="bg-success-500">
+    <Section bg="bg-success-500 p-0">
       <Container>
-        <div className="flex flex-col lg:flex-row items-center gap-12 overflow-hidden">
-          <ScrollAnimation className="order-1 lg:order-1 flex flex-col justify-center items-center">
-            <Player
-              lottieRef={lottieRef}
-              animationData={uploadCloud}
-              loop={true}
-              autoplay={true}
-              style={{ width: 500, height: 500 }}
-            />
-          </ScrollAnimation>
+        <div className="flex flex-col lg:flex-row items-center gap-14 overflow-hidden">
+          <div className="overflow-hidden order-1 lg:order-1">
+            <ScrollAnimation className="scale-125 pointer-events-none">
+              <Player
+                lottieRef={lottieRef}
+                animationData={uploadCloud}
+                loop={true}
+                autoplay={true}
+              />
+            </ScrollAnimation>
+          </div>
           <ScrollAnimation className="order-2 lg:order-2 space-y-4 text-xl">
             <Section.Heading>
               Launch your AI agent in just minutes—no developers needed.

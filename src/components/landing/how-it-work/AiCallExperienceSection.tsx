@@ -47,46 +47,47 @@ export default function AiCallExperienceSection() {
 
           </div>
           {/* Lottie Animation */}
-          <ScrollAnimation className="order-1 lg:order-2 flex flex-col justify-center items-center scale-90 overflow-hidden">
-            <Player
-              lottieRef={lottieRef}
-              animationData={recordingAnim}
-              loop={true}
-              autoplay={true}
-              style={{ width: 500, height: 300 }}
-              className=""
-            />
-            <div>
-              <div className="flex justify-center gap-6 mt-10">
-                {/* Delete Audio */}
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-5 py-3 rounded-md bg-red-500 text-white font-medium shadow-md hover:bg-red-600 transition"
-                >
-                  <LucideTrash2 className="w-4 h-4" />
-                </motion.button>
+          <div className="-mt-14">
+            <ScrollAnimation className="order-1 lg:order-2 flex flex-col justify-center items-center scale-90 overflow-hidden">
+              <Player
+                lottieRef={lottieRef}
+                animationData={recordingAnim}
+                loop={true}
+                autoplay={true}
+                className="max-w-96 w-full aspect-square"
+              />
+              <div>
+                <div className="flex justify-center gap-6 mt-10">
+                  {/* Delete Audio */}
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-5 py-3 rounded-md bg-red-500 text-white font-medium shadow-md hover:bg-red-600 transition"
+                  >
+                    <LucideTrash2 className="w-4 h-4" />
+                  </motion.button>
 
-                {/* Recording with time */}
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  className="flex items-center gap-2 px-5 py-3 rounded-md bg-gray-200 text-gray-700 font-medium shadow-md"
-                >
-                  <Mic className="w-4 h-4" />
-                  <span>5:00</span>
-                </motion.div>
+                  {/* Recording with time */}
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    className="flex items-center gap-2 px-5 py-3 rounded-md bg-gray-200 text-gray-700 font-medium shadow-md"
+                  >
+                    <Mic className="w-4 h-4" />
+                    <span>5:00</span>
+                  </motion.div>
 
-                {/* Confirm Audio */}
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-5 py-3 rounded-md bg-green-500 text-white font-medium shadow-md hover:bg-green-600 transition"
-                >
-                  <LucideCheck className="w-4 h-4" />
-                </motion.button>
+                  {/* Confirm Audio */}
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-5 py-3 rounded-md bg-green-500 text-white font-medium shadow-md hover:bg-green-600 transition"
+                  >
+                    <LucideCheck className="w-4 h-4" />
+                  </motion.button>
+                </div>
               </div>
-            </div>
-          </ScrollAnimation>
+            </ScrollAnimation>
+          </div>
         </div>
         <div className="text-center mt-10">
           <ScrollAnimation>
