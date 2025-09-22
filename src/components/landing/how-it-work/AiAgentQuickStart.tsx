@@ -20,7 +20,7 @@ export default function AiAgentQuickStart() {
     <Section bg="bg-success-500 p-0">
       <Container>
         <div className="flex flex-col lg:flex-row items-center gap-14 overflow-hidden">
-          <div className="overflow-hidden order-1 lg:order-1">
+          <div className="overflow-hidden order-1 lg:order-2">
             <ScrollAnimation className="scale-125 pointer-events-none">
               <Player
                 lottieRef={lottieRef}
@@ -30,7 +30,7 @@ export default function AiAgentQuickStart() {
               />
             </ScrollAnimation>
           </div>
-          <ScrollAnimation className="order-2 lg:order-2 space-y-4 text-xl">
+          <ScrollAnimation className="order-2 lg:order-1 space-y-4 text-xl">
             <Section.Heading>
               Launch your AI agent in just minutes—no developers needed.
             </Section.Heading>
