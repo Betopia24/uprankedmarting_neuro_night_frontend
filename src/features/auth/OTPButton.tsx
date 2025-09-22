@@ -77,8 +77,8 @@ export default function OTPButton() {
         {loading
           ? "Sending..."
           : cooldown > 0
-          ? `Resend in ${cooldown}s`
-          : "Send OTP"}
+            ? `Resend in ${cooldown}s`
+            : "Resend OTP"}
       </Button>
     </div>
   );
