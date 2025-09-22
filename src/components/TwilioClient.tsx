@@ -1,3 +1,5 @@
+// old;
+
 "use client";
 
 import React, {
@@ -25,10 +27,8 @@ import {
   PhoneIncoming,
   Clock,
   Signal,
-  XCircle,
 } from "lucide-react";
 import { getErrorMessage } from "@/lib/getErrorMessage";
-import { Button } from "./ui/button";
 
 // Configuration constants
 const CONFIG = {
@@ -281,6 +281,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       try {
         const newToken = await fetchToken();
         deviceRef.current.updateToken(newToken);
+        console.log("Token refreshed successfully");
         updateStatusMessage("Token refreshed");
         scheduleTokenRefresh();
       } catch (err) {
@@ -292,6 +293,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
             try {
               const newToken = await fetchToken();
               deviceRef.current.updateToken(newToken);
+              console.log("Token refresh retry successful");
               scheduleTokenRefresh();
             } catch (retryErr) {
               console.error("Token refresh retry failed:", retryErr);
@@ -327,6 +329,8 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
   // Call handlers
   const attachCallHandlers = useCallback(
     (call: Call) => {
+      console.log("Attaching enhanced call handlers");
+
       call.on("accept", () => {
         if (!isMountedRef.current) return;
 
@@ -351,6 +355,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       call.on("disconnect", () => {
         if (!isMountedRef.current) return;
 
+        console.log("Call disconnected");
         setCallState({
           state: "none",
           call: null,
@@ -381,6 +386,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       call.on("cancel", () => {
         if (!isMountedRef.current) return;
 
+        console.log("Call cancelled by caller");
         setCallState({
           state: "none",
           call: null,
@@ -431,6 +437,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       });
 
       call.on("warning-cleared", (name: string) => {
+        console.log("Call quality warning cleared:", name);
         setCallState((prev) => ({ ...prev, quality: "good" }));
       });
     },
@@ -440,6 +447,8 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
   // Device initialization and management
   const initializeDevice = useCallback(
     async (accessToken: string): Promise<Device> => {
+      console.log("Initializing Twilio Device with enhanced configuration...");
+
       if (deviceRef.current) {
         try {
           deviceRef.current.destroy();
@@ -466,6 +475,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
           isHealthy: true,
         }));
         updateStatusMessage("Device registered - Ready for calls");
+        console.log("Device registered successfully");
       });
 
       device.on("unregistered", () => {
@@ -503,6 +513,8 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       device.on("incoming", (call: Call) => {
         if (!isMountedRef.current) return;
 
+        console.log("Incoming call received:", call.parameters);
+
         const from = call.parameters.From || "Unknown";
 
         setCallState({
@@ -535,6 +547,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       });
 
       device.on("tokenWillExpire", async () => {
+        console.log("Token will expire, refreshing...");
         try {
           const newToken = await fetchToken();
           device.updateToken(newToken);
@@ -545,10 +558,12 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       });
 
       device.audio?.on("deviceChange", () => {
+        console.log("Audio devices changed");
         updateAudioDevices(device);
       });
 
       await updateAudioDevices(device);
+      console.log("Device initialized successfully");
       return device;
     },
     [
@@ -566,18 +581,10 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       return;
     }
 
-    // Check device state before registering
-    if (deviceRef.current.state === "registered") {
-      updateStatusMessage("Device already registered");
-      setConnectionState((prev) => ({ ...prev, device: "registered" }));
-      return; // Skip registering again
-    }
-
     try {
       setConnectionState((prev) => ({ ...prev, device: "initializing" }));
-      updateStatusMessage("Registering device...");
       await deviceRef.current.register();
-      setConnectionState((prev) => ({ ...prev, device: "registered" }));
+      updateStatusMessage("Registering device...");
     } catch (err) {
       console.error("Device registration failed:", err);
       setConnectionState((prev) => ({ ...prev, device: "error" }));
@@ -588,12 +595,11 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
           (connectionState.reconnectAttempts + 1),
         30000
       );
-
       setTimeout(async () => {
         if (isMountedRef.current) {
           try {
             const newToken = await fetchToken();
-            deviceRef.current?.updateToken(newToken);
+            deviceRef?.current?.updateToken(newToken);
             await registerDevice();
           } catch (retryErr) {
             console.error("Retry registration failed:", retryErr);
@@ -607,8 +613,11 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
   // WebSocket management with enhanced reliability
   const connectWebSocket = useCallback(() => {
     if (!user?.id || !token || !isMountedRef.current) {
+      console.log("Waiting for authentication...");
       return;
     }
+
+    console.log("Connecting WebSocket for user:", user.id);
 
     const wsUrl = getWebSocketUrl(user.id);
 
@@ -630,6 +639,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         }
 
         clearTimeout(connectionTimeout);
+        console.log("WebSocket connected");
 
         setConnectionState((prev) => ({
           ...prev,
@@ -681,6 +691,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         if (!isMountedRef.current) return;
 
         clearTimeout(connectionTimeout);
+        console.log("WebSocket disconnected:", event.code, event.reason);
 
         setConnectionState((prev) => ({
           ...prev,
@@ -740,15 +751,19 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
 
   const handleWebSocketMessage = useCallback(
     (message: { type: string; data: { message?: string } }) => {
+      console.log("WebSocket message:", message);
+
       switch (message.type) {
         case "registration_success":
           updateStatusMessage("Agent registered successfully");
           break;
 
         case "incoming_call":
+          console.log("Call notification received via WebSocket");
           break;
 
         case "call_ended":
+          console.log("Call ended notification received");
           break;
 
         case "registration_error":
@@ -767,7 +782,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
           break;
 
         default:
-          break;
+          console.log("Unknown message type:", message.type);
       }
     },
     [updateStatusMessage]
@@ -907,12 +922,10 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
     updateStatusMessage,
   ]);
 
-  useEffect(() => {
-    initializeSystem();
-  }, [initializeSystem]);
-
   // Cleanup function
   const cleanup = useCallback(() => {
+    console.log("Cleaning up resources...");
+
     [
       reconnectTimeoutRef,
       heartbeatIntervalRef,
@@ -1090,49 +1103,31 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
   }, [connectionState]);
 
   // Notification system
-  const handleClose = useCallback((id: string) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-  }, []);
   const NotificationSystem = useMemo(
     () => (
-      <div className="fixed top-4 right-4 z-50 space-y-4 max-w-xs">
+      <div className="fixed top-4 right-4 z-50 space-y-2">
         {notifications.map((notification) => (
           <div
             key={notification.id}
-            className={`p-5 rounded-xl shadow-lg border backdrop-blur-md animate-in slide-in-from-right duration-300 transform transition-all ease-out ${
+            className={`p-4 rounded-lg shadow-lg border backdrop-blur-sm animate-in slide-in-from-right duration-300 ${
               notification.type === "error"
-                ? "bg-red-800/90 border-red-600 text-red-200"
+                ? "bg-red-900/80 border-red-500 text-red-100"
                 : notification.type === "warning"
-                ? "bg-yellow-800/90 border-yellow-600 text-yellow-200"
-                : "bg-blue-800/90 border-blue-600 text-blue-200"
+                ? "bg-yellow-900/80 border-yellow-500 text-yellow-100"
+                : "bg-blue-900/80 border-blue-500 text-blue-100"
             }`}
           >
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-center gap-3">
-                {/* Icon */}
-                {notification.type === "error" && (
-                  <AlertTriangle className="w-6 h-6 flex-shrink-0 text-red-400" />
-                )}
-                {notification.type === "warning" && (
-                  <AlertTriangle className="w-6 h-6 flex-shrink-0 text-yellow-400" />
-                )}
-                {notification.type === "info" && (
-                  <Settings className="w-6 h-6 flex-shrink-0 text-blue-400" />
-                )}
-
-                {/* Notification message */}
-                <span className="text-sm font-medium">
-                  {notification.message}
-                </span>
-              </div>
-
-              {/* Close Button */}
-              <button
-                onClick={() => handleClose(notification.id)}
-                className="text-gray-300 hover:text-gray-500 focus:outline-none"
-              >
-                <XCircle className="w-5 h-5" />
-              </button>
+            <div className="flex items-start gap-2">
+              {notification.type === "error" && (
+                <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+              )}
+              {notification.type === "warning" && (
+                <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+              )}
+              {notification.type === "info" && (
+                <Settings className="w-5 h-5 flex-shrink-0 mt-0.5" />
+              )}
+              <span className="text-sm">{notification.message}</span>
             </div>
           </div>
         ))}
@@ -1145,38 +1140,38 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
   const CallInterface = useMemo(() => {
     if (callState.state === "none") {
       return (
-        <div className="max-w-md mx-auto bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-8 shadow-2xl border border-slate-700">
+        <div className=" mx-auto bg-gradient-to-br from-white via-gray-50 to-white rounded-3xl p-8 shadow-xl border border-gray-200">
           <div className="text-center">
             <div className="mb-4 flex justify-center">
               {ConnectionStatusIndicator}
             </div>
-            <div className="w-20 h-20 bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-6 relative">
-              <Phone className="w-8 h-8 text-slate-400" />
+            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6 relative">
+              <Phone className="w-8 h-8 text-gray-600" />
               {connectionState.isHealthy && (
                 <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
                   <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
                 </div>
               )}
             </div>
-            <h3 className="text-xl font-semibold text-white mb-2">
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">
               Ready for Calls
             </h3>
-            <p className="text-slate-400 mb-4">Agent: {identity}</p>
+            <p className="text-gray-500 mb-4">Agent: {identity}</p>
             <div className="space-y-2 text-sm">
-              <p className="text-slate-500">
+              <p className="text-gray-700">
                 Status:{" "}
                 <span
                   className={`font-medium ${
                     connectionState.device === "registered"
-                      ? "text-green-400"
-                      : "text-yellow-400"
+                      ? "text-green-600"
+                      : "text-yellow-600"
                   }`}
                 >
                   {statusMessage}
                 </span>
               </p>
               {connectionState.lastHeartbeat && (
-                <p className="text-slate-500">
+                <p className="text-gray-500">
                   Last ping:{" "}
                   {new Date(connectionState.lastHeartbeat).toLocaleTimeString()}
                 </p>
@@ -1194,15 +1189,15 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
               )}
             </div>
             <div className="mt-6">
-              <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                 <div
                   style={{
                     width: `${Math.min(audioState.inputLevel * 100, 100)}%`,
                   }}
-                  className="h-full bg-green-400 transition-all duration-100 rounded-full"
+                  className="h-full bg-green-500 transition-all duration-100 rounded-full"
                 />
               </div>
-              <p className="text-xs text-slate-400 mt-1">Microphone Active</p>
+              <p className="text-xs text-gray-500 mt-1">Microphone Active</p>
             </div>
           </div>
         </div>
@@ -1211,54 +1206,50 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
 
     if (callState.state === "incoming") {
       return (
-        <div className="max-w-md mx-auto bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-8 shadow-2xl border border-slate-700 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-green-400/10 to-blue-400/10 animate-pulse" />
+        <div className=" mx-auto bg-gradient-to-br from-white via-gray-50 to-white rounded-3xl p-8 shadow-xl border border-gray-200 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-green-100/40 to-blue-100/40 animate-pulse" />
           <div className="relative z-10">
             <div className="text-center mb-6">
-              <div className="text-sm font-medium text-green-400 mb-2 flex items-center justify-center gap-2">
+              <div className="text-sm font-medium text-green-600 mb-2 flex items-center justify-center gap-2">
                 <PhoneIncoming className="w-4 h-4 animate-bounce" />
                 Incoming Call
               </div>
             </div>
             <div className="text-center mb-8">
-              <div className="w-24 h-24 bg-gradient-to-br from-slate-600 to-slate-700 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
-                <User className="w-12 h-12 text-slate-300" />
+              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+                <User className="w-12 h-12 text-gray-500" />
               </div>
-              <h2 className="text-2xl font-bold text-white mb-1">
+              <h2 className="text-2xl font-bold text-gray-800 mb-1">
                 {callState.from}
               </h2>
-              <p className="text-slate-400 text-sm">Incoming Voice Call</p>
+              <p className="text-gray-500 text-sm">Incoming Voice Call</p>
             </div>
             <div className="flex justify-center items-center gap-6 mb-6">
               <button
                 onClick={rejectCall}
-                className="w-16 h-16 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
+                className="w-16 h-16 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
                 aria-label="Reject call"
               >
                 <PhoneOff className="w-7 h-7 text-white" />
               </button>
               <button
                 onClick={acceptCall}
-                className="w-20 h-20 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95 animate-pulse"
+                className="w-20 h-20 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 animate-pulse"
                 aria-label="Accept call"
               >
                 <PhoneCall className="w-8 h-8 text-white" />
               </button>
               <button
-                onClick={() => {
-                  if (callState.call) {
-                    callState.call.ignore();
-                  }
-                }}
-                className="w-16 h-16 bg-slate-600 hover:bg-slate-700 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
+                onClick={() => callState.call?.ignore()}
+                className="w-16 h-16 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
                 aria-label="Ignore call"
               >
-                <MessageCircle className="w-7 h-7 text-white" />
+                <MessageCircle className="w-7 h-7 text-gray-600" />
               </button>
             </div>
-            <div className="flex justify-center gap-6 text-xs text-slate-400">
+            <div className="flex justify-center gap-6 text-xs text-gray-500">
               <span className="w-16 text-center">Decline</span>
-              <span className="w-20 text-center font-medium text-green-400">
+              <span className="w-20 text-center font-medium text-green-600">
                 Answer
               </span>
               <span className="w-16 text-center">Ignore</span>
@@ -1270,46 +1261,46 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
 
     if (callState.state === "active") {
       return (
-        <div className="max-w-md mx-auto bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-3xl p-8 shadow-2xl border border-slate-700">
+        <div className=" mx-auto bg-gradient-to-br from-white via-gray-50 to-white rounded-3xl p-8 shadow-xl border border-gray-200">
           <div className="relative z-10">
             <div className="text-center mb-6">
-              <div className="flex items-center justify-center gap-2 text-sm font-medium text-green-400 mb-3">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+              <div className="flex items-center justify-center gap-2 text-sm font-medium text-green-600 mb-3">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                 Call Active
                 <div
                   className={`w-2 h-2 rounded-full ${
                     callState.quality === "excellent"
-                      ? "bg-green-400"
+                      ? "bg-green-500"
                       : callState.quality === "good"
-                      ? "bg-yellow-400"
+                      ? "bg-yellow-500"
                       : callState.quality === "fair"
-                      ? "bg-orange-400"
-                      : "bg-red-400"
+                      ? "bg-orange-500"
+                      : "bg-red-500"
                   }`}
                 />
               </div>
-              <div className="text-2xl font-mono text-white flex items-center justify-center gap-2">
+              <div className="text-2xl font-mono text-gray-800 flex items-center justify-center gap-2">
                 <Clock className="w-5 h-5" />
                 {formatTime(callState.duration)}
               </div>
             </div>
             <div className="text-center mb-8">
-              <div className="w-20 h-20 bg-gradient-to-br from-slate-600 to-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                <User className="w-10 h-10 text-slate-300" />
+              <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <User className="w-10 h-10 text-gray-500" />
               </div>
-              <h2 className="text-xl font-semibold text-white mb-1">
+              <h2 className="text-xl font-semibold text-gray-800 mb-1">
                 {callState.from}
               </h2>
-              <p className="text-slate-400 text-sm flex items-center justify-center gap-2">
+              <p className="text-gray-500 text-sm flex items-center justify-center gap-2">
                 <span>Connected</span>
                 {callState.quality !== "excellent" && (
                   <span
                     className={`text-xs px-2 py-1 rounded-full ${
                       callState.quality === "good"
-                        ? "bg-yellow-900/50 text-yellow-300"
+                        ? "bg-yellow-100 text-yellow-700"
                         : callState.quality === "fair"
-                        ? "bg-orange-900/50 text-orange-300"
-                        : "bg-red-900/50 text-red-300"
+                        ? "bg-orange-100 text-orange-700"
+                        : "bg-red-100 text-red-700"
                     }`}
                   >
                     {callState.quality} quality
@@ -1320,53 +1311,53 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
             <div className="flex justify-center items-center gap-4 mb-6">
               <button
                 onClick={toggleMute}
-                className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 ${
+                className={`w-14 h-14 rounded-full flex items-center justify-center shadow-md transition-all duration-200 hover:scale-110 active:scale-95 ${
                   audioState.isMuted
                     ? "bg-red-500 hover:bg-red-600"
-                    : "bg-slate-600 hover:bg-slate-700"
+                    : "bg-gray-200 hover:bg-gray-300"
                 }`}
                 aria-label={audioState.isMuted ? "Unmute" : "Mute"}
               >
                 {audioState.isMuted ? (
                   <MicOff className="w-6 h-6 text-white" />
                 ) : (
-                  <Mic className="w-6 h-6 text-white" />
+                  <Mic className="w-6 h-6 text-gray-700" />
                 )}
               </button>
               <button
                 onClick={endCall}
-                className="w-16 h-16 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95"
+                className="w-16 h-16 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
                 aria-label="End call"
               >
                 <PhoneOff className="w-7 h-7 text-white" />
               </button>
               <button
                 onClick={() => setShowSettings(!showSettings)}
-                className="w-14 h-14 bg-slate-600 hover:bg-slate-700 rounded-full flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 active:scale-95"
+                className="w-14 h-14 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center shadow-md transition-all duration-200 hover:scale-110 active:scale-95"
                 aria-label="Settings"
               >
-                <Settings className="w-6 h-6 text-white" />
+                <Settings className="w-6 h-6 text-gray-700" />
               </button>
             </div>
             <div className="flex justify-center gap-4 mb-6">
-              <span className="text-xs text-slate-400 w-14 text-center">
+              <span className="text-xs text-gray-500 w-14 text-center">
                 {audioState.isMuted ? "Unmute" : "Mute"}
               </span>
-              <span className="text-xs text-slate-400 w-16 text-center">
+              <span className="text-xs text-gray-500 w-16 text-center">
                 End Call
               </span>
-              <span className="text-xs text-slate-400 w-14 text-center">
+              <span className="text-xs text-gray-500 w-14 text-center">
                 Settings
               </span>
             </div>
-            <div className="border-t border-slate-700 pt-4">
-              <div className="flex justify-between items-center text-xs text-slate-400 mb-2">
+            <div className="border-t border-gray-200 pt-4">
+              <div className="flex justify-between items-center text-xs text-gray-500 mb-2">
                 <span className="flex items-center gap-2">
                   <Volume2 className="w-3 h-3" />
                   Audio Quality: {callState.quality}
                 </span>
                 {audioState.isMuted && (
-                  <span className="flex items-center gap-1 text-red-400">
+                  <span className="flex items-center gap-1 text-red-600">
                     <MicOff className="w-3 h-3" />
                     Muted
                   </span>
@@ -1375,11 +1366,11 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
               {(audioState.inputLevel > 0 || audioState.outputLevel > 0) && (
                 <div className="space-y-2">
                   <div>
-                    <div className="flex justify-between text-xs text-slate-500 mb-1">
+                    <div className="flex justify-between text-xs text-gray-500 mb-1">
                       <span>Input</span>
                       <span>{Math.round(audioState.inputLevel * 100)}%</span>
                     </div>
-                    <div className="w-full h-1 bg-slate-700 rounded-full overflow-hidden">
+                    <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
                       <div
                         style={{
                           width: `${Math.min(
@@ -1387,16 +1378,16 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
                             100
                           )}%`,
                         }}
-                        className="h-full bg-green-400 transition-all duration-100 rounded-full"
+                        className="h-full bg-green-500 transition-all duration-100 rounded-full"
                       />
                     </div>
                   </div>
                   <div>
-                    <div className="flex justify-between text-xs text-slate-500 mb-1">
+                    <div className="flex justify-between text-xs text-gray-500 mb-1">
                       <span>Output</span>
                       <span>{Math.round(audioState.outputLevel * 100)}%</span>
                     </div>
-                    <div className="w-full h-1 bg-slate-700 rounded-full overflow-hidden">
+                    <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
                       <div
                         style={{
                           width: `${Math.min(
@@ -1404,7 +1395,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
                             100
                           )}%`,
                         }}
-                        className="h-full bg-blue-400 transition-all duration-100 rounded-full"
+                        className="h-full bg-blue-500 transition-all duration-100 rounded-full"
                       />
                     </div>
                   </div>
@@ -1441,11 +1432,11 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         <div className="flex items-center justify-between mb-4">
           <h4 className="font-semibold text-gray-900">Audio Settings</h4>
           <button
-            className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
             onClick={() => setShowSettings(false)}
+            className="text-gray-400 hover:text-gray-600 transition-colors"
             aria-label="Close settings"
           >
-            <XCircle className="w-5 h-5" />
+            <Settings className="w-5 h-5" />
           </button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1586,49 +1577,35 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
     <div className="space-y-6">
       {NotificationSystem}
 
-      {/* {connectionState.device !== "registered" && (
-        <div className="bg-white rounded-lg shadow p-6 border border-slate-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            Call Center Setup
-          </h3>
-          <p className="text-sm text-gray-600 mb-4">
-            Status: <span className="font-medium">{statusMessage}</span>
-          </p>
-          <p className="text-xs text-gray-500 mb-4">
-            Server: {API_BASE_URL} | Identity: {identity}
-          </p>
-          <div className="flex gap-2">
-            <button
-              onClick={initializeSystem}
-              disabled={connectionState.device === "initializing"}
-              className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
-            >
-              {connectionState.device === "initializing"
-                ? "Initializing..."
-                : "Initialize System"}
-            </button>
-            <button
-              onClick={() => setShowSettings(!showSettings)}
-              className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
-            >
-              Settings
-            </button>
-          </div>
-        </div>
-      )} */}
-      <div className="relative">
-        <div className="absolute z-20 -right-1 top-0">
-          <Button
-            className="rounded-full"
-            onClick={() => setShowSettings(!showSettings)}
-            size="icon"
-            variant="ghost"
+      <div className="bg-white rounded-lg shadow p-6 border border-slate-200">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          Call Center Setup
+        </h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Status: <span className="font-medium">{statusMessage}</span>
+        </p>
+        <p className="text-xs text-gray-500 mb-4">
+          Server: {API_BASE_URL} | Identity: {identity}
+        </p>
+        <div className="flex gap-2">
+          <button
+            onClick={initializeSystem}
+            disabled={connectionState.device === "initializing"}
+            className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
           >
-            <Settings />
-          </Button>
+            {connectionState.device === "initializing"
+              ? "Initializing..."
+              : "Initialize System"}
+          </button>
+          <button
+            onClick={() => setShowSettings(!showSettings)}
+            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+          >
+            Settings
+          </button>
         </div>
-        {CallInterface}
       </div>
+      {CallInterface}
       {SettingsPanel}
     </div>
   );
