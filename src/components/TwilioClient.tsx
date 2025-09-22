@@ -27,6 +27,7 @@ import {
   PhoneIncoming,
   Clock,
   Signal,
+  XCircle,
 } from "lucide-react";
 import { getErrorMessage } from "@/lib/getErrorMessage";
 
@@ -1103,31 +1104,50 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
   }, [connectionState]);
 
   // Notification system
+
+  const handleClose = useCallback((id: string) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  }, []);
   const NotificationSystem = useMemo(
     () => (
-      <div className="fixed top-4 right-4 z-50 space-y-2">
+      <div className="fixed top-4 right-4 z-50 space-y-4 max-w-xs">
         {notifications.map((notification) => (
           <div
             key={notification.id}
-            className={`p-4 rounded-lg shadow-lg border backdrop-blur-sm animate-in slide-in-from-right duration-300 ${
+            className={`p-5 rounded-xl shadow-lg border backdrop-blur-md animate-in slide-in-from-right duration-300 transform transition-all ease-out ${
               notification.type === "error"
-                ? "bg-red-900/80 border-red-500 text-red-100"
+                ? "bg-red-800/90 border-red-600 text-red-200"
                 : notification.type === "warning"
-                ? "bg-yellow-900/80 border-yellow-500 text-yellow-100"
-                : "bg-blue-900/80 border-blue-500 text-blue-100"
+                ? "bg-yellow-800/90 border-yellow-600 text-yellow-200"
+                : "bg-blue-800/90 border-blue-600 text-blue-200"
             }`}
           >
-            <div className="flex items-start gap-2">
-              {notification.type === "error" && (
-                <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-              )}
-              {notification.type === "warning" && (
-                <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-              )}
-              {notification.type === "info" && (
-                <Settings className="w-5 h-5 flex-shrink-0 mt-0.5" />
-              )}
-              <span className="text-sm">{notification.message}</span>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex items-center gap-3">
+                {/* Icon */}
+                {notification.type === "error" && (
+                  <AlertTriangle className="w-6 h-6 flex-shrink-0 text-red-400" />
+                )}
+                {notification.type === "warning" && (
+                  <AlertTriangle className="w-6 h-6 flex-shrink-0 text-yellow-400" />
+                )}
+                {notification.type === "info" && (
+                  <Settings className="w-6 h-6 flex-shrink-0 text-blue-400" />
+                )}
+
+                {/* Notification message */}
+                <span className="text-sm font-medium">
+                  {notification.message}
+                </span>
+              </div>
+
+              {/* Close Button */}
+              <button
+                onClick={() => handleClose(notification.id)}
+                className="text-gray-300 hover:text-gray-500 focus:outline-none"
+              >
+                <XCircle className="w-5 h-5" />
+              </button>
             </div>
           </div>
         ))}
