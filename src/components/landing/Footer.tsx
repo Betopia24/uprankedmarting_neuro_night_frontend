@@ -63,7 +63,7 @@ export default function Footer() {
             </li>
           ))}
         </ul>
-        <div className="mt-10 border-t border-primary flex justify-between items-center gap-2 py-4">
+        <div className="mt-10 border-t border-primary flex justify-center items-center gap-2 py-4">
           {/* <ul className="flex flex-wrap gap-4 justify-center text-[10px]">
             {externalLinks.slice(0, 2).map((link) => (
               <li key={link.id}>
@@ -74,13 +74,13 @@ export default function Footer() {
           <span className="text-sm">
             &copy;{new Date().getFullYear()} Autoawnser.ai. All rights reserved.
           </span>
-          <ul className="flex flex-wrap gap-4 justify-center text-[10px]">
+          {/* <ul className="flex flex-wrap gap-4 justify-center text-[10px]">
             {externalLinks.slice(2).map((link) => (
               <li key={link.id}>
                 <Link href={link.href()}>{link.name}</Link>
               </li>
             ))}
-          </ul>
+          </ul> */}
         </div>
       </Container>
     </footer>
