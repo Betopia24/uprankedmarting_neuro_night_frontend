@@ -1421,7 +1421,10 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
             >
               <option value="">Default</option>
               {audioState.inputDevices.map((device) => (
-                <option key={device.deviceId} value={device.deviceId}>
+                <option
+                  key={device.deviceId + device.label}
+                  value={device.deviceId}
+                >
                   {device.label || `Microphone ${device.deviceId.slice(0, 8)}`}
                 </option>
               ))}
