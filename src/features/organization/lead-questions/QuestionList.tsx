@@ -15,12 +15,12 @@ import { toast } from "sonner";
 import Image from "next/image";
 import { env } from "@/env";
 
-const suggested = [
-  "What type of service are you looking for?",
-  "What is your project about, in short?",
-  "Do you already have an existing website/app/system?",
-  "What problems are you currently facing in your business?",
-];
+// const suggested = [
+//   "What type of service are you looking for?",
+//   "What is your project about, in short?",
+//   "Do you already have an existing website/app/system?",
+//   "What problems are you currently facing in your business?",
+// ];
 
 interface Question {
   question_id: string;
@@ -252,29 +252,31 @@ export default function QuestionList() {
     <Container>
       <h1 className="text-xl font-bold mb-4">For Lead Questions</h1>
 
-      <div className="mb-6">
-        <p className="text-sm font-semibold mb-2">Select or Add Questions</p>
-        <div className="flex flex-col gap-2">
-          {suggested.map((text, idx) => {
-            const alreadyAdded = questions.some(
-              (q) => q.question_text === text
-            );
-            return (
-              <button
-                key={idx}
-                onClick={() => !alreadyAdded && handleSuggestedSelect(text)}
-                disabled={alreadyAdded}
-                className={`text-left px-3 py-2 border rounded transition ${alreadyAdded
-                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                  : "hover:bg-gray-50 border-gray-300"
-                  }`}
-              >
-                {text}
-              </button>
-            );
-          })}
+      {/*
+        <div className="mb-6">
+          <p className="text-sm font-semibold mb-2">Select or Add Questions</p>
+          <div className="flex flex-col gap-2">
+            {suggested.map((text, idx) => {
+              const alreadyAdded = questions.some(
+                (q) => q.question_text === text
+              );
+              return (
+                <button
+                  key={idx}
+                  onClick={() => !alreadyAdded && handleSuggestedSelect(text)}
+                  disabled={alreadyAdded}
+                  className={`text-left px-3 py-2 border rounded transition ${alreadyAdded
+                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    : "hover:bg-gray-50 border-gray-300"
+                    }`}
+                >
+                  {text}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      */}
 
       <div className="space-y-3 mb-4">
         {questions.map((q, i) =>
