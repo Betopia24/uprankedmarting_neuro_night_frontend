@@ -9,8 +9,7 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import LogoutButton from "@/features/auth/LogoutButton";
-import { LucideLogOut, LucideSettings } from "lucide-react";
-import Link from "next/link";
+import { LucideLogOut } from "lucide-react";
 
 export default function ProfileButton() {
   const { user } = useAuth();
@@ -37,12 +36,7 @@ export default function ProfileButton() {
             </div>
           </div>
           <div className="flex items-center justify-center gap-2">
-            <Button asChild className="rounded-full" size="sm">
-              <Link href="settings">
-                <LucideSettings /> Settings
-              </Link>
-            </Button>
-            <LogoutButton size="sm">
+            <LogoutButton className="w-full" size="sm">
               <LucideLogOut /> Sign Out
             </LogoutButton>
           </div>
