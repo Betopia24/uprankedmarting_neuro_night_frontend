@@ -18,7 +18,9 @@ let cachedUser: (AuthMe & { accessToken: string }) | null = null;
 export async function getServerAuth(): Promise<
   (AuthMe & { accessToken: string }) | null
 > {
+  console.log("initial");
   if (cachedUser) return cachedUser;
+  console.log("end");
 
   const cookieStore = cookies();
   const accessToken = (await cookieStore).get("accessToken")?.value;
