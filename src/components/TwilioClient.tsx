@@ -213,7 +213,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       setAudioState((prev) => ({ ...prev, hasPermission: true }));
       updateStatusMessage("Audio monitoring initialized");
     } catch (err) {
-      console.error("Failed to initialize audio monitoring:", err);
       setAudioState((prev) => ({ ...prev, hasPermission: false }));
       updateStatusMessage("Microphone permission required", "error");
     }
@@ -243,9 +242,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
           (media: MediaDeviceInfo, id: string) => twilioOutputs.set(id, media)
         );
       }
-    } catch (err) {
-      console.error("Failed to update audio devices:", err);
-    }
+    } catch {}
   }, []);
 
   // Token management
@@ -286,7 +283,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         updateStatusMessage("Token refreshed");
         scheduleTokenRefresh();
       } catch (err) {
-        console.error("Token refresh failed:", err);
         updateStatusMessage("Token refresh failed, retrying...", "error");
 
         setTimeout(async () => {
@@ -297,7 +293,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
               console.log("Token refresh retry successful");
               scheduleTokenRefresh();
             } catch (retryErr) {
-              console.error("Token refresh retry failed:", retryErr);
               updateStatusMessage("Critical: Token refresh failed", "error");
             }
           }
@@ -408,7 +403,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       call.on("error", (err: { message: string }) => {
         if (!isMountedRef.current) return;
 
-        console.error("Call error:", err);
         updateStatusMessage(
           `Call error: ${err?.message || "Unknown error"}`,
           "error"
@@ -499,7 +493,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       device.on("error", (err: { message: string }) => {
         if (!isMountedRef.current) return;
 
-        console.error("Device error:", err);
         setConnectionState((prev) => ({
           ...prev,
           device: "error",
@@ -553,7 +546,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
           const newToken = await fetchToken();
           device.updateToken(newToken);
         } catch (err) {
-          console.error("Token refresh failed:", err);
           updateStatusMessage("Token refresh failed", "error");
         }
       });
@@ -587,7 +579,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       await deviceRef.current.register();
       updateStatusMessage("Registering device...");
     } catch (err) {
-      console.error("Device registration failed:", err);
       setConnectionState((prev) => ({ ...prev, device: "error" }));
       updateStatusMessage("Registration failed", "error");
 
@@ -603,7 +594,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
             deviceRef?.current?.updateToken(newToken);
             await registerDevice();
           } catch (retryErr) {
-            console.error("Retry registration failed:", retryErr);
             updateStatusMessage("Retry registration failed", "error");
           }
         }
@@ -671,15 +661,12 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
             ...prev,
             lastHeartbeat: new Date(),
           }));
-        } catch (err) {
-          console.error("WebSocket message parsing error:", err);
-        }
+        } catch {}
       };
 
       ws.onerror = (error) => {
         if (!isMountedRef.current) return;
 
-        console.error("WebSocket error:", error);
         setConnectionState((prev) => ({
           ...prev,
           websocket: "error",
@@ -705,7 +692,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         }
       };
     } catch (error) {
-      console.error("WebSocket creation error:", error);
       updateStatusMessage("Failed to create WebSocket connection", "error");
       scheduleReconnect();
     }
@@ -809,7 +795,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
 
       updateStatusMessage("Call accepted");
     } catch (err) {
-      console.error("Failed to accept call:", err);
       updateStatusMessage("Failed to accept call", "error");
     }
   }, [updateStatusMessage]);
@@ -832,7 +817,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
 
       currentCallRef.current = null;
     } catch (err) {
-      console.error("Failed to reject call:", err);
       updateStatusMessage("Failed to reject call", "error");
     }
   }, [updateStatusMessage]);
@@ -863,7 +847,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       });
       currentCallRef.current = null;
     } catch (err) {
-      console.error("Failed to end call:", err);
       updateStatusMessage("Failed to end call", "error");
     } finally {
       if (callTimerRef.current) clearInterval(callTimerRef.current);
@@ -883,7 +866,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
       setAudioState((prev) => ({ ...prev, isMuted: newMutedState }));
       updateStatusMessage(newMutedState ? "Muted" : "Unmuted");
     } catch (err) {
-      console.error("Failed to toggle mute:", err);
       updateStatusMessage("Failed to toggle mute", "error");
     }
   }, [audioState.isMuted, updateStatusMessage]);
@@ -909,8 +891,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         await Notification.requestPermission();
       }
     } catch (err: unknown) {
-      console.error("System initialization failed:", err);
-
       const message = getErrorMessage(err, "System initialization failed");
       updateStatusMessage(`Initialization failed: ${message}`, "error");
     }
@@ -1030,7 +1010,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         setAudioState((prev) => ({ ...prev, selectedInput: deviceId }));
         updateStatusMessage("Input device updated");
       } catch (err) {
-        console.error("Failed to set input device:", err);
         updateStatusMessage("Failed to update input device", "error");
       }
     },
@@ -1046,7 +1025,6 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         setAudioState((prev) => ({ ...prev, selectedOutput: deviceId }));
         updateStatusMessage("Output device updated");
       } catch (err) {
-        console.error("Failed to set output device:", err);
         updateStatusMessage("Failed to update output device", "error");
       }
     },
@@ -1601,20 +1579,21 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
           Call Center Setup
         </h3>
-        <p className="text-sm text-gray-600 mb-4">
-          Status: <span className="font-medium">{statusMessage}</span>
-        </p>
         <p className="text-xs text-gray-500 mb-4">
           Server: {API_BASE_URL} | Identity: {identity}
         </p>
         <div className="flex gap-2">
           <button
-            onClick={initializeSystem}
+            onClick={() => {
+              initializeSystem();
+            }}
             disabled={connectionState.device === "initializing"}
             className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
           >
             {connectionState.device === "initializing"
               ? "Initializing..."
+              : connectionState.device === "registered"
+              ? "Registered"
               : "Initialize System"}
           </button>
           <button
