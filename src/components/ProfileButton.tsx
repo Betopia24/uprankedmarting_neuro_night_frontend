@@ -47,7 +47,6 @@ export default function ProfileButton() {
 }
 
 function UserImage({ image, username }: { image?: string; username: string }) {
-  console.log(image);
   return image ? (
     <Image
       src={image}

@@ -143,8 +143,6 @@ async function fetchAgents(
     };
   }
 
-  console.log(json.data.users);
-
   return {
     users: Array.isArray(json.data.users) ? json.data.users : [],
     metadata: json.data.metadata ?? {
