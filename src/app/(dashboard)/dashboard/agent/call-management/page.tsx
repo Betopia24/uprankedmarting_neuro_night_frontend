@@ -23,7 +23,7 @@ interface TableProps {
 
 interface AgentCall {
   id: string;
-  to_number: string;
+  from_number: string;
   callType: string;
   call_status: string;
   call_duration: number;
@@ -117,7 +117,7 @@ export default async function AgentCallManagementPage({
 
   const tableData: TableRow[] = calls.map((call) => ({
     id: call.id,
-    calledNumber: call.to_number,
+    calledNumber: call.from_number,
     callType: call.callType.charAt(0).toUpperCase() + call.callType.slice(1),
     callStatus:
       call.call_status.charAt(0).toUpperCase() + call.call_status.slice(1),
