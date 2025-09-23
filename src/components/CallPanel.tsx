@@ -35,16 +35,17 @@ const CallPanel = () => {
     isDeviceReady,
     isMuted,
     isConnecting,
+    callStatus,
     makeCall,
     hangupCall,
     muteCall,
     unmuteCall,
   } = useCall();
 
-  // Call duration timer
+  // Call duration timer - only when call is connected
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    if (currentCall && callStats.startTime) {
+    if (currentCall && callStats.startTime && callStatus === "connected") {
       interval = setInterval(() => {
         setCallStats((prev) => ({
           ...prev,
@@ -53,11 +54,11 @@ const CallPanel = () => {
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [currentCall, callStats.startTime]);
+  }, [currentCall, callStats.startTime, callStatus]);
 
-  // Handle call start
+  // Handle call connection (when call is answered)
   useEffect(() => {
-    if (currentCall && !callStats.startTime) {
+    if (currentCall && callStatus === "connected" && !callStats.startTime) {
       setCallStats((prev) => ({
         ...prev,
         startTime: new Date(),
@@ -68,7 +69,7 @@ const CallPanel = () => {
         duration: 3000,
       });
     }
-  }, [currentCall, phoneNumber]);
+  }, [callStatus, phoneNumber]);
 
   // Handle call end
   useEffect(() => {
@@ -91,7 +92,7 @@ const CallPanel = () => {
 
   // Simulate call quality monitoring (you can replace with real quality data)
   useEffect(() => {
-    if (currentCall) {
+    if (currentCall && callStatus === "connected") {
       const qualityInterval = setInterval(() => {
         // Simulate quality changes - replace with real quality monitoring
         const qualities: CallStats["quality"][] = [
@@ -118,7 +119,7 @@ const CallPanel = () => {
 
       return () => clearInterval(qualityInterval);
     }
-  }, [currentCall]);
+  }, [callStatus]);
 
   const formatDuration = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -290,7 +291,7 @@ const CallPanel = () => {
     >
       {/* Call Stats Header */}
       <AnimatePresence>
-        {currentCall && (
+        {currentCall && callStatus === "connected" && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
