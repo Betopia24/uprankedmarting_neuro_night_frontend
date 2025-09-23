@@ -21,6 +21,7 @@ interface Agent {
 interface OrganizationInfo {
   id: string;
   name: string;
+  industry: string;
 }
 
 interface User {
@@ -79,10 +80,10 @@ export function AuthProvider({
   const normalizedInitialUser =
     initialUser && isValidUser(initialUser)
       ? {
-          ...initialUser,
-          Agent: initialUser.Agent || null, // Ensure Agent is null if undefined
-          ownedOrganization: initialUser.ownedOrganization || null, // Ensure ownedOrganization is null if undefined
-        }
+        ...initialUser,
+        Agent: initialUser.Agent || null, // Ensure Agent is null if undefined
+        ownedOrganization: initialUser.ownedOrganization || null, // Ensure ownedOrganization is null if undefined
+      }
       : null;
 
   const [user, setUser] = useState<User | null>(normalizedInitialUser);

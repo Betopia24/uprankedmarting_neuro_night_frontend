@@ -264,11 +264,10 @@ export default function QuestionList() {
                 key={idx}
                 onClick={() => !alreadyAdded && handleSuggestedSelect(text)}
                 disabled={alreadyAdded}
-                className={`text-left px-3 py-2 border rounded transition ${
-                  alreadyAdded
-                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                    : "hover:bg-gray-50 border-gray-300"
-                }`}
+                className={`text-left px-3 py-2 border rounded transition ${alreadyAdded
+                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                  : "hover:bg-gray-50 border-gray-300"
+                  }`}
               >
                 {text}
               </button>
