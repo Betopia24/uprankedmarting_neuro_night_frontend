@@ -11,7 +11,6 @@ import {
   getProfileInfo,
   updateProfileSettings,
 } from "@/app/api/profile-settings/profile-settings";
-import { SelectField } from "@/components";
 import CustomSelectField from "@/components/CustomSelectField";
 
 const ProfileContainerPage = ({ planLevel }: { planLevel: string }) => {
