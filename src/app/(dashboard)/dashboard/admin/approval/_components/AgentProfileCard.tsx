@@ -38,6 +38,7 @@ export default function AgentProfileCard({
             className="w-24 h-24 rounded-full mx-auto"
             width={96}
             height={96}
+            unoptimized
           />
         ) : (
           <div className="size-24 border border-gray-400 rounded-full mx-auto flex items-center justify-center text-4xl font-semibold">
