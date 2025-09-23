@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useRef } from "react"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Camera, X } from "lucide-react"
-import { toast } from "sonner"
+import type React from "react";
+import { useState, useRef } from "react";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Camera, X } from "lucide-react";
+import { toast } from "sonner";
 
 interface ImageUploadProps {
   currentImage?: string | null | undefined;
@@ -13,53 +13,57 @@ interface ImageUploadProps {
   className?: string;
 }
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ currentImage, onImageChange, className = "" }) => {
-  const [preview, setPreview] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+const ImageUpload: React.FC<ImageUploadProps> = ({
+  currentImage,
+  onImageChange,
+  className = "",
+}) => {
+  const [preview, setPreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
+    const file = event.target.files?.[0];
 
-    if (!file) return
+    if (!file) return;
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
-      toast.error("Please select a valid image file")
-      return
+      toast.error("Please select a valid image file");
+      return;
     }
 
     // Validate file size (5MB limit)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image size should be less than 5MB")
-      return
+      toast.error("Image size should be less than 5MB");
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
     // Create preview
-    const reader = new FileReader()
+    const reader = new FileReader();
     reader.onload = (e) => {
-      setPreview(e.target?.result as string)
-      setLoading(false)
-    }
-    reader.readAsDataURL(file)
+      setPreview(e.target?.result as string);
+      setLoading(false);
+    };
+    reader.readAsDataURL(file);
 
-    onImageChange(file)
-  }
+    onImageChange(file);
+  };
 
   const handleRemoveImage = () => {
-    setPreview(null)
-    onImageChange(null)
+    setPreview(null);
+    onImageChange(null);
     if (fileInputRef.current) {
-      fileInputRef.current.value = ""
+      fileInputRef.current.value = "";
     }
-  }
+  };
 
   const triggerFileInput = () => {
-    fileInputRef.current?.click()
-  }
+    fileInputRef.current?.click();
+  };
 
-  const displayImage = preview || currentImage || "/images/default-avatar.png"
+  const displayImage = preview || currentImage || "/images/default-avatar.png";
 
   return (
     <div className={`flex flex-col items-center space-y-4 ${className}`}>
@@ -95,6 +99,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ currentImage, onImageChange, 
               width={96}
               height={96}
               className="w-full h-full object-cover"
+              unoptimized
             />
           )}
         </div>
@@ -135,10 +140,15 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ currentImage, onImageChange, 
         )}
       </div>
 
-      <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFileSelect}
+        className="hidden"
+      />
     </div>
-  )
-}
+  );
+};
 
-export default ImageUpload
-
+export default ImageUpload;

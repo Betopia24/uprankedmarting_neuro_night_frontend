@@ -47,6 +47,7 @@ export default function ProfileButton() {
 }
 
 function UserImage({ image, username }: { image?: string; username: string }) {
+  console.log(image);
   return image ? (
     <Image
       src={image}
@@ -54,6 +55,7 @@ function UserImage({ image, username }: { image?: string; username: string }) {
       width={32}
       height={32}
       className="size-8 rounded-full object-cover"
+      unoptimized
     />
   ) : (
     <span className="size-8 rounded-full bg-gray-200 flex items-center justify-center">
