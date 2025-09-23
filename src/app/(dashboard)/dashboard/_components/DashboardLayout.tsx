@@ -28,7 +28,7 @@ export default function DashboardLayout({
           "--_sidebar-icon-sm": "1.5rem",
           "--_sidebar-icon-lg": "1.7rem",
           "--_sidebar-header-height": "4.5rem",
-          "--_sidebar-footer-height": "4.5rem",
+          "--_sidebar-footer-height": "2.5rem",
           gridTemplateColumns: `var(${sidebarWidth}) 1fr`,
           gridTemplateAreas: `'sidebar main'`,
         } as React.CSSProperties

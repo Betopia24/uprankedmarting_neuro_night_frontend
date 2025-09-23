@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronsRight, LucideUser } from "lucide-react";
+import { ChevronsRight } from "lucide-react";
 import { motion } from "framer-motion";
 import React, { createElement } from "react";
 import { cn } from "@/lib/utils";
@@ -63,9 +63,9 @@ function SidebarFooter() {
 
   return (
     <div className="p-4 flex gap-2 items-start h-[var(--_sidebar-footer-height)]">
-      <span className="bg-accent text-primary rounded">
+      {/* <span className="bg-accent text-primary rounded">
         <SidebarIcon icon={LucideUser} size="lg" />
-      </span>
+      </span> */}
 
       {isExpanded && (
         <motion.div
