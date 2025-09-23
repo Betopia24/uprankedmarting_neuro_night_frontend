@@ -93,7 +93,7 @@ async function getOrganizations(
     headers: {
       Authorization: auth.accessToken,
     },
-    cache: "no-cache",
+    next: { revalidate: 500 },
   });
   if (!res.ok) {
     console.error("Fetch error code:", res.status);

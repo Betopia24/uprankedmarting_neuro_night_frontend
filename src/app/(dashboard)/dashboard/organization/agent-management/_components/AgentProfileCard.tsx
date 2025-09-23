@@ -18,7 +18,7 @@ export default function AgentProfileCard({
           <Image
             src={user.image}
             alt={user.name}
-            className="w-24 h-24 rounded-full mx-auto"
+            className="w-24 h-24 rounded-full mx-auto object-cover"
             width={96}
             height={96}
             unoptimized

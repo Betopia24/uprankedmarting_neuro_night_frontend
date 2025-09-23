@@ -28,7 +28,7 @@ export default async function AgentDetailsPage({ params }: Props) {
         headers: {
           Authorization: auth?.accessToken || "",
         },
-        cache: "no-store",
+        next: { revalidate: 500 },
       }
     );
 

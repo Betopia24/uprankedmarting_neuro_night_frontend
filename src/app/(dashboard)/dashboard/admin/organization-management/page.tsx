@@ -96,7 +96,7 @@ async function getOrganizations(
     headers: {
       Authorization: auth.accessToken,
     },
-    cache: "no-cache",
+    next: { revalidate: 500 },
   });
   if (!res.ok) return null;
   const json = await res.json();

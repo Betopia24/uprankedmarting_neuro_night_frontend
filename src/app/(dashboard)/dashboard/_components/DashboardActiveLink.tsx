@@ -24,6 +24,7 @@ export default function DashboardActiveLink({
         isActive && "is-active-link bg-blue-300",
         className
       )}
+      prefetch
     >
       {children}
     </Link>

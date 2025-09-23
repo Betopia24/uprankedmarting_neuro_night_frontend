@@ -231,7 +231,8 @@ function Review({
                 alt={review?.client?.name}
                 width={32}
                 height={32}
-                className="rounded-full"
+                className="rounded-full object-cover"
+                unoptimized
               />
             ) : (
               <div className="w-8 h-8 rounded-full bg-gray-400 flex items-center justify-center text-white font-bold">

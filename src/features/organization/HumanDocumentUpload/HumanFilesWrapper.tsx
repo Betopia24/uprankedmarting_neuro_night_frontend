@@ -35,10 +35,10 @@ export default function HumanFilesWrapper({
         fetchUrl,
 
         {
-          cache: "no-store",
           headers: {
             Authorization: auth.token || "",
           },
+          next: { revalidate: 500 },
         }
       );
       if (!response.ok) throw new Error("Failed to fetch files");

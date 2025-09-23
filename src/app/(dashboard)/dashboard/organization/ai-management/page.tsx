@@ -63,7 +63,6 @@
 //   return <AgentForm orgId={orgId} agentId={agentId} />;
 // }
 
-
 //! Try - 2
 import { env } from "@/env";
 import AgentForm from "./_components/Form";
@@ -93,8 +92,7 @@ export default async function AIManagement() {
     const subscription = await getSubscriptionType(auth.accessToken);
 
     planLevel =
-      subscription?.data?.planLevel ||
-      subscription?.data?.plan?.planLevel;
+      subscription?.data?.planLevel || subscription?.data?.plan?.planLevel;
 
     if (!planLevel) {
       const subs = subscription?.data?.organization?.subscriptions || [];
@@ -117,7 +115,10 @@ export default async function AIManagement() {
       >
         <div className="max-w-md">
           <h1 className="text-5xl font-bold text-red-600 mb-4">Oops!</h1>
-          <p className="text-lg text-gray-700 mb-6">Your current plan does not allow uploading documents for AI Management.</p>
+          <p className="text-lg text-gray-700 mb-6">
+            Your current plan does not allow uploading documents for AI
+            Management.
+          </p>
           <Button variant="link" className="mt-4">
             <a href="/dashboard/organization/explore-numbers">
               Upgrade your plan
@@ -128,14 +129,13 @@ export default async function AIManagement() {
     );
   }
 
-
   let agentId: string | undefined;
   let orgId: string | undefined;
 
   try {
     const response = await fetch(`${env.API_BASE_URL}/agents/ai-agents`, {
       headers: { Authorization: auth.accessToken },
-      cache: "no-store",
+      next: { revalidate: 500 },
     });
 
     if (!response.ok) {
@@ -156,13 +156,8 @@ export default async function AIManagement() {
   }
 
   if (!orgId) {
-    return (
-      <div className="text-red-500">
-        Missing organization ID
-      </div>
-    );
+    return <div className="text-red-500">Missing organization ID</div>;
   }
 
   return <AgentForm orgId={orgId} agentId={agentId} />;
 }
-

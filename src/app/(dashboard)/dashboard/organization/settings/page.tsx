@@ -16,7 +16,7 @@ export default async function SettingsPage() {
         headers: {
           Authorization: token || "",
         },
-        cache: "no-store",
+        next: { revalidate: 50 },
       }
     );
 

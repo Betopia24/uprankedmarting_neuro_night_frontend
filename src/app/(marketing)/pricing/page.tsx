@@ -27,7 +27,7 @@ export default async function PricingPage() {
 
   try {
     const res = await fetch(url, {
-      cache: "no-store", // always fresh
+      next: { revalidate: 500 },
     });
 
     if (!res.ok) {

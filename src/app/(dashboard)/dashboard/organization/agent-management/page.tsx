@@ -105,7 +105,7 @@ async function fetchAgents(
   try {
     response = await fetch(`${apiBase}/agents?${query.toString()}`, {
       headers: { Authorization: `${auth.accessToken}` },
-      cache: "no-store",
+      next: { revalidate: 500 },
     });
   } catch (err) {
     return {
@@ -142,6 +142,8 @@ async function fetchAgents(
       error: json.error,
     };
   }
+
+  console.log(json.data.users);
 
   return {
     users: Array.isArray(json.data.users) ? json.data.users : [],
@@ -194,8 +196,7 @@ export default async function AgentManagementPage({ searchParams }: Props) {
         <div className="max-w-md">
           <h1 className="text-5xl font-bold text-red-600 mb-4">Oops!</h1>
           <p className="text-lg text-gray-700 mb-6">
-            Your current plan does not allow access for Agent
-            Management.
+            Your current plan does not allow access for Agent Management.
           </p>
           <Button variant="link" className="mt-4">
             <a href="/dashboard/organization/explore-numbers">
