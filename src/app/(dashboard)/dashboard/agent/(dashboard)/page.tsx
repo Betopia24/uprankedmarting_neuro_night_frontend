@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useCall } from "@/contexts/CallContext";
 import CallPanel from "@/components/CallPanel";
@@ -112,14 +111,20 @@ const Dashboard = () => {
                 <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                   <PhoneIcon className="w-5 h-5 text-blue-600" />
                 </div>
+
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900">
-                    Make a Call
+                    Inbound Calls
                   </h2>
-                  <p className="text-sm text-gray-600">Outbound dialer</p>
+                  <p className="text-sm text-gray-600">
+                    Receive incoming calls
+                  </p>
                 </div>
               </div>
-              <CallPanel />
+
+              <TwilioInboundAgent
+                identity={(user.Agent && user.Agent.sip_username) || ""}
+              />
             </motion.div>
 
             {/* Inbound Agent */}
@@ -135,16 +140,12 @@ const Dashboard = () => {
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900">
-                    Inbound Calls
+                    Make a Call
                   </h2>
-                  <p className="text-sm text-gray-600">
-                    Receive incoming calls
-                  </p>
+                  <p className="text-sm text-gray-600">Outbound dialer</p>
                 </div>
               </div>
-              <TwilioInboundAgent
-                identity={(user.Agent && user.Agent.sip_username) || ""}
-              />
+              <CallPanel />
             </motion.div>
           </div>
 
