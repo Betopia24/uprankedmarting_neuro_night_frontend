@@ -1,6 +1,7 @@
 import { env } from "@/env";
 import CallGraph from "@/features/dashboard/CallGraph";
 import CallGraphBarChart from "@/features/dashboard/CallGraphBarChart";
+import Feedback from "@/features/dashboard/Feedback";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -120,13 +121,14 @@ export default async function OrganizationDashboardPage({
   };
 
   return (
-    <div className="space-y-6 flex-1">
-      {/* Add key prop to force re-render when year changes */}
-      <CallGraph key={`graph-${year}`} callStats={callStats} />
-      <CallGraphBarChart
-        key={`chart-${year}`}
-        monthlyReport={statsData.monthlyReport}
-      />
+    <div className="lg:flex gap-10">
+      <div className="space-y-6 flex-1">
+        <CallGraph callStats={callStats} />
+        <CallGraphBarChart monthlyReport={statsData.monthlyReport} />
+      </div>
+      <div className="basis-72 max-w-72">
+        <Feedback />
+      </div>
     </div>
   );
 }
