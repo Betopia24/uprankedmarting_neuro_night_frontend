@@ -12,27 +12,27 @@ export interface User {
   name: string;
 }
 
+// Simple request-scoped cache to avoid multiple fetches per request
+let cachedUser: (AuthMe & { accessToken: string }) | null = null;
+
 export async function getServerAuth(): Promise<
   (AuthMe & { accessToken: string }) | null
 > {
+  if (cachedUser) return cachedUser;
+
   const cookieStore = cookies();
   const accessToken = (await cookieStore).get("accessToken")?.value;
-
-  if (!accessToken) {
-    return null;
-  }
+  if (!accessToken) return null;
 
   try {
     const response = await fetch(`${env.API_BASE_URL}/auth/me`, {
-      headers: {
-        Authorization: `${accessToken}`,
-      },
+      headers: { Authorization: `${accessToken}` },
     });
 
     if (response.ok) {
       const responseData: AuthMe = await response.json();
-
-      return { ...responseData, accessToken };
+      cachedUser = { ...responseData, accessToken };
+      return cachedUser;
     }
   } catch {
     return null;
@@ -43,9 +43,7 @@ export async function getServerAuth(): Promise<
 
 export async function requireAuth(): Promise<AuthMe | null> {
   const data = await getServerAuth();
-  if (!data) {
-    redirect(loginPath());
-  }
+  if (!data) redirect(loginPath());
   return data;
 }
 
@@ -59,10 +57,7 @@ export async function getMe(): Promise<Me | null> {
   try {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get("accessToken")?.value;
-
-    if (!accessToken) {
-      return null;
-    }
+    if (!accessToken) return null;
 
     const res = await fetch(`${env.API_BASE_URL}/auth/me`, {
       method: "GET",
@@ -73,16 +68,10 @@ export async function getMe(): Promise<Me | null> {
       cache: "no-store",
     });
 
-    if (!res.ok) {
-      return null;
-    }
+    if (!res.ok) return null;
 
     const data: AuthResponse = await res.json();
-
-    if (!data?.success) {
-      return null;
-    }
-    return data.data;
+    return data?.success ? data.data : null;
   } catch (error) {
     env.NEXT_PUBLIC_APP_ENV === "development" &&
       console.error("Auth check error:", error);
