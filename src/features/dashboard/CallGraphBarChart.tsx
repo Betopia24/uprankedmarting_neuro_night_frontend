@@ -107,7 +107,6 @@ export default function DashboardChart({
 
   return (
     <section className="-mx-12">
-      <YearFilter />
       <div style={{ width: "100%", height: 480 }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart

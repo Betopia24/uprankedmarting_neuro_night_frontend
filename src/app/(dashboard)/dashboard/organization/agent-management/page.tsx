@@ -1,217 +1,128 @@
-import { getAccessToken, getServerAuth } from "@/lib/auth";
-import AgentsList from "@/app/(dashboard)/dashboard/organization/agent-management/_components/AgentsList";
+"use client";
+
+import { useAuth } from "@/components/AuthProvider";
 import { getSubscriptionType } from "@/app/api/subscription/subscription";
 import { Button } from "@/components/ui/button";
+import { useEffect, useState, Suspense, lazy } from "react";
+import { ViewType } from "@/types/agent";
 
-// -----------------------------
-// Types
-// -----------------------------
-export interface AgentUser {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  bio: string;
-  image: string;
-  Agent: Agent;
-}
+const AgentsList = lazy(() => import("./_components/AgentsList"));
 
-export interface Agent {
-  AgentFeedbacks: Record<string, string>[];
-  skills: string[];
-  totalCalls: number;
-  isAvailable: boolean;
-  status: string;
-  assignTo: string;
-  assignments: Assignment[];
-  organization: Organization;
-  avgRating: number;
-  totalFeedbacks: number;
-}
+export default function AgentManagementPage() {
+  const { token } = useAuth();
+  const [selectedTab, setSelectedTab] = useState<ViewType>("unassigned");
+  const [users, setUsers] = useState<any[]>([]);
+  const [metadata, setMetadata] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+  });
+  const [planLevel, setPlanLevel] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-export interface Assignment {
-  id: string;
-  status: string;
-  organizationId: string;
-  organization: Organization;
-}
+  // Fetch subscription once
+  useEffect(() => {
+    if (!token) return;
 
-export interface Organization {
-  id: string;
-  name: string;
-  industry: string;
-}
+    (async () => {
+      try {
+        const subscription = await getSubscriptionType(token);
+        let plan =
+          subscription?.data?.planLevel || subscription?.data?.plan?.planLevel;
 
-export interface Metadata {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-}
+        if (!plan) {
+          const subs = subscription?.data?.organization?.subscriptions || [];
+          const activeSub = Array.isArray(subs)
+            ? subs.find((s) => s.status === "ACTIVE")
+            : null;
+          plan = activeSub?.planLevel ?? null;
+        }
 
-export type ViewType = "unassigned" | "my-agents";
+        setPlanLevel(plan);
+      } catch (err) {
+        console.error("Error fetching subscription:", err);
+        setPlanLevel(null);
+      }
+    })();
+  }, [token]);
 
-interface AgentsApiSuccess {
-  data: {
-    users: AgentUser[];
-    metadata: Metadata;
-  };
-}
+  // Fetch agents when tab changes
+  useEffect(() => {
+    if (!token) return;
 
-interface AgentsApiError {
-  error: string;
-}
+    const fetchAgents = async () => {
+      setLoading(true);
+      setError(null);
+      setUsers([]); // Reset immediately
+      setMetadata({ page: 1, limit: 10, total: 0, totalPages: 0 });
 
-interface AgentsResult {
-  users: AgentUser[];
-  metadata: Metadata;
-  error: string | null;
-}
+      try {
+        const apiBase = process.env.NEXT_PUBLIC_API_URL;
+        const query = new URLSearchParams();
+        query.set("viewType", selectedTab);
+        query.set("limit", "10");
 
-type Props = {
-  searchParams: Promise<{ view?: ViewType; limit?: string }>;
-};
+        const res = await fetch(`${apiBase}/agents?${query.toString()}`, {
+          headers: { Authorization: token },
+        });
 
-// -----------------------------
-// Safe Fetcher
-// -----------------------------
-async function fetchAgents(
-  view: ViewType,
-  limit?: number
-): Promise<AgentsResult> {
-  const accessToken = await getAccessToken();
-  if (!accessToken) {
-    return {
-      users: [],
-      metadata: { page: 1, limit: 0, total: 0, totalPages: 0 },
-      error: "Missing access token",
+        if (!res.ok) throw new Error("Failed to fetch agents");
+        const data = await res.json();
+
+        setUsers(data.data?.users || []);
+        setMetadata(
+          data.data?.metadata || { page: 1, limit: 10, total: 0, totalPages: 0 }
+        );
+      } catch (err: any) {
+        setError(err.message || "Unknown error");
+      } finally {
+        setLoading(false);
+      }
     };
-  }
 
-  const apiBase = process.env.API_BASE_URL;
-  if (!apiBase) {
-    return {
-      users: [],
-      metadata: { page: 1, limit: 0, total: 0, totalPages: 0 },
-      error: "Missing API_BASE_URL",
-    };
-  }
+    fetchAgents();
+  }, [token, selectedTab]);
 
-  const query = new URLSearchParams();
-  query.set("viewType", view);
-  if (limit && limit > 0) query.set("limit", String(limit));
+  if (!token)
+    return <p className="text-center mt-10 text-red-600">No access token</p>;
 
-  let response: Response;
-  try {
-    response = await fetch(`${apiBase}/agents?${query.toString()}`, {
-      headers: { Authorization: accessToken as string },
-    });
-  } catch (err) {
-    return {
-      users: [],
-      metadata: { page: 1, limit: 0, total: 0, totalPages: 0 },
-      error: `Network error: ${(err as Error).message}`,
-    };
-  }
-
-  if (!response.ok) {
-    const text = await response.text().catch(() => "");
-    return {
-      users: [],
-      metadata: { page: 1, limit: 0, total: 0, totalPages: 0 },
-      error: `Failed to fetch agents. Status: ${response.status}. Body: ${text}`,
-    };
-  }
-
-  let json: AgentsApiSuccess | AgentsApiError;
-  try {
-    json = (await response.json()) as AgentsApiSuccess | AgentsApiError;
-  } catch {
-    return {
-      users: [],
-      metadata: { page: 1, limit: 0, total: 0, totalPages: 0 },
-      error: "Invalid JSON response from API",
-    };
-  }
-
-  if ("error" in json) {
-    return {
-      users: [],
-      metadata: { page: 1, limit: 0, total: 0, totalPages: 0 },
-      error: json.error,
-    };
-  }
-
-  return {
-    users: Array.isArray(json.data.users) ? json.data.users : [],
-    metadata: json.data.metadata ?? {
-      page: 1,
-      limit: limit ?? 10,
-      total: 0,
-      totalPages: 0,
-    },
-    error: null,
-  };
-}
-
-export default async function AgentManagementPage({ searchParams }: Props) {
-  const accessToken = await getAccessToken();
-  const params = await searchParams;
-  const viewParam: ViewType = params.view ?? "unassigned";
-  const limit = params.limit ? parseInt(params.limit, 10) : 10;
-
-  let planLevel: string | undefined;
-  try {
-    const subscription = await getSubscriptionType(accessToken as string);
-
-    planLevel =
-      subscription?.data?.planLevel || subscription?.data?.plan?.planLevel;
-
-    if (!planLevel) {
-      const subs = subscription?.data?.organization?.subscriptions || [];
-      const activeSub = Array.isArray(subs)
-        ? subs.find((s) => s.status === "ACTIVE")
-        : null;
-      planLevel = activeSub?.planLevel;
-    }
-  } catch (err) {
-    console.error("Error fetching subscription:", err);
-  }
-
-  if (planLevel === "only_ai") {
+  if (planLevel === "only_ai")
     return (
-      <div
-        style={{
-          height: "calc(100vh - var(--_sidebar-header-height))",
-        }}
-        className="flex flex-col items-center justify-center  bg-gray-50 px-4 text-center -mt-20"
-      >
-        <div className="max-w-md">
-          <h1 className="text-5xl font-bold text-red-600 mb-4">Oops!</h1>
-          <p className="text-lg text-gray-700 mb-6">
-            Your current plan does not allow access for Agent Management.
-          </p>
-          <Button variant="link" className="mt-4">
-            <a href="/dashboard/organization/explore-numbers">
-              Upgrade your plan
-            </a>
-          </Button>
-        </div>
+      <div className="flex flex-col items-center justify-center h-screen text-center">
+        <h1 className="text-4xl font-bold text-red-600">Oops!</h1>
+        <p className="text-gray-700 mt-2">
+          Your current plan does not allow access for Agent Management.
+        </p>
+        <Button className="mt-4" variant="link">
+          <a href="/dashboard/organization/explore-numbers">
+            Upgrade your plan
+          </a>
+        </Button>
       </div>
     );
-  }
-
-  const { users, metadata, error } = await fetchAgents(viewParam, limit);
-
-  if (error) {
-    throw new Error(error);
-  }
 
   return (
-    <AgentsList
-      users={users as AgentUser[]}
-      viewParam={viewParam}
-      metadata={metadata}
-    />
+    <div className="space-y-4">
+      <Suspense
+        fallback={
+          <p className="text-center mt-10 text-gray-500">
+            Loading agent list...
+          </p>
+        }
+      >
+        {/* Key by selectedTab to force remount on tab change */}
+        <AgentsList
+          key={selectedTab}
+          users={users}
+          viewParam={selectedTab}
+          onTabChange={setSelectedTab}
+          metadata={metadata}
+          loading={loading}
+          error={error}
+        />
+      </Suspense>
+    </div>
   );
 }

@@ -1,12 +1,13 @@
+"use client";
+
+import { useEffect, useState, Suspense, lazy, useMemo } from "react";
+import { useAuth } from "@/components/AuthProvider";
 import { env } from "@/env";
-import CallGraph from "@/features/dashboard/CallGraph";
-import CallGraphBarChart from "@/features/dashboard/CallGraphBarChart";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-export const fetchCache = "force-no-store";
-
-import { getAccessToken } from "@/lib/auth";
+const CallGraph = lazy(() => import("@/features/dashboard/CallGraph"));
+const CallGraphBarChart = lazy(
+  () => import("@/features/dashboard/CallGraphBarChart")
+);
 
 const DEFAULT_MONTH = 12;
 const DEFAULT_YEAR = new Date().getFullYear();
@@ -39,94 +40,170 @@ type DashboardStatsData = {
   callTiming: CallTiming;
 };
 
-type DashboardStatsResponse = {
-  success: boolean;
-  message: string;
-  data: DashboardStatsData;
-};
+export default function OrganizationDashboardPage() {
+  const { token } = useAuth();
 
-async function fetchDashboardStats(
-  year?: string | number
-): Promise<DashboardStatsData | null> {
-  const accessToken = await getAccessToken();
-  // Add timestamp to prevent caching
-  const timestamp = Date.now();
-  const API_URL = `${
-    env.API_BASE_URL
-  }/dashboard/stats?month=${DEFAULT_MONTH}&year=${
-    year || DEFAULT_YEAR
-  }&_t=${timestamp}`;
+  const [statsData, setStatsData] = useState<DashboardStatsData | null>(null);
+  const [loadingStats, setLoadingStats] = useState(true);
+  const [errorStats, setErrorStats] = useState<string | null>(null);
 
-  try {
-    const res = await fetch(API_URL, {
-      cache: "no-store",
-      headers: {
-        Authorization: accessToken || "",
-        "Cache-Control": "no-cache, no-store, must-revalidate",
-        Pragma: "no-cache",
-        Expires: "0",
-      },
-    });
+  const [year, setYear] = useState(DEFAULT_YEAR);
+  const [barChartData, setBarChartData] = useState<MonthlyReport[]>([]);
+  const [loadingChart, setLoadingChart] = useState(false);
+  const [errorChart, setErrorChart] = useState<string | null>(null);
 
-    if (!res.ok) {
-      console.error("API responded with status:", res.status);
-      return null;
+  const years = useMemo(
+    () => Array.from({ length: 6 }, (_, i) => DEFAULT_YEAR - i),
+    []
+  );
+
+  // Fetch main dashboard stats once
+  useEffect(() => {
+    if (!token) return;
+
+    const fetchStats = async () => {
+      setLoadingStats(true);
+      setErrorStats(null);
+
+      try {
+        const timestamp = Date.now();
+        const API_URL = `${env.NEXT_PUBLIC_API_URL}/dashboard/stats?month=${DEFAULT_MONTH}&year=${DEFAULT_YEAR}&_t=${timestamp}`;
+
+        const res = await fetch(API_URL, {
+          cache: "no-store",
+          headers: { Authorization: token },
+        });
+
+        if (!res.ok) throw new Error(`API responded with status ${res.status}`);
+        const json = await res.json();
+        if (!json.success)
+          throw new Error(json.message || "Failed to fetch stats");
+
+        setStatsData(json.data);
+        setBarChartData(json.data.monthlyReport); // initialize bar chart
+      } catch (err: any) {
+        console.error(err);
+        setErrorStats(err.message || "Failed to load dashboard stats");
+      } finally {
+        setLoadingStats(false);
+      }
+    };
+
+    fetchStats();
+  }, [token]);
+
+  // Fetch bar chart only when year changes and not current year
+  useEffect(() => {
+    if (!token || !statsData) return;
+    if (year === DEFAULT_YEAR) {
+      setBarChartData(statsData.monthlyReport);
+      return;
     }
 
-    const json: DashboardStatsResponse = await res.json();
-    if (!json.success) {
-      console.error("API success flag false:", json.message);
-      return null;
-    }
+    const fetchBarChart = async () => {
+      setLoadingChart(true);
+      setErrorChart(null);
 
-    return json.data;
-  } catch (error) {
-    console.error("Error fetching dashboard stats:", error);
-    return null;
-  }
-}
+      try {
+        const timestamp = Date.now();
+        const API_URL = `${env.NEXT_PUBLIC_API_URL}/dashboard/stats?month=${DEFAULT_MONTH}&year=${year}&_t=${timestamp}`;
 
-type Props = {
-  searchParams: Promise<{ year?: string }>;
-};
+        const res = await fetch(API_URL, {
+          cache: "no-store",
+          headers: { Authorization: token },
+        });
 
-export default async function OrganizationDashboardPage({
-  searchParams,
-}: Props) {
-  const params = await searchParams;
-  const year = params.year;
+        if (!res.ok) throw new Error(`API responded with status ${res.status}`);
+        const json = await res.json();
+        if (!json.success)
+          throw new Error(json.message || "Failed to fetch stats");
 
-  const statsData = await fetchDashboardStats(year);
+        setBarChartData(json.data.monthlyReport);
+      } catch (err: any) {
+        console.error(err);
+        setErrorChart(err.message || "Failed to load bar chart data");
+      } finally {
+        setLoadingChart(false);
+      }
+    };
 
-  if (!statsData) {
-    return (
-      <div className="p-6 text-center text-red-600">
-        Failed to load dashboard statistics. Please try again later.
-      </div>
-    );
-  }
+    fetchBarChart();
+  }, [token, year, statsData]);
 
-  const callStats = {
-    totalCalls: statsData?.totalCalls,
-    totalHumanCalls: statsData?.totalHumanCalls,
-    totalAICalls: statsData?.totalAICalls,
-    totalSuccessCalls: statsData?.totalSuccessCalls,
-    todayHumanCalls: statsData?.todayHumanCalls,
-    todayAICalls: statsData?.todayAICalls,
-    todaySuccessCalls: statsData?.todaySuccessCalls,
-    avgCallTime: statsData?.callTiming?.avgTotalCallTime,
-    avgAICallTime: statsData?.callTiming?.avgAICallTime,
-    avgHumanCallTime: statsData?.callTiming?.avgHumanCallTime,
-  };
+  if (!token)
+    return <p className="text-center mt-10 text-red-600">No access token</p>;
 
   return (
     <div className="space-y-6 flex-1">
-      {/* Add key prop to force re-render when year changes */}
-      <CallGraph key={`graph-${year}`} callStats={callStats} />
-      <CallGraphBarChart
-        key={`chart-${year}`}
-        monthlyReport={statsData.monthlyReport}
-      />
+      {loadingStats && (
+        <p className="text-center mt-10 text-gray-500">
+          Loading dashboard stats...
+        </p>
+      )}
+      {errorStats && (
+        <p className="text-center mt-10 text-red-600">{errorStats}</p>
+      )}
+
+      {!loadingStats && statsData && (
+        <>
+          {/* CallGraph stays static */}
+          <Suspense
+            fallback={
+              <p className="text-center text-gray-500">Loading call graph...</p>
+            }
+          >
+            <CallGraph
+              callStats={{
+                totalCalls: statsData.totalCalls,
+                totalHumanCalls: statsData.totalHumanCalls,
+                totalAICalls: statsData.totalAICalls,
+                totalSuccessCalls: statsData.totalSuccessCalls,
+                todayHumanCalls: statsData.todayHumanCalls,
+                todayAICalls: statsData.todayAICalls,
+                todaySuccessCalls: statsData.todaySuccessCalls,
+                avgCallTime: statsData.callTiming.avgTotalCallTime,
+                avgAICallTime: statsData.callTiming.avgAICallTime,
+                avgHumanCallTime: statsData.callTiming.avgHumanCallTime,
+              }}
+            />
+          </Suspense>
+
+          {/* Year Selector for Bar Chart */}
+          <div className="mx-12 flex items-center gap-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Filter Bar Chart by Year
+            </label>
+            <select
+              className="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={year}
+              onChange={(e) => setYear(parseInt(e.target.value))}
+            >
+              {years.map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Bar Chart */}
+          <Suspense
+            fallback={
+              <p className="text-center text-gray-500">Loading bar chart...</p>
+            }
+          >
+            {loadingChart && (
+              <p className="text-center text-gray-500">Loading bar chart...</p>
+            )}
+            {errorChart && (
+              <p className="text-center text-red-600">{errorChart}</p>
+            )}
+            {!loadingChart && !errorChart && (
+              <CallGraphBarChart monthlyReport={barChartData} />
+            )}
+          </Suspense>
+        </>
+      )}
     </div>
   );
 }
