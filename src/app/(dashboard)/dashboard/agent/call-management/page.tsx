@@ -4,8 +4,6 @@ import SearchField from "@/components/table/components/SearchField";
 import TableHeaderItem from "@/components/table/components/TableHeaderItem";
 import { agentCallManagementPath } from "@/paths";
 import { parseFilters } from "@/components/table/utils/filters";
-import { env } from "@/env";
-import { getServerAuth } from "@/lib/auth";
 import { formatDateTime } from "@/utils/formatDateTime";
 import { formatSecondsToHMS } from "@/utils/formatSecondsToHMS";
 
@@ -49,10 +47,8 @@ interface TableRow {
   calledNumber: string;
   callType: string;
   callStatus: string;
-  callTime: string; // formatted date and time
-  callDuration: string; // formatted H:M:S
-
-  // raw for sorting if needed
+  callTime: string;
+  callDuration: string;
   _rawCallTime: string;
   _rawCallDuration: number;
 }
@@ -64,23 +60,50 @@ const DEFAULT_SORT = "";
 async function getAgentCalls(
   params: TableSearchParams
 ): Promise<AgentCallApiResponse | null> {
-  const auth = await getServerAuth();
-  if (!auth?.accessToken) return null;
+  try {
+    // Use the correct API endpoint that matches your backend route
+    const url = new URL(
+      "/api/agents/call-management",
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:3001"
+        : window.location.origin
+    );
 
-  const url = new URL(`${env.API_BASE_URL}/agents/agent-calls-management-info`);
-  url.searchParams.set("page", String(params.page ?? DEFAULT_PAGE));
-  url.searchParams.set("limit", String(params.limit ?? DEFAULT_LIMIT));
-  if (params.sort) url.searchParams.set("sort", String(params.sort));
-  if (params.query) url.searchParams.set("searchTerm", String(params.query));
+    // Add query parameters
+    url.searchParams.set("page", String(params.page ?? DEFAULT_PAGE));
+    url.searchParams.set("limit", String(params.limit ?? DEFAULT_LIMIT));
+    if (params.sort) url.searchParams.set("sort", String(params.sort));
+    if (params.query) url.searchParams.set("searchTerm", String(params.query));
 
-  const res = await fetch(url.toString(), {
-    headers: { Authorization: auth.accessToken },
-    cache: "no-cache",
-  });
-  if (!res.ok) return null;
+    const res = await fetch(url.toString(), {
+      method: "GET",
+      cache: "no-store",
+    });
 
-  const json: AgentCallApiResponse = await res.json();
-  return json;
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error(
+        `❌ Failed API call: ${res.status} ${res.statusText}`,
+        errorText
+      );
+
+      // Handle specific error cases
+      if (res.status === 401) {
+        console.error("Authentication error - check if user is logged in");
+      } else if (res.status === 500) {
+        console.error("Server error - check backend configuration");
+      }
+
+      return null;
+    }
+
+    const json: AgentCallApiResponse = await res.json();
+    console.log("API Response:", json);
+    return json;
+  } catch (err) {
+    console.error("❌ Failed to fetch agent calls:", err);
+    return null;
+  }
 }
 
 export default async function AgentCallManagementPage({
@@ -106,12 +129,28 @@ export default async function AgentCallManagementPage({
   };
 
   const response = await getAgentCalls(queryParams);
-  if (!response || !response.data)
+
+  if (!response) {
     return (
-      <div className="py-16 text-center text-gray-500 bg-white shadow-sm rounded-lg">
-        Failed to load agent calls.
+      <div className="py-16 text-center text-red-500 bg-white shadow-sm rounded-lg">
+        <h3 className="text-lg font-medium mb-2">Failed to load agent calls</h3>
+        <p className="text-sm text-gray-600">
+          Check the console for more details or try refreshing the page.
+        </p>
       </div>
     );
+  }
+
+  if (!response.success || !response.data) {
+    return (
+      <div className="py-16 text-center text-yellow-600 bg-white shadow-sm rounded-lg">
+        <h3 className="text-lg font-medium mb-2">No data available</h3>
+        <p className="text-sm text-gray-600">
+          {response.message || "The API returned no data."}
+        </p>
+      </div>
+    );
+  }
 
   const { data: calls, meta } = response.data;
 

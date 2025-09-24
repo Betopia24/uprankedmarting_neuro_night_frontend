@@ -211,7 +211,6 @@ export default async function AgentManagementPage({ searchParams }: Props) {
   if (error) {
     throw new Error(error);
   }
-
   return (
     <AgentsList
       users={users as AgentUser[]}

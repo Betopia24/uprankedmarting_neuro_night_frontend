@@ -238,10 +238,10 @@ export default async function CompanyDocsPage({ searchParams }: TableProps) {
               View
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-5xl w-[90vw] h-[85vh] flex flex-col p-0 gap-0 overflow-hidden">
+          <DialogContent className="max-w-6xl! w-full! h-[85vh] flex flex-col p-0 gap-0 overflow-hidden">
             <DialogHeader className="flex-shrink-0 px-6 py-4 border-b bg-white/95 backdrop-blur-sm">
-              <div className="flex items-center justify-between gap-4">
-                <DialogTitle className="text-lg font-semibold text-gray-900 min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-4 pr-10">
+                <DialogTitle className="text-lg font-semibold text-gray-900 min-w-0 flex-1 max-w-6xl w-full">
                   <div
                     className="truncate max-w-[400px]"
                     title={`${doc.fileName}.${doc.fileFormat
@@ -289,9 +289,9 @@ export default async function CompanyDocsPage({ searchParams }: TableProps) {
               </div>
             </DialogHeader>
 
-            <div className="flex-1 flex flex-col min-h-0 bg-gradient-to-br from-gray-50 to-gray-100/50">
+            <div className="flex-1 flex flex-col max-w-6xl w-full min-h-0 bg-gradient-to-br from-gray-50 to-gray-100/50">
               {previewUrl ? (
-                <div className="flex-1 p-4">
+                <div className="flex-1 p-4 w-full">
                   <div className="w-full h-full bg-white rounded-xl shadow-lg border border-gray-200/50 overflow-hidden ring-1 ring-gray-900/5">
                     <iframe
                       src={previewUrl}
