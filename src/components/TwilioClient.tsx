@@ -651,7 +651,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
           websocket: "error",
           isHealthy: false,
         }));
-        updateStatusMessage("Connection error", "error");
+        // updateStatusMessage("Connection error", "error");
       };
 
       ws.onclose = (event) => {
@@ -689,7 +689,7 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
 
       reconnectTimeoutRef.current = setTimeout(() => {
         if (isMountedRef.current) {
-          updateStatusMessage("Attempting to reconnect...", "info");
+          // updateStatusMessage("Attempting to reconnect...", "info");
           connectWebSocket();
         }
       }, delay);
@@ -1061,9 +1061,9 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
   const NotificationSystem = useMemo(
     () => (
       <div className="fixed top-4 right-4 z-50 space-y-4 max-w-xs">
-        {notifications.map((notification) => (
+        {notifications.map((notification, i) => (
           <div
-            key={notification.id}
+            key={i}
             className={`p-5 rounded-xl shadow-lg border backdrop-blur-md animate-in slide-in-from-right duration-300 transform transition-all ease-out ${
               notification.type === "error"
                 ? "bg-red-800/90 border-red-600 text-red-200"

@@ -112,7 +112,7 @@ function TableHeaderItem({
 
   // Build URL with new sort
   const params = new URLSearchParams();
-  params.set("page", "1"); // Reset to first page when sorting
+  params.set("page", "1");
   params.set("limit", String(limit));
   if (searchQuery) params.set("query", searchQuery);
   params.set("sort", newSort);
