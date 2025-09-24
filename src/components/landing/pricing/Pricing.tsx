@@ -93,7 +93,7 @@ export default function Pricing({ monthlyPlans, yearlyPlans }: PricingProps) {
                 direction={
                   (idx === 0 && "left") || (idx === 2 && "right") || "center"
                 }
-                className="relative bg-white/80 backdrop-blur-sm border border-gray-200 shadow-lg rounded-lg overflow-hidden flex flex-col justify-between"
+                className="relative bg-white border border-gray-200 shadow-lg rounded-lg overflow-hidden flex flex-col justify-between"
               >
                 {/* Card Header */}
                 <div className="p-6 pb-4 min-h-36">

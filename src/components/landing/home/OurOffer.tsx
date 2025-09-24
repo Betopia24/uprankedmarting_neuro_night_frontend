@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export default function OurOffer() {
   return (
-    <Section className="py-14">
+    <Section>
       <Container>
         <div className="flex flex-col gap-10 lg:flex-row">
           <ScrollAnimation>

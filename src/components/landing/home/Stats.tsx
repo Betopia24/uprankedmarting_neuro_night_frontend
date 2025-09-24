@@ -46,7 +46,6 @@ function Counter({ value, suffix }: { value: number; suffix?: string }) {
   );
 }
 
-
 export default function Stats() {
   const [statsData, setStatsData] = useState<
     { value: number; suffix?: string; label: string }[]
@@ -95,7 +94,6 @@ export default function Stats() {
     fetchStats();
   }, []);
 
-
   if (loading) {
     return <PageLoader />;
   }
@@ -107,7 +105,7 @@ export default function Stats() {
   return (
     <Section>
       <Container>
-        <div className="flex flex-wrap gap-6 lg:gap-10 max-w-4xl mx-auto py-12">
+        <div className="flex flex-wrap gap-6 lg:gap-10 max-w-4xl mx-auto">
           {statsData.map((stat, index) => (
             <motion.div
               key={index}

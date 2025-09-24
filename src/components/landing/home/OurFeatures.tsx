@@ -21,7 +21,7 @@ export default function OurFeatures() {
     <Section>
       <Container>
         <div className="flex flex-col gap-10 lg:gap-0 lg:flex-row text-xl overflow-hidden">
-          <div className="bg-warning space-y-4 flex-1 p-6 text-lg order-2 lg:order-1 rounded">
+          <div className="bg-warning space-y-4 flex-1 text-lg order-2 lg:order-1 rounded">
             <ScrollAnimation>
               <Section.Heading className="italic">
                 AI Phone Agent & Virtual Receptionist for Smarter CX
@@ -38,13 +38,13 @@ export default function OurFeatures() {
             </ScrollAnimation>
 
             <div className="flex flex-col lg:flex-row gap-4">
-              <div className="flex flex-col justify-center items-center">
+              <div className="flex flex-col overflow-hidden justify-center items-center">
                 <Player
                   lottieRef={lottieRef}
                   animationData={Robot}
                   loop={true}
                   autoplay={true}
-                  style={{ width: 500, height: 500 }}
+                  className="pointer-events-none scale-125 mt-20"
                 />
               </div>
               <div className="text-base leading-relaxed space-y-2">

@@ -66,9 +66,9 @@ export default function Testimonial() {
   }, []);
 
   if (loading)
-    return <div className="text-center py-10">Loading testimonials...</div>;
+    return <div className="text-center py-4">Loading testimonials...</div>;
   if (!testimonials.length)
-    return <div className="text-center py-10">No testimonials found.</div>;
+    return <div className="text-center py-4">No testimonials found.</div>;
 
   return (
     <Embla>

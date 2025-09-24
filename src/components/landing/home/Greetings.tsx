@@ -6,7 +6,7 @@ export default function Greetings() {
     <Section>
       <Container>
         <ScrollAnimation>
-          <div className="bg-success-500 p-10 rounded">
+          <div className="bg-success-500 rounded">
             <Section.Heading>Welcome to Autoawnser.ai</Section.Heading>
             <Heading as="h3" size="base" className="text-gray-950 mt-2">
               Where smart technology meets human touch.
