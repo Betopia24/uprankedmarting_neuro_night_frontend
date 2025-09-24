@@ -2,7 +2,10 @@ import { Loading } from "@/components";
 
 export default function PageLoader() {
   return (
-    <div className="grid place-items-center -mt-20 h-screen">
+    <div
+      style={{ height: "calc(100vh - 15rem)" }}
+      className="grid place-items-center"
+    >
       <Loading />
     </div>
   );
