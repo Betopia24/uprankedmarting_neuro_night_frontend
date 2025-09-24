@@ -1,4 +1,4 @@
-import { getServerAuth } from "@/lib/auth";
+import { getAccessToken } from "@/lib/auth";
 import AgentsList from "./_components/AgentsList";
 import { StatusType } from "@/types/agent";
 import type { AgentUser, Metadata } from "@/types/agent"; // reuse your existing types
@@ -28,8 +28,7 @@ async function fetchAgents(
   status: StatusType,
   limit?: number
 ): Promise<{ users: AgentUser[]; metadata: Metadata }> {
-  const auth = await getServerAuth();
-  if (!auth?.accessToken) throw new Error("Missing access token");
+  const accessToken = await getAccessToken();
 
   const apiBase = process.env.API_BASE_URL;
   if (!apiBase) throw new Error("Missing API_BASE_URL");
@@ -42,7 +41,7 @@ async function fetchAgents(
   const response = await fetch(
     `${apiBase}/agents/all-agent-assignment-request?${query.toString()}`,
     {
-      headers: { Authorization: auth.accessToken },
+      headers: { Authorization: accessToken as string },
       cache: "no-store",
     }
   );

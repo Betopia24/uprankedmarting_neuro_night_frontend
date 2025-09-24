@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const fetchCache = "force-no-store";
 
-import { getServerAuth } from "@/lib/auth";
+import { getAccessToken } from "@/lib/auth";
 
 const DEFAULT_MONTH = 12;
 const DEFAULT_YEAR = new Date().getFullYear();
@@ -48,7 +48,7 @@ type DashboardStatsResponse = {
 async function fetchDashboardStats(
   year?: string | number
 ): Promise<DashboardStatsData | null> {
-  const auth = await getServerAuth();
+  const accessToken = await getAccessToken();
   // Add timestamp to prevent caching
   const timestamp = Date.now();
   const API_URL = `${
@@ -61,7 +61,7 @@ async function fetchDashboardStats(
     const res = await fetch(API_URL, {
       cache: "no-store",
       headers: {
-        Authorization: auth?.accessToken || "",
+        Authorization: accessToken || "",
         "Cache-Control": "no-cache, no-store, must-revalidate",
         Pragma: "no-cache",
         Expires: "0",

@@ -43,6 +43,12 @@ export const getServerAuth = cache(
   }
 );
 
+export const getAccessToken = cache(async () => {
+  const cookieStore = cookies();
+  const accessToken = (await cookieStore).get("accessToken")?.value;
+  return accessToken;
+});
+
 export async function requireAuth(): Promise<AuthMe | null> {
   const data = await getServerAuth();
   if (!data) {

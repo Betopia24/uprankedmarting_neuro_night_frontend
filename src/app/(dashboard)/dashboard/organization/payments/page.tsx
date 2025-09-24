@@ -1,7 +1,6 @@
-// app/(dashboard)/subscriptions/page.tsx
 import React from "react";
 import { env } from "@/env";
-import { getServerAuth } from "@/lib/auth";
+import { getAccessToken, getServerAuth } from "@/lib/auth";
 import { formatDateTime } from "@/utils/formatDateTime";
 
 interface SubscriptionResponse {
@@ -47,13 +46,11 @@ interface Subscription {
 }
 
 async function getSubscription(): Promise<SubscriptionResponse | null> {
-  const auth = await getServerAuth();
-  if (!auth?.accessToken) return null;
+  const accessToken = await getAccessToken();
 
   const url = new URL(`${env.API_BASE_URL}/subscriptions/my-subscription`);
   const res = await fetch(url.toString(), {
-    headers: { Authorization: auth.accessToken },
-    cache: "no-cache",
+    headers: { Authorization: accessToken as string },
   });
 
   if (!res.ok) return null;

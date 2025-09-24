@@ -11,7 +11,7 @@ const PaymentSuccessPage = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       router.push(loginPath());
-    }, 5000);
+    }, 4000);
 
     return () => clearTimeout(timer);
   }, [router]);

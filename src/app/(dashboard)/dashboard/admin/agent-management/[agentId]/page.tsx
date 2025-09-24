@@ -1,6 +1,6 @@
 import { env } from "@/env";
 import UpdateAgentForm from "@/features/agent/UpdateAgent";
-import { getServerAuth } from "@/lib/auth";
+import { getAccessToken } from "@/lib/auth";
 import { notFound } from "next/navigation";
 import { type UpdateAgentUser } from "@/types/agent";
 import AgentProfile from "@/features/agent/AgentProfile";
@@ -17,7 +17,7 @@ type Props = {
 
 export default async function AgentDetailsPage({ params }: Props) {
   const { agentId } = await params;
-  const auth = await getServerAuth();
+  const accessToken = await getAccessToken();
 
   let agent: UpdateAgentUser | null = null;
 
@@ -26,9 +26,8 @@ export default async function AgentDetailsPage({ params }: Props) {
       `${env.API_BASE_URL}/auth/get-user/${agentId}`,
       {
         headers: {
-          Authorization: auth?.accessToken || "",
+          Authorization: accessToken as string,
         },
-        next: { revalidate: 500 },
       }
     );
 

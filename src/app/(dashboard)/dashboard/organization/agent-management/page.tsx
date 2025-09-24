@@ -1,4 +1,4 @@
-import { getServerAuth } from "@/lib/auth";
+import { getAccessToken, getServerAuth } from "@/lib/auth";
 import AgentsList from "@/app/(dashboard)/dashboard/organization/agent-management/_components/AgentsList";
 import { getSubscriptionType } from "@/app/api/subscription/subscription";
 import { Button } from "@/components/ui/button";
@@ -79,8 +79,8 @@ async function fetchAgents(
   view: ViewType,
   limit?: number
 ): Promise<AgentsResult> {
-  const auth = await getServerAuth();
-  if (!auth?.accessToken) {
+  const accessToken = await getAccessToken();
+  if (!accessToken) {
     return {
       users: [],
       metadata: { page: 1, limit: 0, total: 0, totalPages: 0 },
@@ -104,8 +104,7 @@ async function fetchAgents(
   let response: Response;
   try {
     response = await fetch(`${apiBase}/agents?${query.toString()}`, {
-      headers: { Authorization: `${auth.accessToken}` },
-      next: { revalidate: 500 },
+      headers: { Authorization: accessToken as string },
     });
   } catch (err) {
     return {
@@ -156,18 +155,14 @@ async function fetchAgents(
 }
 
 export default async function AgentManagementPage({ searchParams }: Props) {
-  const auth = await getServerAuth();
-  if (!auth?.accessToken) {
-    console.error("Missing access token from getServerAuth()");
-    return <div className="text-red-500">Unauthorized: No access token</div>;
-  }
+  const accessToken = await getAccessToken();
   const params = await searchParams;
   const viewParam: ViewType = params.view ?? "unassigned";
   const limit = params.limit ? parseInt(params.limit, 10) : 10;
 
   let planLevel: string | undefined;
   try {
-    const subscription = await getSubscriptionType(auth.accessToken);
+    const subscription = await getSubscriptionType(accessToken as string);
 
     planLevel =
       subscription?.data?.planLevel || subscription?.data?.plan?.planLevel;
@@ -175,7 +170,7 @@ export default async function AgentManagementPage({ searchParams }: Props) {
     if (!planLevel) {
       const subs = subscription?.data?.organization?.subscriptions || [];
       const activeSub = Array.isArray(subs)
-        ? subs.find((s: any) => s.status === "ACTIVE")
+        ? subs.find((s) => s.status === "ACTIVE")
         : null;
       planLevel = activeSub?.planLevel;
     }

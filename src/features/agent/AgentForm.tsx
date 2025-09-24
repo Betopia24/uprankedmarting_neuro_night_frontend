@@ -64,7 +64,6 @@ const agentSchema = z.object({
 });
 
 // --- Types ---
-type AgentFormSchema = z.infer<typeof agentSchema>;
 type AgentFormInput = z.input<typeof agentSchema>;
 
 // --- Helpers ---
@@ -87,10 +86,6 @@ const shiftTimeMap: Record<
   evening: { start: "14:00:00", end: "22:00:00", label: "02:00 PM – 10:00 PM" },
   night: { start: "22:00:00", end: "06:00:00", label: "10:00 PM – 06:00 AM" },
 };
-
-function getShiftTime(shift: (typeof shiftTypes)[number]) {
-  return shiftTimeMap[shift].label;
-}
 
 function getShiftStartEnd(shift: (typeof shiftTypes)[number]) {
   return shiftTimeMap[shift];

@@ -1,11 +1,10 @@
-// app/(admin)/subscriptions/page.tsx
 import React from "react";
 import Pagination from "@/components/table/components/Pagination";
 import SearchField from "@/components/table/components/SearchField";
 import TableHeaderItem from "@/components/table/components/TableHeaderItem";
 import { parseFilters } from "@/components/table/utils/filters";
 import { env } from "@/env";
-import { getServerAuth } from "@/lib/auth";
+import { getAccessToken } from "@/lib/auth";
 import { formatDateTime } from "@/utils/formatDateTime";
 import { adminPaymentsPath } from "@/paths";
 
@@ -86,8 +85,7 @@ const DEFAULT_SORT = "";
 async function getSubscriptions(
   params: TableSearchParams
 ): Promise<SubscriptionsApiResponse | null> {
-  const auth = await getServerAuth();
-  if (!auth?.accessToken) return null;
+  const accessToken = await getAccessToken();
 
   const page = params.page ?? DEFAULT_PAGE;
   const limit = params.limit ?? DEFAULT_LIMIT;
@@ -101,7 +99,7 @@ async function getSubscriptions(
 
   const res = await fetch(url.toString(), {
     headers: {
-      Authorization: auth.accessToken,
+      Authorization: accessToken as string,
     },
     cache: "no-cache",
   });

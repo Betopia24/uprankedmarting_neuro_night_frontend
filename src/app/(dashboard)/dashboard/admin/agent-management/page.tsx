@@ -1,10 +1,7 @@
 import Pagination from "@/components/table/components/Pagination";
 import SearchField from "@/components/table/components/SearchField";
 import TableHeaderItem from "@/components/table/components/TableHeaderItem";
-import type {
-  AgentsApiResponse,
-  AgentInfo,
-} from "@/types/admin-agent-management";
+import type { AgentsApiResponse } from "@/types/admin-agent-management";
 import {
   adminAgentCreatePath,
   adminAgentDetailsPath,
@@ -12,7 +9,7 @@ import {
 } from "@/paths";
 import { parseFilters } from "@/components/table/utils/filters";
 import { env } from "@/env";
-import { getServerAuth } from "@/lib/auth";
+import { getAccessToken } from "@/lib/auth";
 import Link from "next/link";
 import { toAmPm } from "@/lib/ampm";
 import { Button } from "@/components";
@@ -53,8 +50,7 @@ const DEFAULT_LIMIT = 10;
 async function getAgents(
   queryParams: TableSearchParams
 ): Promise<AgentsApiResponse | null> {
-  const auth = await getServerAuth();
-  if (!auth?.accessToken) return null;
+  const accessToken = await getAccessToken();
 
   const {
     page = DEFAULT_PAGE,
@@ -69,8 +65,8 @@ async function getAgents(
 
   try {
     const res = await fetch(url.toString(), {
-      headers: { Authorization: auth.accessToken },
-      next: { revalidate: 500 },
+      headers: { Authorization: accessToken as string },
+      cache: "no-store",
     });
     if (!res.ok) throw new Error(`Network error: ${res.status}`);
     return res.json();

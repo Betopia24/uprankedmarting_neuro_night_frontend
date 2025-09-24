@@ -1,10 +1,9 @@
 import React from "react";
 import ProfileContainerPage from "./_container/ProfileContainer";
-import { getServerAuth } from "@/lib/auth";
+import { getAccessToken } from "@/lib/auth";
 
 export default async function SettingsPage() {
-  const data = await getServerAuth();
-  const token = data?.accessToken;
+  const accessToken = await getAccessToken();
 
   let subscription;
 
@@ -14,9 +13,8 @@ export default async function SettingsPage() {
       {
         method: "GET",
         headers: {
-          Authorization: token || "",
+          Authorization: accessToken || "",
         },
-        next: { revalidate: 50 },
       }
     );
 

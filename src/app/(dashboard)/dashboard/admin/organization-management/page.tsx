@@ -5,7 +5,7 @@ import TableHeaderItem from "@/components/table/components/TableHeaderItem";
 import { adminOrganizationManagementPath } from "@/paths";
 import { parseFilters } from "@/components/table/utils/filters";
 import { env } from "@/env";
-import { getServerAuth } from "@/lib/auth";
+import { getAccessToken } from "@/lib/auth";
 
 export interface TableSearchParams {
   page?: number;
@@ -79,8 +79,7 @@ const DEFAULT_SORT = "";
 async function getOrganizations(
   params: TableSearchParams
 ): Promise<OrganizationApiResponse | null> {
-  const auth = await getServerAuth();
-  if (!auth?.accessToken) return null;
+  const accessToken = await getAccessToken();
 
   const page = params.page ?? DEFAULT_PAGE;
   const limit = params.limit ?? DEFAULT_LIMIT;
@@ -94,7 +93,7 @@ async function getOrganizations(
 
   const res = await fetch(url.toString(), {
     headers: {
-      Authorization: auth.accessToken,
+      Authorization: accessToken as string,
     },
     next: { revalidate: 500 },
   });
