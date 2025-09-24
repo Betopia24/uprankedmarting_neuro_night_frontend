@@ -64,7 +64,7 @@ export default async function NumberManagementPage({
 
   await numbersFetchResponse.json();
   if (!numbersFetchResponse.ok) throw new Error("Failed to fetch numbers");
-  // Fetch numbers
+
   const response = await fetch(`${env.API_BASE_URL}/active-numbers`, {
     headers: { Authorization: accessToken as string },
   });
