@@ -1562,7 +1562,10 @@ const TwilioInboundAgent: React.FC<TwilioInboundAgentProps> = ({
             onClick={() => {
               initializeSystem();
             }}
-            disabled={connectionState.device === "initializing"}
+            disabled={
+              connectionState.device === "initializing" ||
+              connectionState.device === "registered"
+            }
             className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
           >
             {connectionState.device === "initializing"
