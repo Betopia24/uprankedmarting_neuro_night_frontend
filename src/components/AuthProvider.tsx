@@ -73,17 +73,17 @@ export function AuthProvider({
   token,
 }: {
   children: React.ReactNode;
-  initialUser?: any; // Use any temporarily for flexibility
+  initialUser?: any;
   token?: string;
 }) {
   // Validate and normalize the initialUser data
   const normalizedInitialUser =
     initialUser && isValidUser(initialUser)
       ? {
-        ...initialUser,
-        Agent: initialUser.Agent || null, // Ensure Agent is null if undefined
-        ownedOrganization: initialUser.ownedOrganization || null, // Ensure ownedOrganization is null if undefined
-      }
+          ...initialUser,
+          Agent: initialUser.Agent || null, // Ensure Agent is null if undefined
+          ownedOrganization: initialUser.ownedOrganization || null, // Ensure ownedOrganization is null if undefined
+        }
       : null;
 
   const [user, setUser] = useState<User | null>(normalizedInitialUser);

@@ -1,20 +1,19 @@
+"use client";
+
+import { useAuth } from "@/components/AuthProvider";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation"; // ✅ use this instead of props
 import Pagination from "@/components/table/components/Pagination";
 import SearchField from "@/components/table/components/SearchField";
 import TableHeaderItem from "@/components/table/components/TableHeaderItem";
 import paginateData from "@/components/table/utils/paginateData";
-
 import { sortData as sortTable } from "@/components/table/utils/sortData";
 import {
   organizationExploreNumbersPath,
   organizationBuyNumberPath,
 } from "@/paths";
 import { env } from "@/env";
-import { getServerAuth } from "@/lib/auth";
 import Link from "next/link";
-
-const config = {
-  basePath: organizationExploreNumbersPath(),
-};
 
 export interface Capabilities {
   voice: boolean;
@@ -38,25 +37,12 @@ export interface TableData {
   purchasedByOrganizationId: string;
 }
 
-export interface TableSearchParams {
-  page?: number;
-  limit?: number;
-  sort?: string;
-  query?: string;
-  [key: string]: string | string[] | undefined | number;
-}
-
-interface TableProps {
-  searchParams: Promise<TableSearchParams>;
-}
-
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 10;
 const DEFAULT_SORT = "";
 
 function filterData(data: TableData[], searchQuery: string): TableData[] {
   if (!searchQuery.trim()) return data;
-
   const query = searchQuery.toLowerCase().trim();
 
   return data.filter((item) => {
@@ -86,30 +72,47 @@ function filterData(data: TableData[], searchQuery: string): TableData[] {
   });
 }
 
-export default async function OrganizationNumbersPage({
-  searchParams,
-}: TableProps) {
-  const auth = await getServerAuth();
-  const orgId = auth?.data?.ownedOrganization?.id;
+export default function OrganizationNumbersPage() {
+  const { user, token } = useAuth();
+  const [rawTableData, setRawTableData] = useState<TableData[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  if (!auth?.accessToken) throw new Error("No auth token");
-
-  const res = await fetch(`${env.API_BASE_URL}/active-numbers`, {
-    headers: { Authorization: auth.accessToken },
-  });
-  if (!res.ok) throw new Error("Failed to fetch active numbers");
-
-  const json = await res.json();
-  const rawTableData: TableData[] = Array.isArray(json?.data) ? json.data : [];
-
-  const queryParams = await searchParams;
-  const page = Number(queryParams.page) || DEFAULT_PAGE;
-  const limit = Number(queryParams.limit) || DEFAULT_LIMIT;
+  // ✅ Read query params safely in client
+  const searchParams = useSearchParams();
+  const page = Number(searchParams.get("page")) || DEFAULT_PAGE;
+  const limit = Number(searchParams.get("limit")) || DEFAULT_LIMIT;
   const [sortField, sortDirection = "asc"] = (
-    queryParams.sort || DEFAULT_SORT
+    searchParams.get("sort") || DEFAULT_SORT
   ).split(":");
-  const searchQuery = queryParams.query || "";
+  const searchQuery = searchParams.get("query") || "";
 
+  useEffect(() => {
+    if (!token) return;
+
+    async function fetchData() {
+      try {
+        const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/active-numbers`, {
+          headers: { Authorization: token || "" },
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch active numbers");
+
+        const json = await res.json();
+        setRawTableData(Array.isArray(json?.data) ? json.data : []);
+      } catch (e) {
+        console.error("Error fetching numbers:", e);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, [token]);
+
+  if (!token) return <p>No auth token</p>;
+  if (loading) return <p>Loading...</p>;
+
+  // filtering + pagination
   const filteredData = filterData(rawTableData, searchQuery);
   const totalItems = filteredData.length;
   const totalPages = Math.ceil(totalItems / limit);
@@ -118,7 +121,6 @@ export default async function OrganizationNumbersPage({
 
   const paginatedData = paginateData(filteredData, page, limit);
 
-  // Sort only string/number fields safely
   const sortedPaginatedData = sortTable(
     paginatedData as unknown as Record<string, string | number>[],
     sortField,
@@ -143,14 +145,19 @@ export default async function OrganizationNumbersPage({
 
   return (
     <div className="space-y-4">
-      {/* Search */}
+      <p className="text-sm text-gray-600">
+        Organization: {user?.ownedOrganization?.name || "N/A"}
+      </p>
+
       {rawTableData.length > 0 && (
         <div className="flex gap-4 justify-between">
-          <SearchField basePath={config.basePath} defaultQuery={searchQuery} />
+          <SearchField
+            basePath={organizationExploreNumbersPath()}
+            defaultQuery={searchQuery}
+          />
         </div>
       )}
 
-      {/* Search results info */}
       {searchQuery && (
         <div className="text-sm text-gray-600">
           {totalItems > 0
@@ -161,7 +168,6 @@ export default async function OrganizationNumbersPage({
         </div>
       )}
 
-      {/* Table */}
       {filteredData.length === 0 ? (
         <p className="text-center text-gray-500">
           {searchQuery
@@ -182,7 +188,7 @@ export default async function OrganizationNumbersPage({
                     currentPage={page}
                     limit={limit}
                     searchQuery={searchQuery}
-                    basePath={config.basePath}
+                    basePath={organizationExploreNumbersPath()}
                   />
                 ))}
                 <th className="border border-gray-300 text-left cursor-pointer">
@@ -252,14 +258,11 @@ export default async function OrganizationNumbersPage({
                     );
                   })}
 
-                  {/* Buy button */}
-
                   <td className="border border-gray-200 px-3 py-2">
                     {item.isPurchased ? (
                       <button
                         type="button"
                         disabled
-                        aria-disabled="true"
                         className="px-3 py-1 rounded bg-gray-400 text-white cursor-not-allowed opacity-70"
                       >
                         Purchased
@@ -268,7 +271,9 @@ export default async function OrganizationNumbersPage({
                       <Link
                         href={`${organizationBuyNumberPath()}?ts=${
                           item.sid
-                        }&ci=${orgId}&np=${item.phoneNumber}`}
+                        }&ci=${user?.ownedOrganization?.id}&np=${
+                          item.phoneNumber
+                        }`}
                         passHref
                       >
                         <button
@@ -287,7 +292,6 @@ export default async function OrganizationNumbersPage({
         </div>
       )}
 
-      {/* Pagination */}
       {totalItems > 0 && (
         <Pagination
           currentPage={page}
@@ -297,7 +301,7 @@ export default async function OrganizationNumbersPage({
           limit={limit}
           sortField={sortField}
           sortDirection={sortDirection}
-          basePath={config.basePath}
+          basePath={organizationExploreNumbersPath()}
         />
       )}
     </div>
