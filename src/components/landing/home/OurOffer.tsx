@@ -8,14 +8,7 @@ export default function OurOffer() {
     <Section>
       <Container>
         <div className="flex flex-col gap-10 lg:flex-row">
-          <ScrollAnimation>
-            <Image
-              className="max-w-[300px] mx-auto object-contain"
-              src={handsImage}
-              alt="shake"
-            />
-          </ScrollAnimation>
-          <div className="bg-warning space-y-4 flex-1 p-6 text-[20px]">
+          <div className="bg-warning space-y-4 flex-1 p-6 text-[20px] order-2 lg:order-1">
             <ScrollAnimation>
               <Section.Heading className="italic">
                 What We Offer
@@ -60,6 +53,13 @@ export default function OurOffer() {
               </ul>
             </div>
           </div>
+          <ScrollAnimation className="order-1 lg:order-2">
+            <Image
+              className="max-w-[300px] mx-auto object-contain"
+              src={handsImage}
+              alt="shake"
+            />
+          </ScrollAnimation>
         </div>
       </Container>
     </Section>

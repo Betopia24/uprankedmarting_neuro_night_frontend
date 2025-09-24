@@ -62,6 +62,8 @@ export default async function NumberManagementPage({
     }
   );
 
+  console.log(numbersFetchResponse);
+
   await numbersFetchResponse.json();
   if (!numbersFetchResponse.ok) throw new Error("Failed to fetch numbers");
 

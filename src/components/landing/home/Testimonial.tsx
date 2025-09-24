@@ -110,6 +110,7 @@ function TestimonialCard({ data }: { data: TestimonialData }) {
             alt={data.author}
             width={96}
             height={96}
+            unoptimized
           />
         </div>
       ) : (
