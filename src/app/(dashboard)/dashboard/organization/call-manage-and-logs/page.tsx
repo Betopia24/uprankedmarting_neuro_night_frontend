@@ -174,7 +174,7 @@ export default async function OrganizationAdminPage({
   if (!response || !response.data) {
     return (
       <div className="py-16 text-center text-gray-500 bg-white shadow-sm rounded-lg">
-        Failed to load organization admins.
+        No calls found.
       </div>
     );
   }
