@@ -18,6 +18,7 @@ export interface Plan {
   interval: "month" | "year";
   description: string;
   features: string[];
+  planLevel: string;
 }
 
 // ✅ Props type
@@ -36,6 +37,8 @@ export default function Pricing({ monthlyPlans, yearlyPlans }: PricingProps) {
   if (!plans.length) {
     return <div className="text-center py-6">No plans found</div>;
   }
+
+  console.log(plans);
 
   return (
     <Section className="bg-success-500">
@@ -116,7 +119,9 @@ export default function Pricing({ monthlyPlans, yearlyPlans }: PricingProps) {
                         /{plan.interval === "month" ? "mo" : "yr"}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-600">Per agent</p>
+                    {plan.planLevel !== "only_ai" && (
+                      <p className="text-xs text-gray-600">Per agent</p>
+                    )}
                   </div>
 
                   <div className="space-y-3">

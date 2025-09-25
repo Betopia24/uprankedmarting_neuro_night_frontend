@@ -95,7 +95,9 @@ export default async function Pricing({
                     /{plan.intervalCount} {plan.interval}
                   </span>
                 </div>
-                <p className="text-xs text-gray-600">Per agent</p>
+                {plan.planLevel !== "only_ai" && (
+                  <p className="text-xs text-gray-600">Per agent</p>
+                )}
               </div>
 
               <div className="space-y-3">
