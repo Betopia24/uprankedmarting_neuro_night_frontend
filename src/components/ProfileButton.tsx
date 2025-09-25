@@ -32,7 +32,7 @@ export default function ProfileButton() {
             <UserImage image={user.image} username={user.name} />
             <div>
               <p className="text-sm font-semibold">{user.name}</p>
-              <p className="text-xs text-gray-500">{user.email}</p>
+              <p className="text-xs text-gray-500 truncate">{user.email}</p>
             </div>
           </div>
           <div className="flex items-center justify-center gap-2">

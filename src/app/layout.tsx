@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@/styles/globals.css";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "sonner";
 import { env } from "@/env";
 import { AuthProvider } from "@/components/AuthProvider";
 import { getServerAuth } from "@/lib/auth";
@@ -31,7 +31,13 @@ export default async function RootLayout({
         >
           {children}
         </AuthProvider>
-        <Toaster position="top-right" theme="light" />
+        <Toaster
+          position="top-right"
+          theme="dark"
+          richColors={true} // This is the key prop for error styling
+          expand={true}
+          closeButton={true}
+        />
       </body>
     </html>
   );
