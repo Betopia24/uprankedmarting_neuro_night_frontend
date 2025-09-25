@@ -5,7 +5,6 @@ import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import { Container } from "@/components";
 import Section from "@/components/Section";
 import PageLoader from "@/components/PageLoader";
-import { toast } from "sonner";
 import { env } from "@/env";
 import { getPlatformOverviewStats } from "@/app/api/home-stats/home-stats";
 import { formatNumber } from "@/utils/formatNumber";
@@ -79,13 +78,10 @@ export default function Stats() {
               label: "AI Calls",
             },
           ]);
-        } else {
-          toast.error("Failed to load stats information");
         }
       } catch (error) {
         env.NEXT_PUBLIC_APP_ENV === "development" &&
           console.error("Error fetching stats info:", error);
-        toast.error("Failed to load stats information");
       } finally {
         setLoading(false);
       }
