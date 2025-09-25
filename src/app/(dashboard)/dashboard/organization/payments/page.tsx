@@ -1,6 +1,6 @@
 import React from "react";
 import { env } from "@/env";
-import { getAccessToken, getServerAuth } from "@/lib/auth";
+import { getAccessToken } from "@/lib/auth";
 import { formatDateTime } from "@/utils/formatDateTime";
 
 interface SubscriptionResponse {
@@ -63,7 +63,7 @@ export default async function SubscriptionPage() {
   if (!response || !response.data) {
     return (
       <div className="py-16 text-center text-gray-500 bg-white shadow-sm rounded-lg">
-        Failed to load subscription data.
+        No subscription found
       </div>
     );
   }
