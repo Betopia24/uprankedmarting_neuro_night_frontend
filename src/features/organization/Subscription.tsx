@@ -58,7 +58,7 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
 
   const [formData, setFormData] = useState<FormData>({
     cardholderName: "",
-    agentCount: only_ai ? 0 : 1,
+    agentCount: 1,
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
