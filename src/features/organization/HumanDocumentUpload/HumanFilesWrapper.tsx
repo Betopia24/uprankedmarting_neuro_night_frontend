@@ -38,7 +38,7 @@ export default function HumanFilesWrapper({
           headers: {
             Authorization: auth.token || "",
           },
-          next: { revalidate: 500 },
+          cache: "no-store",
         }
       );
       if (!response.ok) throw new Error("Failed to fetch files");

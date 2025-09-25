@@ -35,7 +35,7 @@ export default async function AgentProfile({ agentId }: { agentId: string }) {
       `${env.API_BASE_URL}/auth/get-agent-info/${agentId}`,
       {
         headers: { Authorization: auth?.accessToken || "" },
-        next: { revalidate: 500 },
+        cache: "no-store",
       }
     );
 

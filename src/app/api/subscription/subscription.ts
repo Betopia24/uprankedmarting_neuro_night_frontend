@@ -6,7 +6,7 @@ export const getSubscriptionType = async (token: string) => {
       headers: {
         Authorization: `${token}`,
       },
-      next: { revalidate: 500 },
+      cache: "no-store",
     }
   );
 

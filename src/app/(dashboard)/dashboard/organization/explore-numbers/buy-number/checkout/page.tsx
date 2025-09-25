@@ -16,7 +16,7 @@ export default async function CheckoutPage({
   }
 
   const response = await fetch(`${process.env.API_BASE_URL}/plans/${planId}`, {
-    next: { revalidate: 500 },
+    cache: "no-store",
   });
 
   if (!response.ok) {

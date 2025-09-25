@@ -36,7 +36,7 @@ export default async function Pricing({
   const planInterval = query.plan;
 
   const response = await fetch(`${env.API_BASE_URL}/plans`, {
-    next: { revalidate: 5000 },
+    cache: "no-store",
   });
 
   if (!response.ok) {

@@ -69,7 +69,7 @@ export default async function AIManagement() {
   try {
     const response = await fetch(`${env.API_BASE_URL}/agents/ai-agents`, {
       headers: { Authorization: auth.accessToken },
-      next: { revalidate: 500 },
+      cache: "no-store",
     });
 
     if (!response.ok) {
