@@ -20,18 +20,18 @@ export default function ProfileButton() {
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className="flex items-center gap-2 rounded-lg px-2 py-2 bg-slate-50 border border-gray-200 text-black hover:bg-slate-100"
+          className="flex items-center gap-2 rounded-lg px-2 py-2.5 bg-gray-50 border border-gray-100 text-black hover:bg-slate-100"
         >
           <UserImage image={user.image} username={user.name} />
           <span className="text-sm font-medium capitalize">{user.name}</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-56 p-2 border-gray-200 z-[9999]">
-        <div className="flex flex-col gap-2">
+      <PopoverContent className="w-56 p-2 border-gray-200 z-[9999] overflow-hidden">
+        <div className="flex flex-col gap-2 tru">
           <div className="flex items-center gap-2 border-b border-b-gray-200 pb-2">
             <UserImage image={user.image} username={user.name} />
-            <div>
-              <p className="text-sm font-semibold">{user.name}</p>
+            <div className="overflow-hidden">
+              <p className="text-sm font-semibold truncate">{user.name}</p>
               <p className="text-xs text-gray-500 truncate">{user.email}</p>
             </div>
           </div>
@@ -53,7 +53,7 @@ function UserImage({ image, username }: { image?: string; username: string }) {
       alt={username}
       width={32}
       height={32}
-      className="size-8 rounded-full object-cover"
+      className="size-8 rounded-full object-cover shrink-0"
       unoptimized
     />
   ) : (
