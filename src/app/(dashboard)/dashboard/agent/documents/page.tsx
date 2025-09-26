@@ -202,7 +202,7 @@ export default async function CompanyDocsPage({ searchParams }: TableProps) {
   if (!response || !response.data)
     return (
       <div className="py-16 text-center text-gray-500 bg-white shadow-sm rounded-lg">
-        Failed to load documents.
+        No Documents Found.
       </div>
     );
 
@@ -238,8 +238,8 @@ export default async function CompanyDocsPage({ searchParams }: TableProps) {
               View
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-5xl w-[90vw] h-[85vh] flex flex-col p-0 gap-0 overflow-hidden">
-            <DialogHeader className="flex-shrink-0 px-6 py-4 border-b bg-white/95 backdrop-blur-sm">
+          <DialogContent className="max-w-6xl! w-full! h-screen flex flex-col p-0 gap-0 overflow-hidden">
+            <DialogHeader className="flex-shrink-0 px-6 py-4 border-b bg-white/95 backdrop-blur-sm pr-14">
               <div className="flex items-center justify-between gap-4">
                 <DialogTitle className="text-lg font-semibold text-gray-900 min-w-0 flex-1">
                   <div
