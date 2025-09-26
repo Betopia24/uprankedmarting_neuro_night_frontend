@@ -69,7 +69,8 @@ export default async function AgentProfile({ agentId }: { agentId: string }) {
             alt={agentInformation.name}
             width={176}
             height={176}
-            className="mx-auto border rounded-full border-gray-400"
+            className="mx-auto border size-52 rounded-full border-gray-400 object-cover"
+            unoptimized
           />
         ) : (
           <div className="size-24 md:32 lg:size-44 border border-gray-400 rounded-full mx-auto flex items-center justify-center text-4xl font-semibold uppercase">

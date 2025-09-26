@@ -41,7 +41,20 @@ const agentSchema = z.object({
   agentData: z.object({
     dateOfBirth: z.string(),
     sip_domain: z.string().min(5).max(100),
-    sip_password: z.string().min(12).max(100),
+    sip_password: z
+      .string()
+      .min(12)
+      .refine(
+        (val) =>
+          /[A-Z]/.test(val) &&
+          /[a-z]/.test(val) &&
+          /\d/.test(val) &&
+          /[!@#$%^&*(),.?":{}|<>]/.test(val),
+        {
+          message:
+            "Password must be at least 12 characters, include uppercase, lowercase, number, and special character",
+        }
+      ),
     gender: z.enum(genderOptions),
     address: z.string().trim().min(5).max(200),
     emergencyPhone: z.string().min(5).max(20),
@@ -91,23 +104,13 @@ function getShiftStartEnd(shift: (typeof shiftTypes)[number]) {
   return shiftTimeMap[shift];
 }
 
-export function generateUSPhoneNumber(): string {
-  const areaCode = Math.floor(Math.random() * 800) + 200; // 200-999
-  const centralOffice = Math.floor(Math.random() * 800) + 200; // 200-999
-  const lineNumber = Math.floor(Math.random() * 10000); // 0-9999
-
-  return `+1${areaCode}${centralOffice}${lineNumber
-    .toString()
-    .padStart(4, "0")}`;
-}
-
 // --- Default Values ---
 const defaultValues: AgentFormInput = {
   userData: {
     name: "",
     email: "",
     password: "",
-    phone: generateUSPhoneNumber(),
+    phone: "",
     bio: "",
   },
   agentData: {
@@ -146,8 +149,7 @@ export default function AgentForm() {
             .start,
           workEndTime: getShiftStartEnd(data?.agentData?.shift ?? "morning")
             .end,
-          sip_password:
-            data?.agentData?.sip_password || generateStrongSipPassword(),
+          sip_password: data?.agentData?.sip_password,
           skills: parseSkills(data?.agentData?.skills),
         },
       };
@@ -170,8 +172,8 @@ export default function AgentForm() {
 
       toast.success("Agent created successfully!");
       form.reset();
-    } catch (err: any) {
-      toast.error("Server error: " + err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) toast.error("Server error: " + err.message);
     }
   };
 
