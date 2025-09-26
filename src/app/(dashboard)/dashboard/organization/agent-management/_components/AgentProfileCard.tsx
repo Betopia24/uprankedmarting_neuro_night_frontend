@@ -29,8 +29,8 @@ export default function AgentProfileCard({
           </div>
         )}
 
-        <div>
-          <Heading size="h4" as="h4">
+        <div className="overflow-hidden">
+          <Heading size="h4" as="h4" className="truncate">
             {user.name}
           </Heading>
           <span className="text-xs text-black/70 leading-none capitalize truncate">
