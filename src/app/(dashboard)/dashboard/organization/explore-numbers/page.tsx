@@ -14,6 +14,7 @@ import {
 } from "@/paths";
 import { env } from "@/env";
 import Link from "next/link";
+import PageLoader from "@/components/PageLoader";
 
 export interface Capabilities {
   voice: boolean;
@@ -110,7 +111,7 @@ export default function OrganizationNumbersPage() {
   }, [token]);
 
   if (!token) return <p>No auth token</p>;
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <PageLoader />;
 
   // filtering + pagination
   const filteredData = filterData(rawTableData, searchQuery);

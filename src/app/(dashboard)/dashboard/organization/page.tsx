@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense, lazy, useMemo } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { env } from "@/env";
+import PageLoader from "@/components/PageLoader";
 
 const CallGraph = lazy(() => import("@/features/dashboard/CallGraph"));
 const CallGraphBarChart = lazy(
@@ -133,13 +134,10 @@ export default function OrganizationDashboardPage() {
   if (!token)
     return <p className="text-center mt-10 text-red-600">No access token</p>;
 
+  if (loadingStats) return <PageLoader />;
+
   return (
     <div className="space-y-6 flex-1">
-      {loadingStats && (
-        <p className="text-center mt-10 text-gray-500">
-          Loading dashboard stats...
-        </p>
-      )}
       {errorStats && (
         <p className="text-center mt-10 text-red-600">{errorStats}</p>
       )}
