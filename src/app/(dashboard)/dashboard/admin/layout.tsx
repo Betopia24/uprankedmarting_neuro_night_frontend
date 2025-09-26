@@ -1,4 +1,4 @@
-import { requireAuth } from "@/lib/auth";
+"use client";
 import {
   DashboardHeader,
   DashboardLayout,
@@ -9,13 +9,13 @@ import SidebarContent from "../_components/DashboardSidebarContent";
 import { dashboardNavigation } from "@/data/dashboardNavbar";
 import { redirect } from "next/navigation";
 import { unauthorizedPath } from "@/paths";
+import { useAuth } from "@/components/AuthProvider";
 
-export default async function AdminDashboardLayout({
+export default function AdminDashboardLayout({
   children,
 }: React.PropsWithChildren) {
-  const data = await requireAuth();
-  const user = data?.data || { role: "" };
-  if (user.role !== "super_admin") return redirect(unauthorizedPath());
+  const { user } = useAuth();
+  if (user?.role !== "super_admin") return redirect(unauthorizedPath());
   return (
     <>
       <SidebarProvider>

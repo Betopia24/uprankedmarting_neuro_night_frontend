@@ -1,4 +1,5 @@
-import { requireAuth } from "@/lib/auth";
+"use client";
+
 import {
   DashboardHeader,
   DashboardLayout,
@@ -9,13 +10,13 @@ import SidebarContent from "../_components/DashboardSidebarContent";
 import { dashboardNavigation } from "@/data/dashboardNavbar";
 import { redirect } from "next/navigation";
 import { unauthorizedPath } from "@/paths";
+import { useAuth } from "@/components/AuthProvider";
 
-export default async function OrganizationDashboardLayout({
+export default function OrganizationDashboardLayout({
   children,
 }: React.PropsWithChildren) {
-  const data = await requireAuth();
-  const user = data?.data || { role: "" };
-  if (user.role !== "organization_admin") {
+  const { user } = useAuth();
+  if (user?.role !== "organization_admin") {
     return redirect(unauthorizedPath());
   }
   return (

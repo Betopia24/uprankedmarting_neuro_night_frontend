@@ -1,3 +1,5 @@
+"use client";
+
 import { redirect } from "next/navigation";
 import {
   DashboardHeader,
@@ -9,13 +11,13 @@ import SidebarContent from "../_components/DashboardSidebarContent";
 import { dashboardNavigation } from "@/data/dashboardNavbar";
 import { requireAuth } from "@/lib/auth";
 import { unauthorizedPath } from "@/paths";
+import { useAuth } from "@/components/AuthProvider";
 
-export default async function AgentDashboardLayout({
+export default function AgentDashboardLayout({
   children,
 }: React.PropsWithChildren) {
-  const data = await requireAuth();
-  const user = data?.data || { role: "" };
-  if (user.role !== "agent") return redirect(unauthorizedPath());
+  const { user } = useAuth();
+  if (user?.role !== "agent") return redirect(unauthorizedPath());
   return (
     <>
       <SidebarProvider>
