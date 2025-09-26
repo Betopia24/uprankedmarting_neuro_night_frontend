@@ -62,7 +62,7 @@ export default async function AgentProfile({ agentId }: { agentId: string }) {
 
   return (
     <div className="mb-10 space-y-6">
-      <div className="space-y-6">
+      <div className="space-y-2">
         {agentInformation.image ? (
           <Image
             src={agentInformation.image}
