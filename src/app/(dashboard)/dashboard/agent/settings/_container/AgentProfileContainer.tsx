@@ -11,6 +11,8 @@ import {
 import ImageUpload from "../../../organization/settings/_container/image-upload";
 import { env } from "process";
 import PageLoader from "../loading";
+import Button from "@/components/Button";
+import Link from "next/link";
 
 const AgentProfileContainerPage = () => {
   const auth = useAuth();
@@ -126,7 +128,14 @@ const AgentProfileContainerPage = () => {
       </div>
 
       {/* Bio Section */}
-      <h1 className="text-2xl font-bold text-black mb-4">Profile Bio</h1>
+      <div className="flex flex-wrap gap-2 justify-between items-center">
+        <h1 className="text-2xl font-bold text-black mb-4">Profile Bio</h1>
+        <Button size="sm" asChild variant="secondary">
+          <Link href="/dashboard/agent/settings/change-password">
+            Change Password
+          </Link>
+        </Button>
+      </div>
       <div className="flex flex-col items-start gap-2 mb-4">
         <textarea
           value={bio}
