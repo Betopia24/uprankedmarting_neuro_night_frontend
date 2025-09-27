@@ -18,7 +18,7 @@ export default function AiCallExperienceSection() {
   }, []);
 
   return (
-    <Section bg="bg-success-500">
+    <Section bg="bg-success-500" size="lg">
       <Container>
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="flex lg:flex-1 flex-col gap-6">
@@ -33,18 +33,16 @@ export default function AiCallExperienceSection() {
               opportunity into action.
             </p>
             <p>
-              Our AI Call Center blends automation and human empathy. Callers are
-              greeted by a smart AI Agent that talks in a real human voice. If the
-              AI detects the need for a human, it instantly passes the call to a
-              Human Agent — without disruption.
+              Our AI Call Center blends automation and human empathy. Callers
+              are greeted by a smart AI Agent that talks in a real human voice.
+              If the AI detects the need for a human, it instantly passes the
+              call to a Human Agent — without disruption.
             </p>
             <p>
               And yes, the voice you hear from our AI isn&apos;t robotic —
               it&apos;s powered by recorded human voices, trained and guided by
               smart instructions.
             </p>
-
-
           </div>
           {/* Lottie Animation */}
           <div className="-mt-14">

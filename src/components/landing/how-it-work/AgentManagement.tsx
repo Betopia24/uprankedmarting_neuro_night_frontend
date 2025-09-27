@@ -17,7 +17,7 @@ export default function AgentManagement() {
   }, []);
 
   return (
-    <Section>
+    <Section size="lg">
       <Container>
         <div className="flex flex-col lg:flex-row gap-6 overflow-hidden">
           <div className="space-y-4 text-xl order-1 lg:order-1">

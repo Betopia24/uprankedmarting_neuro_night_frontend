@@ -17,7 +17,7 @@ export default function AiAgentQuickStart() {
   }, []);
 
   return (
-    <Section bg="bg-success-500 p-0">
+    <Section bg="bg-success-500" size="lg">
       <Container>
         <div className="flex flex-col lg:flex-row items-center gap-14 overflow-hidden">
           <div className="overflow-hidden order-1 lg:order-2">

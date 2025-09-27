@@ -17,7 +17,7 @@ export default function AiAgentCapabilities() {
   }, []);
 
   return (
-    <Section>
+    <Section size="lg">
       <Container>
         <div className="flex flex-col lg:flex-row gap-6 text-xl overflow-hidden">
           <div className="space-y-2 order-2 lg:order-1">
