@@ -21,16 +21,17 @@ const classes = {
     text: "text-blue-600 dark:text-blue-300",
   },
   variant2: {
-    border: "border-green-500 dark:border-green-400",
-    text: "text-green-600 dark:text-green-300",
+    border: "border-yellow-500 dark:border-yellow-400",
+    text: "text-yellow-600 dark:text-yellow-300",
   },
+
   variant3: {
     border: "border-red-500 dark:border-red-400",
     text: "text-red-600 dark:text-red-300",
   },
   variant4: {
-    border: "border-yellow-500 dark:border-yellow-400",
-    text: "text-yellow-600 dark:text-yellow-300",
+    border: "border-green-500 dark:border-green-400",
+    text: "text-green-600 dark:text-green-300",
   },
   variant5: {
     border: "border-purple-500 dark:border-purple-400",

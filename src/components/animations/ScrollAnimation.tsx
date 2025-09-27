@@ -38,7 +38,7 @@ const childVariants = (duration: number = 0.7): Variants => ({
 // ------------------------
 export default function ScrollAnimation({
   children,
-  yOffset = 30,
+  yOffset = 0,
   scaleOffset = 0.03,
   opacityOffset = 0.2,
   stagger = 0.2,

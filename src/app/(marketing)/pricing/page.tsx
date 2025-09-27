@@ -1,3 +1,4 @@
+import ContactForm from "@/components/Contact";
 import { Pricing } from "@/components/landing/pricing";
 import { env } from "@/env";
 
@@ -49,5 +50,10 @@ export default async function PricingPage() {
     yearlyPlans = [];
   }
 
-  return <Pricing monthlyPlans={monthlyPlans} yearlyPlans={yearlyPlans} />;
+  return (
+    <>
+      <Pricing monthlyPlans={monthlyPlans} yearlyPlans={yearlyPlans} />{" "}
+      <ContactForm />
+    </>
+  );
 }

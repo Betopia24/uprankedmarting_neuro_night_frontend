@@ -115,7 +115,7 @@ const defaultValues: AgentFormInput = {
   },
   agentData: {
     dateOfBirth: "",
-    sip_domain: "",
+    sip_domain: "production-answersmart.sip.twilio.com",
     sip_password: "",
     gender: "male",
     address: "",

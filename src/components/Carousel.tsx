@@ -152,12 +152,16 @@ function EmblaSlide({
 
   return (
     <div
-      className={cn("shrink-0 grow-0 min-w-0 px-6", {
-        "basis-full": slidesPerView === 1,
-        "basis-full sm:basis-1/2": slidesPerView === 2,
-        "basis-full md:basis-1/2 lg:basis-1/3": slidesPerView === 3,
-        "basis-2/4 sm:basis-1/2 md:basis-1/3 lg:basis-1/4": slidesPerView === 4,
-      })}
+      className={cn(
+        "shrink-0 grow-0 min-w-0 px-6 items-center justify-center flex",
+        {
+          "basis-full": slidesPerView === 1,
+          "basis-full sm:basis-1/2": slidesPerView === 2,
+          "basis-full md:basis-1/2 lg:basis-1/3": slidesPerView === 3,
+          "basis-2/4 sm:basis-1/2 md:basis-1/3 lg:basis-1/4":
+            slidesPerView === 4,
+        }
+      )}
     >
       <div
         className={cn(
