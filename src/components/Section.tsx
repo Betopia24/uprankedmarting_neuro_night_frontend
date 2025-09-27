@@ -10,9 +10,9 @@ type SectionProps = {
 } & React.ComponentProps<"section">;
 
 const paddingVariants = {
-  sm: "py-8",
-  md: "py-12",
-  lg: "py-16",
+  sm: "py-8 md:py-10 lg:py-12",
+  md: "py-8 md:py-12 lg:py-16",
+  lg: "py-8 md:py-14 lg:py-20",
 };
 
 export default function Section({
