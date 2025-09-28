@@ -276,9 +276,9 @@ export default function AgentForm({
 
           // Transform to the expected format
           const transformedBases: KnowledgeBase[] = rawBases.map(
-            (base: { knowledgeBaseId: string; knowledgeBaseName: string }) => ({
+            (base: { knowledgeBaseId: string; fileName: string }) => ({
               id: base.knowledgeBaseId,
-              name: base.knowledgeBaseName,
+              name: base.fileName,
             })
           );
 
@@ -495,8 +495,8 @@ export default function AgentForm({
             {loading
               ? "Processing..."
               : agentId
-                ? "Update Agent"
-                : "Create Agent"}
+              ? "Update Agent"
+              : "Create Agent"}
           </Button>
         </form>
       </Form>
