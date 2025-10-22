@@ -36,6 +36,7 @@ export interface TableData {
   createdAt: string;
   updatedAt: string;
   purchasedByOrganizationId: string;
+  isPinned: boolean;
 }
 
 const DEFAULT_PAGE = 1;
@@ -92,14 +93,18 @@ export default function OrganizationNumbersPage() {
 
     async function fetchData() {
       try {
-        const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/active-numbers`, {
-          headers: { Authorization: token || "" },
-        });
+        const res = await fetch(
+          `${env.NEXT_PUBLIC_API_URL}/active-numbers/organization/available`,
+          {
+            headers: { Authorization: token || "" },
+          }
+        );
 
         if (!res.ok) throw new Error("Failed to fetch active numbers");
 
         const json = await res.json();
-        setRawTableData(Array.isArray(json?.data) ? json.data : []);
+        console.log({ data: json?.data.data });
+        setRawTableData(Array.isArray(json?.data.data) ? json.data.data : []);
       } catch (e) {
         console.error("Error fetching numbers:", e);
       } finally {
@@ -135,6 +140,7 @@ export default function OrganizationNumbersPage() {
     "capabilities",
     "countryCode",
     "isPurchased",
+    "isPinned",
   ];
 
   const tableHeader =
@@ -180,18 +186,22 @@ export default function OrganizationNumbersPage() {
           <table className="table-auto border-collapse border border-gray-200 w-full text-gray-800">
             <thead>
               <tr className="bg-gray-100">
-                {tableHeader.map((field) => (
-                  <TableHeaderItem
-                    key={field}
-                    field={field}
-                    currentSort={sortField}
-                    sortDirection={sortDirection}
-                    currentPage={page}
-                    limit={limit}
-                    searchQuery={searchQuery}
-                    basePath={organizationExploreNumbersPath()}
-                  />
-                ))}
+                {tableHeader.map((field) => {
+                  const requestedNumber =
+                    field === "isPinned" ? "Requested Number" : field;
+                  return (
+                    <TableHeaderItem
+                      key={field}
+                      field={requestedNumber}
+                      currentSort={sortField}
+                      sortDirection={sortDirection}
+                      currentPage={page}
+                      limit={limit}
+                      searchQuery={searchQuery}
+                      basePath={organizationExploreNumbersPath()}
+                    />
+                  );
+                })}
                 <th className="border border-gray-300 text-left cursor-pointer">
                   Action
                 </th>
