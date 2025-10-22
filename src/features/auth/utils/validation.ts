@@ -40,8 +40,12 @@ export const signupSchema = z
       }),
     phoneNumber: z
       .string({ message: "Phone number is required" })
-      .regex(/^\+[1-9]\d{9,14}$/, {
+      .min(1, { message: "Phone number is required" })
+      .refine((val) => val.startsWith("+"), {
         message: "Phone number must include country code",
+      })
+      .regex(/^\+[1-9]\d{9,14}$/, {
+        message: "Invalid phone number format",
       }),
 
     businessName: z
@@ -95,8 +99,12 @@ export const organizationSignupSchema = z.object({
 
     phone: z
       .string({ message: "Phone number is required" })
+      .min(1, { message: "Phone number is required" })
+      .refine((val) => val.startsWith("+"), {
+        message: "Phone number must include country code (e.g. +880...)",
+      })
       .regex(/^\+[1-9]\d{9,14}$/, {
-        message: "Phone number must include country code",
+        message: "Invalid phone number format",
       }),
   }),
   organizationData: z.object({
