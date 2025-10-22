@@ -5,10 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   LucideMail,
   LucideUser2,
-  LucidePhone,
   LucideBuilding2,
   LucideGlobe,
-  LucideMapPin,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { AuthCard } from "./AuthForm";
@@ -23,6 +21,9 @@ import SelectField from "@/components/SelectField";
 import AuthButton from "./AuthButton";
 import { toast } from "sonner";
 import { env } from "@/env";
+import { industriesInformation } from "@/data/industriesInformation";
+import CountrySelector from "@/features/auth/CountrySelector";
+import AddressSelector from "./AddressSelector";
 
 const MIN_STEP = 1;
 const MAX_STEP = 2;
@@ -46,7 +47,7 @@ const variants: Variants = {
   },
 };
 
-const defaultValues = {
+const defaultValues: SignupFormSchema = {
   name: "",
   email: "",
   password: "",
@@ -70,6 +71,8 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
   });
 
   const onSubmit = async (formData: SignupFormSchema) => {
+    console.log("Form Data:", formData);
+    return;
     try {
       const response = await fetch("/api/auth/signup", {
         method: "POST",
@@ -180,13 +183,7 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
                     >
                       <LucideMail className="size-9 p-2.5 absolute right-0 bottom-0" />
                     </TextField>
-                    <TextField
-                      label="Phone Number"
-                      name="phoneNumber"
-                      placeholder="Write your contact number"
-                    >
-                      <LucidePhone className="size-9 p-2.5 absolute right-0 bottom-0" />
-                    </TextField>
+                    <CountrySelector form={form} />
                     <PasswordField
                       label="Password"
                       name="password"
@@ -229,158 +226,7 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
                       required
                       placeholder="Choose your industry"
                       defaultValue="information-technology"
-                      options={[
-                        // Your existing ones
-                        {
-                          label: "Information Technology",
-                          value: "information-technology",
-                        },
-                        {
-                          label: "Healthcare & Biotechnology",
-                          value: "healthcare-biotechnology",
-                        },
-                        {
-                          label: "Education & E-Learning",
-                          value: "education-elearning",
-                        },
-                        {
-                          label: "Finance & Banking",
-                          value: "finance-banking",
-                        },
-                        {
-                          label: "E-Commerce & Retail",
-                          value: "ecommerce-retail",
-                        },
-                        {
-                          label: "Manufacturing & Supply Chain",
-                          value: "manufacturing-supply",
-                        },
-                        {
-                          label: "Media & Entertainment",
-                          value: "media-entertainment",
-                        },
-
-                        // New industries (U.S. popular)
-                        {
-                          label: "Residential Construction",
-                          value: "residential-construction",
-                        },
-                        {
-                          label: "Commercial Construction",
-                          value: "commercial-construction",
-                        },
-                        { label: "Plumbing", value: "plumbing" },
-                        {
-                          label: "Electrical Services",
-                          value: "electrical-services",
-                        },
-                        { label: "HVAC (Heating & Cooling)", value: "hvac" },
-                        { label: "Roofing", value: "roofing" },
-                        {
-                          label: "Home Remodeling & Renovation",
-                          value: "home-remodeling",
-                        },
-                        {
-                          label: "Landscaping & Lawn Care",
-                          value: "landscaping-lawn-care",
-                        },
-                        {
-                          label: "Painting & Decorating",
-                          value: "painting-decorating",
-                        },
-                        {
-                          label: "Flooring Installation",
-                          value: "flooring-installation",
-                        },
-                        {
-                          label: "Carpentry & Woodworking",
-                          value: "carpentry-woodworking",
-                        },
-                        {
-                          label: "Masonry & Concrete",
-                          value: "masonry-concrete",
-                        },
-                        {
-                          label: "Real Estate Development",
-                          value: "real-estate-development",
-                        },
-                        {
-                          label: "Property Management",
-                          value: "property-management",
-                        },
-                        {
-                          label: "Auto Repair & Maintenance",
-                          value: "auto-repair-maintenance",
-                        },
-                        {
-                          label: "Logistics & Freight",
-                          value: "logistics-freight",
-                        },
-                        {
-                          label: "Restaurants & Food Service",
-                          value: "restaurants-food-service",
-                        },
-                        { label: "Hotels & Resorts", value: "hotels-resorts" },
-                        {
-                          label: "Event Management",
-                          value: "event-management",
-                        },
-                        { label: "Travel & Tourism", value: "travel-tourism" },
-                        {
-                          label: "Fitness & Wellness",
-                          value: "fitness-wellness",
-                        },
-                        {
-                          label: "Beauty & Personal Care",
-                          value: "beauty-personal-care",
-                        },
-                        {
-                          label: "Cleaning Services",
-                          value: "cleaning-services",
-                        },
-                        {
-                          label: "Childcare & Daycare",
-                          value: "childcare-daycare",
-                        },
-                        {
-                          label: "Senior Care & Assisted Living",
-                          value: "senior-care",
-                        },
-                        {
-                          label: "Furniture & Home Décor",
-                          value: "furniture-home-decor",
-                        },
-                        {
-                          label: "Fashion & Apparel",
-                          value: "fashion-apparel",
-                        },
-                        {
-                          label: "Sports & Outdoor Goods",
-                          value: "sports-outdoor-goods",
-                        },
-                        {
-                          label: "Marketing & Advertising",
-                          value: "marketing-advertising",
-                        },
-                        { label: "Legal Services", value: "legal-services" },
-                        {
-                          label: "Accounting & Tax Services",
-                          value: "accounting-tax-services",
-                        },
-                        {
-                          label: "Renewable Energy & Solar Installation",
-                          value: "renewable-energy",
-                        },
-                        { label: "Pet Care & Pet Products", value: "pet-care" },
-                        {
-                          label: "Security Services",
-                          value: "security-services",
-                        },
-                        {
-                          label: "Tutoring & Test Preparation",
-                          value: "tutoring-test-prep",
-                        },
-                      ]}
+                      options={industriesInformation}
                     />
 
                     <TextField
@@ -390,13 +236,7 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
                     >
                       <LucideGlobe className="size-9 p-2.5 absolute right-0 bottom-0" />
                     </TextField>
-                    <TextField
-                      label="Address"
-                      name="address"
-                      placeholder="Write your address"
-                    >
-                      <LucideMapPin className="size-9 p-2.5 absolute right-0 bottom-0" />
-                    </TextField>
+                    <AddressSelector control={form.control} name="address" />
                     <CheckboxField
                       label="I accept the terms and conditions"
                       name="acceptTerms"

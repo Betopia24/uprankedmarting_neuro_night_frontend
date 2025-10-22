@@ -52,15 +52,9 @@ export const signupSchema = z
 
     website: z.string().default("").optional(),
 
-    address: z
-      .string({ message: "Address is required" })
-      .min(6, {
-        message: "Address must be at least 6 characters long",
-      })
-      .refine((val) => val.split(",").length === 3, {
-        message:
-          "Address must contain exactly 3 comma-separated values (e.g., Street, City, Country)",
-      }),
+    address: z.string({ message: "Address is required" }).min(3, {
+      message: "Address is required",
+    }),
 
     acceptTerms: z
       .boolean({
@@ -112,15 +106,9 @@ export const organizationSignupSchema = z.object({
     industry: z.string({ message: "Industry is required" }),
     websiteLink: z.string().optional(),
 
-    address: z
-      .string({ message: "Address is required" })
-      .min(6, {
-        message: "Address must be at least 6 characters long",
-      })
-      .refine((val) => val.split(",").length === 3, {
-        message:
-          "Address must contain exactly 3 comma-separated values (e.g., Street, City, Country)",
-      }),
+    address: z.string({ message: "Address is required" }).min(6, {
+      message: "Address is required",
+    }),
   }),
 });
 
