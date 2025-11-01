@@ -58,8 +58,6 @@ export default function OrganizationDocumentUploadPageClient() {
         style={{ height: "calc(100vh - var(--_sidebar-header-height))" }}
         className="flex flex-col items-center justify-center bg-gray-50 px-4 text-center -mt-20"
       >
-        {" "}
-        {JSON.stringify(subscription)}
         <div className="max-w-md">
           <h1 className="text-5xl font-bold text-red-600 mb-4">Oops!</h1>
           <p className="text-lg text-gray-700 mb-6">

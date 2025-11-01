@@ -19,7 +19,5 @@ export const getSubscriptionType = async (token: string) => {
     throw new Error(json.message || "Failed to fetch subscription info");
   }
 
-  console.log(json);
-
   return json;
 };
