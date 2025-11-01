@@ -49,24 +49,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Type guard to validate User structure
-function isValidUser(user: User): user is User {
-  return (
-    user &&
-    typeof user.id === "string" &&
-    typeof user.email === "string" &&
-    typeof user.role === "string" &&
-    typeof user.name === "string" &&
-    typeof user.image === "string" &&
-    typeof user.phone === "string" &&
-    typeof user.isVerified === "boolean" &&
-    (user.Agent === null ||
-      (typeof user.Agent === "object" &&
-        typeof user.Agent.sip_username === "string" &&
-        typeof user.Agent.isAvailable === "boolean"))
-  );
-}
-
 export function AuthProvider({
   children,
   initialUser,
@@ -77,14 +59,13 @@ export function AuthProvider({
   token?: string;
 }) {
   // Validate and normalize the initialUser data
-  const normalizedInitialUser =
-    initialUser && isValidUser(initialUser)
-      ? {
-          ...initialUser,
-          Agent: initialUser.Agent || null, // Ensure Agent is null if undefined
-          ownedOrganization: initialUser.ownedOrganization || null, // Ensure ownedOrganization is null if undefined
-        }
-      : null;
+  const normalizedInitialUser = initialUser
+    ? {
+        ...initialUser,
+        Agent: initialUser.Agent || null, // Ensure Agent is null if undefined
+        ownedOrganization: initialUser.ownedOrganization || null, // Ensure ownedOrganization is null if undefined
+      }
+    : null;
 
   const [user, setUser] = useState<User | null>(normalizedInitialUser);
 
@@ -100,14 +81,11 @@ export function AuthProvider({
 
       if (response.ok) {
         const { user: userData } = await response.json();
-        if (isValidUser(userData)) {
-          setUser({
-            ...userData,
-            Agent: userData.Agent || null,
-            ownedOrganization: userData.ownedOrganization || null,
-          });
-          return true;
-        }
+        setUser({
+          ...userData,
+          Agent: userData.Agent || null,
+          ownedOrganization: userData.ownedOrganization || null,
+        });
       }
       return false;
     } catch {

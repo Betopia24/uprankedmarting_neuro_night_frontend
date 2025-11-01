@@ -9,7 +9,6 @@ import {
 } from "../_components";
 import SidebarContent from "../_components/DashboardSidebarContent";
 import { dashboardNavigation } from "@/data/dashboardNavbar";
-import { requireAuth } from "@/lib/auth";
 import { unauthorizedPath } from "@/paths";
 import { useAuth } from "@/components/AuthProvider";
 
