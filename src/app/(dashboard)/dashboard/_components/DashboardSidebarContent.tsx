@@ -73,7 +73,9 @@ export default function SidebarContent({
         try {
           const subscription = await getSubscriptionType(auth.token);
 
-          const hasActive = subscription.status === "ACTIVE" || "TRIALING";
+          const hasActive =
+            subscription.status === "ACTIVE" ||
+            subscription.status === "TRIALING";
 
           if (hasActive) {
             setOrgMenu(dashboardNavigation.organization);
