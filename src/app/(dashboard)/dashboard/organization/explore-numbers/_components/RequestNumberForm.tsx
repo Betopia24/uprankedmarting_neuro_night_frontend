@@ -35,6 +35,8 @@ import {
 import {
   Textarea
 } from "@/components/ui/textarea"
+import { env } from "@/env"
+import { useAuth } from "@/components/AuthProvider"
 
 const formSchema = z.object({
   requesterName: z.string().min(1),
@@ -48,18 +50,26 @@ export default function RequestNumberForm() {
     resolver: zodResolver(formSchema),
 
   })
+  const { token } = useAuth();
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!token) return;
     try {
-      console.log(values);
-      toast(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      );
-    } catch (error) {
-      console.error("Form submission error", error);
-      toast.error("Failed to submit the form. Please try again.");
+      const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/active-numbers/organization/request`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token || "",
+        },
+        body: JSON.stringify(values),
+      })
+      const json = await response.json();
+      if (!json.success) {
+        throw new Error(json.message || "Failed to submit the form.");
+      }
+      toast.success("Number request submitted successfully!");
+    } catch (error: any) {
+      toast.error(error?.message || "Something went wrong");
     }
   }
 
