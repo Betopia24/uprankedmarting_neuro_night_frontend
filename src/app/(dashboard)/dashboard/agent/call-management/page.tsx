@@ -76,6 +76,7 @@ async function getAgentCalls(
     headers: { Authorization: accessToken as string },
     cache: "no-cache",
   });
+  console.log("Call management log response: ", res);
   if (!res.ok) return null;
 
   const json: AgentCallApiResponse = await res.json();

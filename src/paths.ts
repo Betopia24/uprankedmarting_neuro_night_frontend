@@ -31,6 +31,7 @@ export const adminNumberManagementPath = () =>
   `${adminDashboardPath()}/number-management`;
 export const adminApprovalPath = () => `${adminDashboardPath()}/approval`;
 export const adminPaymentsPath = () => `${adminDashboardPath()}/payments`;
+export const adminNumbersPath = () => `${adminDashboardPath()}/numbers`;
 
 // organization dashboard paths
 export const organizationDashboardPath = () =>

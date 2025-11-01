@@ -15,6 +15,8 @@ import {
 import { env } from "@/env";
 import Link from "next/link";
 import PageLoader from "@/components/PageLoader";
+import { Heading } from "@/components";
+import RequestNumberForm from "./_components/RequestNumberForm";
 
 export interface Capabilities {
   voice: boolean;
@@ -146,175 +148,187 @@ export default function OrganizationNumbersPage() {
   const tableHeader =
     sortedPaginatedData.length > 0
       ? allowedKeys.filter((key) =>
-          Object.keys(sortedPaginatedData[0]).includes(key)
-        )
+        Object.keys(sortedPaginatedData[0]).includes(key)
+      )
       : allowedKeys;
 
   return (
-    <div className="space-y-4">
-      <p className="text-sm text-gray-600">
-        Organization: {user?.ownedOrganization?.name || "N/A"}
-      </p>
-
-      {rawTableData.length > 0 && (
-        <div className="flex gap-4 justify-between">
-          <SearchField
-            basePath={organizationExploreNumbersPath()}
-            defaultQuery={searchQuery}
-          />
-        </div>
-      )}
-
-      {searchQuery && (
-        <div className="text-sm text-gray-600">
-          {totalItems > 0
-            ? `Found ${totalItems} result${
-                totalItems === 1 ? "" : "s"
-              } for "${searchQuery}"`
-            : `No results found for "${searchQuery}"`}
-        </div>
-      )}
-
-      {filteredData.length === 0 ? (
-        <p className="text-center text-gray-500">
-          {searchQuery
-            ? "No numbers match your search."
-            : "No numbers available."}
+    <>
+      <div className="space-y-4">
+        <p className="text-sm text-gray-600">
+          Organization: {user?.ownedOrganization?.name || "N/A"}
         </p>
-      ) : (
-        <div className="overflow-x-auto bg-white shadow rounded-lg border border-gray-200">
-          <table className="table-auto border-collapse border border-gray-200 w-full text-gray-800">
-            <thead>
-              <tr className="bg-gray-100">
-                {tableHeader.map((field) => {
-                  const requestedNumber =
-                    field === "isPinned" ? "Your Requested Number" : field;
-                  return (
-                    <TableHeaderItem
-                      key={field}
-                      field={requestedNumber}
-                      currentSort={sortField}
-                      sortDirection={sortDirection}
-                      currentPage={page}
-                      limit={limit}
-                      searchQuery={searchQuery}
-                      basePath={organizationExploreNumbersPath()}
-                    />
-                  );
-                })}
-                <th className="border border-gray-300 text-left cursor-pointer">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedPaginatedData.map((item) => (
-                <tr
-                  key={item.id}
-                  className="hover:bg-gray-50 transition-colors"
-                >
-                  {tableHeader.map((key) => {
-                    const value: unknown = (item as any)[key];
 
-                    if (
-                      key === "capabilities" &&
-                      value &&
-                      typeof value === "object"
-                    ) {
-                      const caps = value as Capabilities;
-                      return (
-                        <td
-                          key={key}
-                          className="border border-gray-200 p-2 flex gap-2"
-                        >
-                          {Object.entries(caps).map(([capKey, enabled]) => (
+        {rawTableData.length > 0 && (
+          <div className="flex gap-4 justify-between">
+            <SearchField
+              basePath={organizationExploreNumbersPath()}
+              defaultQuery={searchQuery}
+            />
+          </div>
+        )}
+
+        {searchQuery && (
+          <div className="text-sm text-gray-600">
+            {totalItems > 0
+              ? `Found ${totalItems} result${totalItems === 1 ? "" : "s"
+              } for "${searchQuery}"`
+              : `No results found for "${searchQuery}"`}
+          </div>
+        )}
+
+        {filteredData.length === 0 ? (
+          <p className="text-center text-gray-500">
+            {searchQuery
+              ? "No numbers match your search."
+              : "No numbers available."}
+          </p>
+        ) : (
+          <div className="overflow-x-auto bg-white shadow rounded-lg border border-gray-200">
+            <table className="table-auto border-collapse border border-gray-200 w-full text-gray-800">
+              <thead>
+                <tr className="bg-gray-100">
+                  {tableHeader.map((field) => {
+                    const requestedNumber =
+                      field === "isPinned" ? "Your Requested Number" : field;
+                    return (
+                      <TableHeaderItem
+                        key={field}
+                        field={requestedNumber}
+                        currentSort={sortField}
+                        sortDirection={sortDirection}
+                        currentPage={page}
+                        limit={limit}
+                        searchQuery={searchQuery}
+                        basePath={organizationExploreNumbersPath()}
+                      />
+                    );
+                  })}
+                  <th className="border border-gray-300 text-left cursor-pointer">
+                    Action
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedPaginatedData.map((item) => (
+                  <tr
+                    key={item.id}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
+                    {tableHeader.map((key) => {
+                      const value: unknown = (item as any)[key];
+
+                      if (
+                        key === "capabilities" &&
+                        value &&
+                        typeof value === "object"
+                      ) {
+                        const caps = value as Capabilities;
+                        return (
+                          <td
+                            key={key}
+                            className="border border-gray-200 p-2 flex gap-2"
+                          >
+                            {Object.entries(caps).map(([capKey, enabled]) => (
+                              <span
+                                key={capKey}
+                                className={`px-1 rounded text-white text-xs ${enabled ? "bg-green-500" : "bg-gray-500"
+                                  }`}
+                                title={capKey}
+                              >
+                                {capKey.toUpperCase()}
+                              </span>
+                            ))}
+                          </td>
+                        );
+                      }
+
+                      if (key === "isPurchased") {
+                        return (
+                          <td
+                            key={key}
+                            className="border border-gray-200 px-3 py-2"
+                          >
                             <span
-                              key={capKey}
-                              className={`px-1 rounded text-white text-xs ${
-                                enabled ? "bg-green-500" : "bg-gray-500"
-                              }`}
-                              title={capKey}
+                              className={`px-2 py-1 rounded text-xs font-semibold text-white ${value ? "bg-gray-500" : "bg-emerald-400"
+                                }`}
                             >
-                              {capKey.toUpperCase()}
+                              {value ? "Purchased" : "Available"}
                             </span>
-                          ))}
-                        </td>
-                      );
-                    }
+                          </td>
+                        );
+                      }
 
-                    if (key === "isPurchased") {
                       return (
                         <td
                           key={key}
                           className="border border-gray-200 px-3 py-2"
                         >
-                          <span
-                            className={`px-2 py-1 rounded text-xs font-semibold text-white ${
-                              value ? "bg-gray-500" : "bg-emerald-400"
-                            }`}
-                          >
-                            {value ? "Purchased" : "Available"}
-                          </span>
+                          {String(value)}
                         </td>
                       );
-                    }
+                    })}
 
-                    return (
-                      <td
-                        key={key}
-                        className="border border-gray-200 px-3 py-2"
-                      >
-                        {String(value)}
-                      </td>
-                    );
-                  })}
-
-                  <td className="border border-gray-200 px-3 py-2">
-                    {item.isPurchased ? (
-                      <button
-                        type="button"
-                        disabled
-                        className="px-3 py-1 rounded bg-gray-400 text-white cursor-not-allowed opacity-70"
-                      >
-                        Purchased
-                      </button>
-                    ) : (
-                      <Link
-                        href={`${organizationBuyNumberPath()}?ts=${
-                          item.sid
-                        }&ci=${user?.ownedOrganization?.id}&np=${
-                          item.phoneNumber
-                        }`}
-                        passHref
-                      >
+                    <td className="border border-gray-200 px-3 py-2">
+                      {item.isPurchased ? (
                         <button
                           type="button"
-                          className="px-3 w-full py-1 rounded bg-blue-600 text-white hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          disabled
+                          className="px-3 py-1 rounded bg-gray-400 text-white cursor-not-allowed opacity-70"
                         >
-                          Buy
+                          Purchased
                         </button>
-                      </Link>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+                      ) : (
+                        <Link
+                          href={`${organizationBuyNumberPath()}?ts=${item.sid
+                            }&ci=${user?.ownedOrganization?.id}&np=${item.phoneNumber
+                            }`}
+                          passHref
+                        >
+                          <button
+                            type="button"
+                            className="px-3 w-full py-1 rounded bg-blue-600 text-white hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-400"
+                          >
+                            Buy
+                          </button>
+                        </Link>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
-      {totalItems > 0 && (
-        <Pagination
-          currentPage={page}
-          totalPages={totalPages}
-          hasNextPage={hasNextPage}
-          hasPrevPage={hasPrevPage}
-          limit={limit}
-          sortField={sortField}
-          sortDirection={sortDirection}
-          basePath={organizationExploreNumbersPath()}
-        />
-      )}
-    </div>
+        {totalItems > 0 && (
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            hasNextPage={hasNextPage}
+            hasPrevPage={hasPrevPage}
+            limit={limit}
+            sortField={sortField}
+            sortDirection={sortDirection}
+            basePath={organizationExploreNumbersPath()}
+          />
+        )}
+      </div>
+
+      <div className="flex flex-col lg:flex-row lg:items-center lg:gap-6 bg-white rounded shadow-sm p-4 mt-14 mb-6">
+        <div className="flex-1 space-y-6">
+          <Heading as="h4" size="h4">
+            Request for special phone number
+          </Heading>
+          <Heading as="h6" size="h6" className="text-red-500">
+            We will available your request number within 24 hours
+          </Heading>
+        </div>
+        <div className="flex-1">
+          <RequestNumberForm />
+        </div>
+
+      </div>
+    </>
   );
 }

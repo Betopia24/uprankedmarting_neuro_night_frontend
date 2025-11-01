@@ -19,6 +19,7 @@ import {
   Phone,
   CreditCard,
   Blocks,
+  Hash,
 } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
 import { useEffect, useState } from "react";
@@ -52,6 +53,7 @@ const icons = {
   phone: Phone,
   creditCard: CreditCard,
   blocks: Blocks,
+  Hash: Hash,
 };
 
 export default function SidebarContent({
