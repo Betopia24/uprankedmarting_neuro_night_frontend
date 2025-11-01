@@ -103,7 +103,7 @@ export default function OrganizationNumbersPage() {
         if (!res.ok) throw new Error("Failed to fetch active numbers");
 
         const json = await res.json();
-        console.log({ data: json?.data.data });
+
         setRawTableData(Array.isArray(json?.data.data) ? json.data.data : []);
       } catch (e) {
         console.error("Error fetching numbers:", e);
@@ -188,7 +188,7 @@ export default function OrganizationNumbersPage() {
               <tr className="bg-gray-100">
                 {tableHeader.map((field) => {
                   const requestedNumber =
-                    field === "isPinned" ? "Requested Number" : field;
+                    field === "isPinned" ? "Your Requested Number" : field;
                   return (
                     <TableHeaderItem
                       key={field}

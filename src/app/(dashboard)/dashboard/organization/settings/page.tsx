@@ -9,7 +9,7 @@ export default async function SettingsPage() {
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/subscriptions/my-subscription`,
+      `${process.env.NEXT_PUBLIC_API_URL}/subscriptions/my`,
       {
         method: "GET",
         headers: {

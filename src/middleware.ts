@@ -8,38 +8,37 @@ import {
 } from "./constants";
 
 export async function middleware(req: NextRequest) {
-  return NextResponse.next();
-  const refreshToken = req.cookies.get("refreshToken")?.value;
-  if (!refreshToken)
-    return NextResponse.redirect(new URL(loginPath(), req.url));
+  // const refreshToken = req.cookies.get("refreshToken")?.value;
+  // if (!refreshToken)
+  //   return NextResponse.redirect(new URL(loginPath(), req.url));
 
-  // Call backend to get user role (could use /auth/me)/auth/me
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}`, {
-    headers: { Cookie: `refreshToken=${refreshToken}` },
-  });
+  // // Call backend to get user role (could use /auth/me)/auth/me
+  // const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}`, {
+  //   headers: { Cookie: `refreshToken=${refreshToken}` },
+  // });
 
-  if (!res.ok) return NextResponse.redirect(new URL(loginPath(), req.url));
+  // if (!res.ok) return NextResponse.redirect(new URL(loginPath(), req.url));
 
-  const { role } = await res.json();
+  // const { role } = await res.json();
 
-  // Protect routes based on role
-  if (
-    req.nextUrl.pathname.startsWith("/dashboard/admin") &&
-    role !== SUPER_ADMIN_ROLE
-  )
-    return NextResponse.redirect(new URL("/unauthorized", req.url));
+  // // Protect routes based on role
+  // if (
+  //   req.nextUrl.pathname.startsWith("/dashboard/admin") &&
+  //   role !== SUPER_ADMIN_ROLE
+  // )
+  //   return NextResponse.redirect(new URL("/unauthorized", req.url));
 
-  if (
-    req.nextUrl.pathname.startsWith("/dashboard/agent") &&
-    role !== AGENT_ROLE
-  )
-    return NextResponse.redirect(new URL("/unauthorized", req.url));
+  // if (
+  //   req.nextUrl.pathname.startsWith("/dashboard/agent") &&
+  //   role !== AGENT_ROLE
+  // )
+  //   return NextResponse.redirect(new URL("/unauthorized", req.url));
 
-  if (
-    req.nextUrl.pathname.startsWith("/dashboard/organization") &&
-    role !== ORGANIZATION_ADMIN_ROLE
-  )
-    return NextResponse.redirect(new URL("/unauthorized", req.url));
+  // if (
+  //   req.nextUrl.pathname.startsWith("/dashboard/organization") &&
+  //   role !== ORGANIZATION_ADMIN_ROLE
+  // )
+  //   return NextResponse.redirect(new URL("/unauthorized", req.url));
 
   return NextResponse.next();
 }

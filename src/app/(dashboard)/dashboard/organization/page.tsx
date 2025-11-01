@@ -67,8 +67,7 @@ export default function OrganizationDashboardPage() {
       setErrorStats(null);
 
       try {
-        const timestamp = Date.now();
-        const API_URL = `${env.NEXT_PUBLIC_API_URL}/dashboard/stats?month=${DEFAULT_MONTH}&year=${DEFAULT_YEAR}&_t=${timestamp}`;
+        const API_URL = `${env.NEXT_PUBLIC_API_URL}/dashboard/stats/?month=${DEFAULT_MONTH}&year=${DEFAULT_YEAR}`;
 
         const res = await fetch(API_URL, {
           cache: "no-store",
@@ -77,6 +76,7 @@ export default function OrganizationDashboardPage() {
 
         if (!res.ok) throw new Error(`API responded with status ${res.status}`);
         const json = await res.json();
+        console.log(json, res);
         if (!json.success)
           throw new Error(json.message || "Failed to fetch stats");
 
@@ -106,13 +106,14 @@ export default function OrganizationDashboardPage() {
       setErrorChart(null);
 
       try {
-        const timestamp = Date.now();
-        const API_URL = `${env.NEXT_PUBLIC_API_URL}/dashboard/stats?month=${DEFAULT_MONTH}&year=${year}&_t=${timestamp}`;
+        const API_URL = `${env.NEXT_PUBLIC_API_URL}/dashboard/stats?month=${DEFAULT_MONTH}&year=${year}`;
 
         const res = await fetch(API_URL, {
           cache: "no-store",
           headers: { Authorization: token },
         });
+
+        console.log(res);
 
         if (!res.ok) throw new Error(`API responded with status ${res.status}`);
         const json = await res.json();
@@ -144,7 +145,6 @@ export default function OrganizationDashboardPage() {
 
       {!loadingStats && statsData && (
         <>
-          {/* CallGraph stays static */}
           <Suspense
             fallback={
               <p className="text-center text-gray-500">Loading call graph...</p>

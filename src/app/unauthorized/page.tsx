@@ -1,16 +1,21 @@
+"use client";
 import Link from "next/link";
 import { ShieldX } from "lucide-react";
 import { loginPath } from "@/paths";
 import { Button } from "@/components/ui/button";
 import type { Metadata } from "next";
+import { useAuth } from "@/components/AuthProvider";
 
-export const metadata: Metadata = {
-  title: "Unauthorized • 401",
-  description: "You don't have permission to view this page.",
-  robots: { index: false },
-};
+// export const metadata: Metadata = {
+//   title: "Unauthorized • 401",
+//   description: "You don't have permission to view this page.",
+//   robots: { index: false },
+// };
 
 export default function Unauthorized() {
+  const auth = useAuth();
+  console.log(auth);
+
   return (
     <main className="min-h-[100dvh] bg-gradient-to-b from-blue-50 to-white dark:from-blue-950/20 dark:to-background flex items-center justify-center px-4">
       <section aria-labelledby="unauthorized-title" className="w-full max-w-md">

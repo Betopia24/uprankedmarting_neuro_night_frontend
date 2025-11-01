@@ -9,36 +9,50 @@ import CardAnimation from "./CardAnimation";
 import Link from "next/link";
 import { loginPath } from "@/paths";
 
-// ✅ Plan type (mirrors your API response but simplified for the UI)
+// Updated Plan interface matching PricingPage fetch
 export interface Plan {
   id: string;
   planName: string;
   amount: number;
   currency: string;
   interval: "month" | "year";
+  intervalCount: number;
+  freeTrialDays: number | null;
+  productId: string;
+  priceId: string;
+  active: boolean;
   description: string;
-  features: string[];
+  features: {
+    aiSupport: boolean;
+    analytics: boolean;
+    customVoice: boolean;
+    prioritySupport: boolean;
+    realAgentSupport: boolean;
+  };
   planLevel: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-// ✅ Props type
 type PricingProps = {
-  monthlyPlans: Plan[];
-  yearlyPlans: Plan[];
+  plans: Plan[];
 };
 
-export default function Pricing({ monthlyPlans, yearlyPlans }: PricingProps) {
-  const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">(
-    "monthly"
-  );
-
-  const plans = billingPeriod === "monthly" ? monthlyPlans : yearlyPlans;
+export function Pricing({ plans }: PricingProps) {
+  console.log(plans);
 
   if (!plans.length) {
-    return <div className="text-center py-6">No plans found</div>;
+    return <div className="text-center py-6 text-gray-500">No plans found</div>;
   }
 
-  console.log(plans);
+  // Human-readable features mapping
+  const featureLabels: Record<keyof Plan["features"], string> = {
+    aiSupport: "AI Support",
+    realAgentSupport: "Real Agent Support",
+    prioritySupport: "Priority Support",
+    customVoice: "Custom Voice",
+    analytics: "Analytics Dashboard",
+  };
 
   return (
     <Section className="bg-success-500">
@@ -52,44 +66,16 @@ export default function Pricing({ monthlyPlans, yearlyPlans }: PricingProps) {
               </Section.Heading>
             </div>
             <div className="max-w-5xl mx-auto">
-              <p className="text-lg">
+              <p className="text-lg text-gray-600">
                 Get smart support without the high costs. Designed to adapt as
                 your business expands, our solution offers flexibility,
                 efficiency, and value — no matter your size.
               </p>
             </div>
-
-            {/* Billing Toggle */}
-            <div className="flex justify-center mb-6">
-              <div className="flex items-center gap-4">
-                <div className="flex bg-white rounded-lg p-1 shadow-sm border border-gray-200">
-                  <button
-                    onClick={() => setBillingPeriod("monthly")}
-                    className={`px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 cursor-pointer ${
-                      billingPeriod === "monthly"
-                        ? "bg-teal-500 text-white shadow-sm"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                    }`}
-                  >
-                    Monthly
-                  </button>
-                  <button
-                    onClick={() => setBillingPeriod("yearly")}
-                    className={`px-6 py-2 rounded-md text-sm font-medium transition-all duration-200 cursor-pointer ${
-                      billingPeriod === "yearly"
-                        ? "bg-teal-500 text-white shadow-sm"
-                        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                    }`}
-                  >
-                    Yearly
-                  </button>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Pricing Cards */}
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-6 mt-10">
             {plans.map((plan, idx) => (
               <CardAnimation
                 key={plan.id}
@@ -98,7 +84,7 @@ export default function Pricing({ monthlyPlans, yearlyPlans }: PricingProps) {
                 }
                 className="relative bg-white border border-gray-200 shadow-lg rounded-lg overflow-hidden flex flex-col justify-between"
               >
-                {/* Card Header */}
+                {/* Header */}
                 <div className="p-6 pb-4 min-h-36">
                   <h3 className="text-xl font-bold text-[#0B0B0B]">
                     {plan.planName}
@@ -108,9 +94,9 @@ export default function Pricing({ monthlyPlans, yearlyPlans }: PricingProps) {
                   </p>
                 </div>
 
-                {/* Card Content */}
-                <div className="px-6 pb-6 space-y-6 flex flex-col justify-stretch flex-1">
-                  <div className="border-t border-b border-gray-300 pt-8 pb-2">
+                {/* Price */}
+                <div className="px-6 pb-6 flex-1">
+                  <div className="border-t border-b border-gray-300 pt-8 pb-4 mb-6">
                     <div className="flex items-baseline gap-1">
                       <span className="text-4xl font-bold text-gray-900 uppercase">
                         ${plan.amount}
@@ -124,25 +110,28 @@ export default function Pricing({ monthlyPlans, yearlyPlans }: PricingProps) {
                     )}
                   </div>
 
-                  <div className="space-y-3">
-                    {plan.features.map((feature, featureIndex) => (
-                      <div
-                        key={featureIndex}
-                        className="flex items-start gap-3"
-                      >
-                        <div className="w-4 h-4 mt-0.5 flex-shrink-0">
-                          <LucideCheck size={16} />
-                        </div>
-                        <span className="text-sm">{feature}</span>
-                      </div>
-                    ))}
-                  </div>
+                  {/* Features */}
+                  <ul className="space-y-3">
+                    {Object.entries(plan.features)
+                      .filter(([_, enabled]) => enabled)
+                      .map(([key]) => (
+                        <li key={key} className="flex items-start gap-3">
+                          <LucideCheck
+                            size={16}
+                            className="text-teal-500 mt-0.5 flex-shrink-0"
+                          />
+                          <span className="text-sm text-gray-700">
+                            {featureLabels[key as keyof Plan["features"]]}
+                          </span>
+                        </li>
+                      ))}
+                  </ul>
                 </div>
 
                 {/* CTA */}
-                <div className="px-6 py-8 relative">
+                <div className="px-6 py-8">
                   <Button asChild size="sm" className="w-full">
-                    <Link href={loginPath()}>Choose {plan.planName}</Link>
+                    <Link href={loginPath()}>Purchase</Link>
                   </Button>
                 </div>
               </CardAnimation>

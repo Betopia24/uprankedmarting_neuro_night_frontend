@@ -5,19 +5,44 @@ import { env } from "@/env";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
+type PlanFeature = {
+  aiSupport: boolean;
+  analytics: boolean;
+  customVoice: boolean;
+  prioritySupport: boolean;
+  realAgentSupport: boolean;
+};
+
+type RawPlan = {
+  id: string;
+  name: string;
+  price: number;
+  currency: string;
+  interval: "MONTH" | "YEAR";
+  trialDays?: number | null;
+  stripeProductId: string;
+  stripePriceId: string;
+  isActive: boolean;
+  description: string;
+  features: PlanFeature;
+  planLevel: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export interface Plan {
   id: string;
-  planName: string;
+  name: string;
   amount: number;
   currency: string;
-  interval: string;
+  interval: "month" | "year";
   intervalCount: number;
-  freeTrialDays: string | number;
+  freeTrialDays: number | null;
   productId: string;
   priceId: string;
   active: boolean;
   description: string;
-  features: string[];
+  features: PlanFeature;
   planLevel: string;
   createdAt: string;
   updatedAt: string;
@@ -33,23 +58,23 @@ export default async function Pricing({
 }) {
   const query = await searchParams;
   query.plan = query.plan || MONTHLY;
-  const planInterval = query.plan;
 
   const response = await fetch(`${env.API_BASE_URL}/plans`, {
     cache: "no-store",
   });
 
   if (!response.ok) {
+    console.log(response);
     throw new Error("Failed to fetch plans");
   }
 
   const { data: plans }: { data: Plan[] } = await response.json();
 
+  console.log(plans);
+
   if (!plans.length) {
     return <div className="text-center py-6">No plans found</div>;
   }
-
-  const filteredPlans = plans.filter((plan) => plan.interval === planInterval);
 
   return (
     <Container>
@@ -66,21 +91,18 @@ export default async function Pricing({
             value — no matter your size.
           </p>
         </div> */}
-        <ChoosePlan query={query} />
       </div>
 
       {/* Pricing Cards */}
       <div className="grid md:grid-cols-3 gap-6 mt-10">
-        {filteredPlans.map((plan) => (
+        {plans.map((plan: Plan) => (
           <div
             key={plan.id}
             className="relative bg-white/80 backdrop-blur-sm border border-gray-200 shadow-lg rounded-lg overflow-hidden flex flex-col justify-between"
           >
             {/* Card Header */}
             <div className="p-6 pb-4 min-h-36">
-              <h3 className="text-xl font-bold text-[#0B0B0B]">
-                {plan.planName}
-              </h3>
+              <h3 className="text-xl font-bold text-[#0B0B0B]">{plan.name}</h3>
               <p className="text-sm text-[#4D4D4D] mt-4">{plan.description}</p>
             </div>
 

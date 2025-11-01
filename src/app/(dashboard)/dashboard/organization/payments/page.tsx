@@ -48,12 +48,13 @@ interface Subscription {
 async function getSubscription(): Promise<SubscriptionResponse | null> {
   const accessToken = await getAccessToken();
 
-  const url = new URL(`${env.API_BASE_URL}/subscriptions/my-subscription`);
+  const url = new URL(`${env.API_BASE_URL}/subscriptions/my`);
   const res = await fetch(url.toString(), {
     headers: { Authorization: accessToken as string },
   });
 
   if (!res.ok) return null;
+  console.log(res);
   return res.json();
 }
 
