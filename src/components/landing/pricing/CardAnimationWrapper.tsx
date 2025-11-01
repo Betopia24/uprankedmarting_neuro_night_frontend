@@ -17,7 +17,7 @@ export default function CardAnimationWrapper({
   const mappedProgress = useTransform(scrollYProgress, [0, 0.75], [0, 1]);
   return (
     <AnimationContext.Provider value={{ progress: mappedProgress }}>
-      <motion.div ref={containerRef} className="lg:h-[250vh] flex items-start">
+      <motion.div ref={containerRef} className="lg:h-[300vh] flex items-start">
         <div className="sticky top-4">{children}</div>
       </motion.div>
     </AnimationContext.Provider>
