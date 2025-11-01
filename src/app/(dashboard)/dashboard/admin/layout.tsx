@@ -15,6 +15,7 @@ export default function AdminDashboardLayout({
   children,
 }: React.PropsWithChildren) {
   const { user } = useAuth();
+  console.log("admin layout", { user });
   if (user?.role !== "super_admin") return redirect(unauthorizedPath());
   return (
     <>
