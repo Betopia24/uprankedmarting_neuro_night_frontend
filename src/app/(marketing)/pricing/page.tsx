@@ -89,7 +89,7 @@ export default async function PricingPage() {
   return (
     <>
       <Pricing plans={plans} />
-      <ContactForm />
+      {/* <ContactForm /> */}
     </>
   );
 }
