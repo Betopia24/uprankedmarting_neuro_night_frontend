@@ -5,48 +5,39 @@ import { env } from "@/env";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-type PlanFeature = {
-  aiSupport: boolean;
-  analytics: boolean;
-  customVoice: boolean;
-  prioritySupport: boolean;
-  realAgentSupport: boolean;
+// New API Response Types
+type ExtraAgentPricing = {
+  agents: number;
+  price: number;
 };
 
-type RawPlan = {
+type Plan = {
   id: string;
   name: string;
   price: number;
   currency: string;
   interval: "MONTH" | "YEAR";
-  trialDays?: number | null;
-  stripeProductId: string;
+  trialDays: number;
   stripePriceId: string;
+  stripeProductId: string;
   isActive: boolean;
   description: string;
-  features: PlanFeature;
-  planLevel: string;
+  features: string[];
+  planLevel: "only_ai" | "only_real_agent" | "ai_then_real_agent";
+  defaultAgents: number;
+  extraAgentPricing: ExtraAgentPricing[];
+  totalMinuteLimit: number;
+  isDeleted: boolean;
+  deletedAt: string | null;
   createdAt: string;
   updatedAt: string;
 };
 
-export interface Plan {
-  id: string;
-  name: string;
-  amount: number;
-  currency: string;
-  interval: "month" | "year";
-  intervalCount: number;
-  freeTrialDays: number | null;
-  productId: string;
-  priceId: string;
-  active: boolean;
-  description: string;
-  features: PlanFeature;
-  planLevel: string;
-  createdAt: string;
-  updatedAt: string;
-}
+type ApiResponse = {
+  success: boolean;
+  message: string;
+  data: Plan[];
+};
 
 const MONTHLY = "month";
 const YEARLY = "year";
@@ -68,11 +59,12 @@ export default async function Pricing({
     throw new Error("Failed to fetch plans");
   }
 
-  const { data: plans }: { data: Plan[] } = await response.json();
+  const apiResponse: ApiResponse = await response.json();
+  const plans = apiResponse.data;
 
   console.log(plans);
 
-  if (!plans.length) {
+  if (!plans || !plans.length) {
     return <div className="text-center py-6">No plans found</div>;
   }
 
@@ -84,18 +76,11 @@ export default async function Pricing({
             A Cost-Effective Solution That Grows with Your Business
           </Section.Heading>
         </div>
-        {/* <div className="max-w-5xl mx-auto">
-          <p className="text-lg">
-            Get smart support without the high costs. Designed to adapt as your
-            business expands, our solution offers flexibility, efficiency, and
-            value — no matter your size.
-          </p>
-        </div> */}
       </div>
 
       {/* Pricing Cards */}
       <div className="grid md:grid-cols-3 gap-6 mt-10">
-        {plans.map((plan: Plan) => (
+        {plans.map((plan) => (
           <div
             key={plan.id}
             className="relative bg-white/80 backdrop-blur-sm border border-gray-200 shadow-lg rounded-lg overflow-hidden flex flex-col justify-between"
@@ -111,10 +96,10 @@ export default async function Pricing({
               <div className="border-t border-b border-gray-300 pt-8 pb-2">
                 <div className="flex items-baseline gap-1">
                   <span className="text-4xl font-bold text-gray-900 uppercase">
-                    ${plan.amount}
+                    ${plan.price}
                   </span>
                   <span className="text-gray-600">
-                    /{plan.intervalCount} {plan.interval}
+                    /{plan.interval.toLowerCase()}
                   </span>
                 </div>
                 {plan.planLevel !== "only_ai" && (
@@ -123,7 +108,7 @@ export default async function Pricing({
               </div>
 
               <div className="space-y-3">
-                {plan?.features.map((feature, idx) => (
+                {plan.features.map((feature, idx) => (
                   <div key={idx} className="flex items-start gap-3">
                     <div className="w-4 h-4 mt-0.5 flex-shrink-0">
                       <LucideCheck size={16} />
@@ -132,6 +117,23 @@ export default async function Pricing({
                   </div>
                 ))}
               </div>
+
+              {/* Extra Agent Pricing (Optional Display) */}
+              {plan.extraAgentPricing.length > 0 && (
+                <div className="pt-4 border-t border-gray-200">
+                  <p className="text-lg font-semibold text-gray-700 mb-2">
+                    Extra Agents:
+                  </p>
+                  <div className="space-y-1">
+                    {plan.extraAgentPricing.map((extra, idx) => (
+                      <p key={idx} className="text-sm text-gray-600">
+                        +{extra.agents} agent{extra.agents > 1 ? "s" : ""}: $
+                        {extra.price}/month
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <SubscriptionButton

@@ -9,7 +9,12 @@ import CardAnimation from "./CardAnimation";
 import Link from "next/link";
 import { loginPath } from "@/paths";
 
-// Updated Plan interface matching PricingPage fetch
+// Updated Plan interface matching the new API structure
+type ExtraAgentPricing = {
+  agents: number;
+  price: number;
+};
+
 export interface Plan {
   id: string;
   planName: string;
@@ -22,14 +27,11 @@ export interface Plan {
   priceId: string;
   active: boolean;
   description: string;
-  features: {
-    aiSupport: boolean;
-    analytics: boolean;
-    customVoice: boolean;
-    prioritySupport: boolean;
-    realAgentSupport: boolean;
-  };
+  features: string[];
   planLevel: string;
+  defaultAgents: number;
+  extraAgentPricing: ExtraAgentPricing[];
+  totalMinuteLimit: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -44,15 +46,6 @@ export function Pricing({ plans }: PricingProps) {
   if (!plans.length) {
     return <div className="text-center py-6 text-gray-500">No plans found</div>;
   }
-
-  // Human-readable features mapping
-  const featureLabels: Record<keyof Plan["features"], string> = {
-    aiSupport: "AI Support",
-    realAgentSupport: "Real Agent Support",
-    prioritySupport: "Priority Support",
-    customVoice: "Custom Voice",
-    analytics: "Analytics Dashboard",
-  };
 
   return (
     <Section className="bg-success-500">
@@ -112,20 +105,34 @@ export function Pricing({ plans }: PricingProps) {
 
                   {/* Features */}
                   <ul className="space-y-3">
-                    {Object.entries(plan.features)
-                      .filter(([_, enabled]) => enabled)
-                      .map(([key]) => (
-                        <li key={key} className="flex items-start gap-3">
-                          <LucideCheck
-                            size={16}
-                            className="text-teal-500 mt-0.5 flex-shrink-0"
-                          />
-                          <span className="text-sm text-gray-700">
-                            {featureLabels[key as keyof Plan["features"]]}
-                          </span>
-                        </li>
-                      ))}
+                    {plan.features.map((feature, featureIdx) => (
+                      <li key={featureIdx} className="flex items-start gap-3">
+                        <LucideCheck
+                          size={16}
+                          className="text-teal-500 mt-0.5 flex-shrink-0"
+                        />
+                        <span className="text-sm text-gray-700">{feature}</span>
+                      </li>
+                    ))}
                   </ul>
+
+                  {/* Extra Agent Pricing (Optional) */}
+                  {plan.extraAgentPricing.length > 0 && (
+                    <div className="mt-6 pt-4 border-t border-gray-200">
+                      <p className="font-semibold text-gray-700 mb-2">
+                        Extra Agents:
+                      </p>
+                      <ul className="space-y-1">
+                        {plan.extraAgentPricing.map((extra, extraIdx) => (
+                          <li key={extraIdx} className="text-sm text-gray-600">
+                            +{extra.agents} agent{extra.agents > 1 ? "s" : ""}:{" "}
+                            ${extra.price}/
+                            {plan.interval === "month" ? "mo" : "yr"}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
 
                 {/* CTA */}

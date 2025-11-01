@@ -2,12 +2,10 @@ import ContactForm from "@/components/Contact";
 import { Pricing } from "@/components/landing/pricing/Pricing";
 import { env } from "@/env";
 
-type PlanFeature = {
-  aiSupport: boolean;
-  analytics: boolean;
-  customVoice: boolean;
-  prioritySupport: boolean;
-  realAgentSupport: boolean;
+// New API Response Types
+type ExtraAgentPricing = {
+  agents: number;
+  price: number;
 };
 
 type RawPlan = {
@@ -16,17 +14,29 @@ type RawPlan = {
   price: number;
   currency: string;
   interval: "MONTH" | "YEAR";
-  trialDays?: number | null;
-  stripeProductId: string;
+  trialDays: number;
   stripePriceId: string;
+  stripeProductId: string;
   isActive: boolean;
   description: string;
-  features: PlanFeature;
-  planLevel: string;
+  features: string[];
+  planLevel: "only_ai" | "only_real_agent" | "ai_then_real_agent";
+  defaultAgents: number;
+  extraAgentPricing: ExtraAgentPricing[];
+  totalMinuteLimit: number;
+  isDeleted: boolean;
+  deletedAt: string | null;
   createdAt: string;
   updatedAt: string;
 };
 
+type ApiResponse = {
+  success: boolean;
+  message: string;
+  data: RawPlan[];
+};
+
+// Transformed Plan interface for the Pricing component
 export interface Plan {
   id: string;
   planName: string;
@@ -39,8 +49,11 @@ export interface Plan {
   priceId: string;
   active: boolean;
   description: string;
-  features: PlanFeature;
+  features: string[];
   planLevel: string;
+  defaultAgents: number;
+  extraAgentPricing: ExtraAgentPricing[];
+  totalMinuteLimit: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -55,7 +68,7 @@ export default async function PricingPage() {
 
     if (!res.ok) throw new Error(`Failed to fetch plans: ${res.statusText}`);
 
-    const json: { success: boolean; data: RawPlan[] } = await res.json();
+    const json: ApiResponse = await res.json();
 
     if (json.success && Array.isArray(json.data)) {
       plans = json.data.map<Plan>((p) => ({
@@ -70,14 +83,11 @@ export default async function PricingPage() {
         priceId: p.stripePriceId,
         active: p.isActive,
         description: p.description,
-        features: {
-          aiSupport: p.features.aiSupport,
-          analytics: p.features.analytics,
-          customVoice: p.features.customVoice,
-          prioritySupport: p.features.prioritySupport,
-          realAgentSupport: p.features.realAgentSupport,
-        },
+        features: p.features,
         planLevel: p.planLevel,
+        defaultAgents: p.defaultAgents,
+        extraAgentPricing: p.extraAgentPricing,
+        totalMinuteLimit: p.totalMinuteLimit,
         createdAt: p.createdAt,
         updatedAt: p.updatedAt,
       }));
