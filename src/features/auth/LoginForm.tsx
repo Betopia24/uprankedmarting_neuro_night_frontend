@@ -7,7 +7,6 @@ import { useForm } from "react-hook-form";
 import { AuthCard } from "./AuthForm";
 import PasswordField from "./PasswordField";
 import { loginSchema, LoginFormSchema } from "./utils/validation";
-import CheckboxField from "./CheckboxField";
 import { forgotPasswordPath, signupPath } from "@/paths";
 import AuthButton from "./AuthButton";
 import Link from "next/link";
@@ -51,7 +50,7 @@ export default function LoginForm({ callbackUrl }: { callbackUrl: string }) {
         body: JSON.stringify(formData),
       });
 
-      const result: AuthResponse = await response.json().catch(() => null);
+      const result: AuthResponse = await response.json();
 
       // ❌ Handle errors
       if (!response.ok || !result?.success) {
