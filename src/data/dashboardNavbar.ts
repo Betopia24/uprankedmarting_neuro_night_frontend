@@ -22,7 +22,16 @@ export const dashboardNavigation = {
       icon: "users",
       href: paths.adminOrganizationManagementPath(),
     },
-    { name: "Approval", icon: "userCog", href: paths.adminApprovalPath() },
+    { 
+      name: "Approval", 
+      icon: "userCog", 
+      href: paths.adminApprovalPath() 
+    },
+    {
+      name: "Numbers",
+      icon: "Hash",
+      href: paths.adminNumbersPath(),
+    }
   ],
   organization: [
     {

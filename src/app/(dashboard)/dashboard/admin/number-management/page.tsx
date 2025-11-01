@@ -65,6 +65,7 @@ export default async function NumberManagementPage({
   console.log(numbersFetchResponse);
 
   await numbersFetchResponse.json();
+
   if (!numbersFetchResponse.ok) throw new Error("Failed to fetch numbers");
 
   const response = await fetch(`${env.API_BASE_URL}/active-numbers`, {
@@ -173,9 +174,8 @@ export default async function NumberManagementPage({
                           {Object.entries(caps).map(([capKey, enabled]) => (
                             <span
                               key={capKey}
-                              className={`px-1 rounded text-white text-xs ${
-                                enabled ? "bg-green-500" : "bg-gray-400"
-                              }`}
+                              className={`px-1 rounded text-white text-xs ${enabled ? "bg-green-500" : "bg-gray-400"
+                                }`}
                               title={capKey}
                             >
                               {capKey.toUpperCase()}
@@ -192,9 +192,8 @@ export default async function NumberManagementPage({
                           className="border border-gray-200 px-3 py-2"
                         >
                           <span
-                            className={`px-2 py-1 rounded text-xs font-semibold text-white ${
-                              value ? "bg-green-500" : "bg-gray-400"
-                            }`}
+                            className={`px-2 py-1 rounded text-xs font-semibold text-white ${value ? "bg-green-500" : "bg-gray-400"
+                              }`}
                           >
                             {value ? "Purchased" : "Available"}
                           </span>
@@ -234,11 +233,10 @@ export default async function NumberManagementPage({
             <Link
               key={p}
               href={`${config.basePath}?query=${searchQuery}&sort=${sortField}:${sortDirection}&page=${p}&limit=${limit}`}
-              className={`px-3 py-1 rounded border ${
-                p === page
-                  ? "bg-blue-600 text-white border-blue-600"
-                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
-              }`}
+              className={`px-3 py-1 rounded border ${p === page
+                ? "bg-blue-600 text-white border-blue-600"
+                : "bg-white text-gray-700 border-gray-300 hover:bg-gray-100"
+                }`}
             >
               {p}
             </Link>
