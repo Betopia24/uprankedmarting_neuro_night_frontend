@@ -45,26 +45,26 @@ export const dashboardNavigation = {
       icon: "userCog",
       href: paths.organizationAgentManagementPath(),
     },
-    {
-      name: "AI Management",
-      icon: "userCog",
-      href: paths.organizationAIManagementPath(),
-    },
-    {
-      name: "Document Upload",
-      icon: "fileUp",
-      href: paths.organizationDocumentsPath(),
-    },
-    {
-      name: "Voice Upload",
-      icon: "mic",
-      href: paths.organizationVoiceUpload(),
-    },
-    {
-      name: "Lead Questions",
-      icon: "workflow",
-      href: paths.organizationLeadQuestionsPath(),
-    },
+    // {
+    //   name: "AI Management",
+    //   icon: "userCog",
+    //   href: paths.organizationAIManagementPath(),
+    // },
+    // {
+    //   name: "Document Upload",
+    //   icon: "fileUp",
+    //   href: paths.organizationDocumentsPath(),
+    // },
+    // {
+    //   name: "Voice Upload",
+    //   icon: "mic",
+    //   href: paths.organizationVoiceUpload(),
+    // },
+    // {
+    //   name: "Lead Questions",
+    //   icon: "workflow",
+    //   href: paths.organizationLeadQuestionsPath(),
+    // },
     {
       name: "Tools",
       icon: "settings",
