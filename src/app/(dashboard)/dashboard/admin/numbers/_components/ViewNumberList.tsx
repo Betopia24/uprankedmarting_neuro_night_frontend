@@ -106,7 +106,7 @@ const ViewNumberListPage = () => {
                       {num.friendlyName}
                     </td>
                     <td className="border border-gray-200 px-3 py-2">
-                      <div className="flex gap-1 flex-wrap">
+                      <div className="flex gap-1 md:justify-between md:items-center lg:justify-between lg:items-center sm:flex-wrap">
                         {Object.entries(num.capabilities)
                           .filter(([, val]) => val)
                           .map(([cap]) => (

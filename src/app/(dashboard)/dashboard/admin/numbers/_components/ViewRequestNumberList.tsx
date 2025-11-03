@@ -296,7 +296,7 @@ const ViewRequestNumberListPage = () => {
           headers: { Authorization: token },
         });
         const data2 = await res2.json();
-
+        console.log("Data to rent mobile: ", data2)
         if (data1.success) {
           setRequests(data1.data || []);
           // ✅ Detect pinned numbers from backend response
@@ -382,8 +382,7 @@ const ViewRequestNumberListPage = () => {
   );
 
   return (
-    <div className="bg-gray-50 min-h-screen p-6">
-      <h1 className="text-2xl font-semibold mb-6">Number Management</h1>
+    <div className="bg-gray-50 min-h-screen">
 
       <div className="bg-white p-4 rounded-md shadow">
         {/* Search */}
