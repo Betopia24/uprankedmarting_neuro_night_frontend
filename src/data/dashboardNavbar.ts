@@ -7,11 +7,11 @@ export const dashboardNavigation = {
       icon: "layoutDashboard",
       href: paths.adminDashboardPath(),
     },
-    {
-      name: "Number Management",
-      icon: "phone",
-      href: paths.adminNumberManagementPath(),
-    },
+    // {
+    //   name: "Number Management",
+    //   icon: "phone",
+    //   href: paths.adminNumberManagementPath(),
+    // },
     {
       name: "Agent Management",
       icon: "userCog",
@@ -22,16 +22,16 @@ export const dashboardNavigation = {
       icon: "users",
       href: paths.adminOrganizationManagementPath(),
     },
-    { 
-      name: "Approval", 
-      icon: "userCog", 
-      href: paths.adminApprovalPath() 
+    {
+      name: "Approval",
+      icon: "userCog",
+      href: paths.adminApprovalPath(),
     },
     {
       name: "Numbers",
       icon: "Hash",
       href: paths.adminNumbersPath(),
-    }
+    },
   ],
   organization: [
     {
