@@ -6,6 +6,7 @@ import { adminOrganizationManagementPath } from "@/paths";
 import { parseFilters } from "@/components/table/utils/filters";
 import { env } from "@/env";
 import { getServerAuth } from "@/lib/auth";
+import Link from "next/link";
 
 export interface TableSearchParams {
   page?: number;
@@ -265,7 +266,7 @@ export default async function OrganizationAdminPage(props: {
                           className="px-4 py-3 border border-gray-200 whitespace-nowrap"
                           title={agentsArray.join("\n")}
                         >
-                          {agentsArray.length}
+                          <Link href={"#"}> {agentsArray.length}</Link>
                         </td>
                       );
                     }
@@ -274,7 +275,10 @@ export default async function OrganizationAdminPage(props: {
                         key={col.key}
                         className="px-4 py-3 border border-gray-200 whitespace-nowrap"
                       >
-                        {item[col.key]}
+                        <Link href={`${basePath}/${item.id}`}>
+                          {" "}
+                          {item[col.key]}
+                        </Link>
                       </td>
                     );
                   })}
