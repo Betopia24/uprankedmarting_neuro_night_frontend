@@ -4,6 +4,17 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, Star } from "lucide-react";
 import { env } from "@/env";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components";
+import { useAuth } from "@/components/AuthProvider";
+import { toast } from "sonner";
 
 interface AgentCardData {
   id: string;
@@ -39,6 +50,7 @@ export default function AgentCards({
     null
   );
   const [isLoading, setIsLoading] = useState(false);
+  const { token } = useAuth();
 
   const handlePageChange = (page: number) => {
     router.push(`${basePath}?page=${page}`);
@@ -54,25 +66,40 @@ export default function AgentCards({
     setShowRemoveModal(true);
   };
 
+  const cancelAssign = () => {
+    setShowAssignModal(false);
+    setSelectedAgent(null);
+  };
+
+  const cancelRemove = () => {
+    setShowRemoveModal(false);
+    setSelectedAgent(null);
+  };
+
   const confirmAssign = async () => {
     if (!selectedAgent) return;
     setIsLoading(true);
 
     try {
-      // Replace with your actual API endpoint
-      const res = await fetch(
-        `${env.NEXT_PUBLIC_API_URL}/organizations/${orgId}/agents/assign}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ agentId: selectedAgent.id }),
-        }
-      );
+      const res = await fetch(`${env.NEXT_PUBLIC_API_URL}/agents/assign`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token as string,
+        },
+        body: JSON.stringify({
+          agentUserId: selectedAgent.id,
+          organizationId: orgId,
+        }),
+      });
+
+      const data = await res.json();
 
       if (res.ok) {
         router.refresh();
+        toast.success(data.message);
       } else {
-        console.error("Failed to assign agent");
+        toast.error(data.message);
       }
     } catch (err) {
       console.error("Error assigning agent:", err);
@@ -203,9 +230,9 @@ export default function AgentCards({
                       >
                         Assign
                       </button>
-                      <button className="flex-1 bg-gray-400 text-white py-2 px-4 rounded-md font-medium cursor-not-allowed opacity-60">
+                      {/* <button className="flex-1 bg-gray-400 text-white py-2 px-4 rounded-md font-medium cursor-not-allowed opacity-60">
                         Remove
-                      </button>
+                      </button> */}
                     </>
                   )}
                 </div>
@@ -255,68 +282,56 @@ export default function AgentCards({
       )}
 
       {/* Assign Modal */}
-      {showAssignModal && selectedAgent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Assign Agent
-            </h2>
-            <p className="text-gray-600 mb-6">
+      <Dialog open={showAssignModal} onOpenChange={setShowAssignModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Assign Agent</DialogTitle>
+            <DialogDescription>
               Are you sure you want to assign{" "}
-              <span className="font-semibold">{selectedAgent.name}</span> to
+              <span className="font-semibold">{selectedAgent?.name}</span> to
               this organization?
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowAssignModal(false)}
-                disabled={isLoading}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmAssign}
-                disabled={isLoading}
-                className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors disabled:opacity-50"
-              >
-                {isLoading ? "Assigning..." : "Confirm Assign"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={cancelAssign} disabled={isLoading}>
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmAssign}
+              disabled={isLoading}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              {isLoading ? "Assigning..." : "Confirm Assign"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Remove Modal */}
-      {showRemoveModal && selectedAgent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Remove Agent
-            </h2>
-            <p className="text-gray-600 mb-6">
+      <Dialog open={showRemoveModal} onOpenChange={setShowRemoveModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Remove Agent</DialogTitle>
+            <DialogDescription>
               Are you sure you want to remove{" "}
-              <span className="font-semibold">{selectedAgent.name}</span> from
+              <span className="font-semibold">{selectedAgent?.name}</span> from
               this organization?
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowRemoveModal(false)}
-                disabled={isLoading}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmRemove}
-                disabled={isLoading}
-                className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors disabled:opacity-50"
-              >
-                {isLoading ? "Removing..." : "Confirm Remove"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={cancelRemove} disabled={isLoading}>
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmRemove}
+              disabled={isLoading}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isLoading ? "Removing..." : "Confirm Remove"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

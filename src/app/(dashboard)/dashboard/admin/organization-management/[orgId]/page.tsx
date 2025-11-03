@@ -1,8 +1,10 @@
 import type { AgentsApiResponse } from "@/types/admin-agent-management";
 import { env } from "@/env";
 import { getAccessToken } from "@/lib/auth";
-import AgentCards from "./AgentCards";
+import AllAgentCards from "./_components/AllAgentCards";
 import SearchField from "@/components/table/components/SearchField";
+import AssignedAgentButton from "./_components/AssignedAgentButton";
+import AssignedAgentsCards from "./_components/AssignedAgentsCards";
 
 export interface AgentCardParams {
   page?: number;
@@ -12,6 +14,7 @@ export interface AgentCardParams {
   status?: string | string[];
   role?: string | string[];
   earning_range?: string;
+  assigned?: string;
   [key: string]: string | string[] | undefined | number;
 }
 
@@ -33,7 +36,7 @@ interface AgentCardData {
 }
 
 const DEFAULT_PAGE = 1;
-const DEFAULT_LIMIT = 2; // 6 cards per page
+const DEFAULT_LIMIT = 6;
 
 async function getAgents(
   queryParams: AgentCardParams
@@ -72,6 +75,8 @@ export default async function AllAgentInfo({
   const queryParams = await searchParams;
   const { orgId } = await params;
   const response = await getAgents(queryParams);
+
+  const assignedAgent = queryParams.assigned === "true";
 
   if (!response) {
     return (
@@ -115,19 +120,29 @@ export default async function AllAgentInfo({
             Manage and assign agents to this organization
           </p>
         </div>
-        <SearchField
-          basePath={basePath}
-          defaultQuery={queryParams.query || ""}
-        />
+
+        <div className="flex flex-wrap items-center gap-2">
+          <AssignedAgentButton />
+          <SearchField
+            basePath={basePath}
+            defaultQuery={queryParams.query || ""}
+          />
+        </div>
       </div>
 
-      <AgentCards
-        agents={agentCards}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        basePath={basePath}
-        orgId={orgId}
-      />
+      {assignedAgent ? (
+        <>
+          <AssignedAgentsCards orgId={orgId} />
+        </>
+      ) : (
+        <AllAgentCards
+          agents={agentCards}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          basePath={basePath}
+          orgId={orgId}
+        />
+      )}
     </div>
   );
 }
