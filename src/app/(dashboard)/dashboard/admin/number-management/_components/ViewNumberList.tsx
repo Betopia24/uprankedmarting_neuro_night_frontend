@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { env } from "@/env";
 import { useAuth } from "@/components/AuthProvider";
 import { Search } from "lucide-react";
+import { Loading } from "@/components";
 
 interface Capabilities {
   voice: boolean;
@@ -90,7 +91,7 @@ const ViewNumberListPage = () => {
               {loading ? (
                 <tr>
                   <td colSpan={7} className="text-center py-6 text-gray-500">
-                    Loading...
+                    <Loading />
                   </td>
                 </tr>
               ) : filteredNumbers.length > 0 ? (

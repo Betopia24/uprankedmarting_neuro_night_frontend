@@ -28,9 +28,9 @@ export const dashboardNavigation = {
     //   href: paths.adminApprovalPath(),
     // },
     {
-      name: "Numbers",
-      icon: "Hash",
-      href: paths.adminNumbersPath(),
+      name: "Numbers Management",
+      icon: "phone",
+      href: paths.adminNumberManagementPath(),
     },
   ],
   organization: [
