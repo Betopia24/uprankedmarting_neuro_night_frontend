@@ -37,7 +37,6 @@ const ViewNumberListPage = () => {
           headers: { Authorization: token || "" },
         });
         const json = await res.json();
-        console.log("Fetched Data view number list: ", json);
         if (json.success) {
           setNumbers(json.data || []);
         }
