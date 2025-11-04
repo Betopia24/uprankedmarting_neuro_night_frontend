@@ -24,6 +24,9 @@ export interface AgentInfo {
   totalCalls: number;
   successCalls: number;
   droppedCalls: number;
+  bio: string;
+  role: string;
+  organizationId: string;
 }
 
 export interface AgentUser {

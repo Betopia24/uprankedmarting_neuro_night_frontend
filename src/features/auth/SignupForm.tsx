@@ -71,8 +71,6 @@ export default function SignupForm({ callbackUrl }: { callbackUrl: string }) {
   });
 
   const onSubmit = async (formData: SignupFormSchema) => {
-    console.log("Form Data:", formData);
-    return;
     try {
       const response = await fetch("/api/auth/signup", {
         method: "POST",

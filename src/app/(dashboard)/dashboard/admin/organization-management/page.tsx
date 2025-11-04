@@ -6,6 +6,7 @@ import { adminOrganizationManagementPath } from "@/paths";
 import { parseFilters } from "@/components/table/utils/filters";
 import { env } from "@/env";
 import { getServerAuth } from "@/lib/auth";
+import Link from "next/link";
 
 export interface TableSearchParams {
   page?: number;
@@ -39,6 +40,7 @@ interface OwnedOrganization {
   websiteLink: string;
   subscriptions: Subscription[];
   agents: Agent[];
+  id: string;
 }
 
 interface OrganizationAdmin {
@@ -168,6 +170,7 @@ export default async function OrganizationAdminPage(props: {
   const { data: organizations, meta } = response.data;
 
   const tableData: TableRow[] = organizations.map((org) => {
+    console.log({ org });
     const subs = org.ownedOrganization.subscriptions ?? [];
     const packageTypes =
       subs.map((s) => `${s.planLevel} (${s.purchasedNumber})`).join(", ") ||
@@ -180,7 +183,7 @@ export default async function OrganizationAdminPage(props: {
         .join(", ") || "N/A";
 
     return {
-      id: org.id,
+      id: org.ownedOrganization.id,
       name: org.name,
       serviceType: org.ownedOrganization.industry,
       packageType: packageTypes,
@@ -248,38 +251,44 @@ export default async function OrganizationAdminPage(props: {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {sorted.length > 0 ? (
-              sorted.map((item) => (
-                <tr
-                  key={item.id}
-                  className="hover:bg-gray-50 transition-colors cursor-pointer"
-                >
-                  {columns.map((col) => {
-                    if (col.key === "assignAgent") {
-                      const agentsArray =
-                        item.assignAgent && item.assignAgent !== "N/A"
-                          ? item.assignAgent.split(", ").filter(Boolean)
-                          : [];
+              sorted.map((item) => {
+                console.log(item);
+                return (
+                  <tr
+                    key={item.id}
+                    className="hover:bg-gray-50 transition-colors cursor-pointer"
+                  >
+                    {columns.map((col) => {
+                      if (col.key === "assignAgent") {
+                        const agentsArray =
+                          item.assignAgent && item.assignAgent !== "N/A"
+                            ? item.assignAgent.split(", ").filter(Boolean)
+                            : [];
+                        return (
+                          <td
+                            key={`${basePath}/${item.id}`}
+                            className="px-4 py-3 border border-gray-200 whitespace-nowrap"
+                            title={agentsArray.join("\n")}
+                          >
+                            <Link href={"#"}> {agentsArray.length}</Link>
+                          </td>
+                        );
+                      }
                       return (
                         <td
                           key={col.key}
                           className="px-4 py-3 border border-gray-200 whitespace-nowrap"
-                          title={agentsArray.join("\n")}
                         >
-                          {agentsArray.length}
+                          <Link href={`${basePath}/${item.id}`}>
+                            {" "}
+                            {item[col.key]}
+                          </Link>
                         </td>
                       );
-                    }
-                    return (
-                      <td
-                        key={col.key}
-                        className="px-4 py-3 border border-gray-200 whitespace-nowrap"
-                      >
-                        {item[col.key]}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))
+                    })}
+                  </tr>
+                );
+              })
             ) : (
               <tr>
                 <td

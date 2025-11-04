@@ -37,7 +37,6 @@ interface TableRow {
   id: string;
   "Agent Name": string;
   "Employee ID": string;
-  "Office Hour": string;
   "Success Call": number;
   "Dropped Call": number;
   Performance: string;
@@ -137,8 +136,7 @@ export default async function CallManageAndLogsPage({
   const tableData: TableRow[] = agents.map((agent) => {
     const {
       employeeId,
-      workStartTime,
-      workEndTime,
+
       successCalls,
       droppedCalls,
     } = agent.Agent;
@@ -147,7 +145,6 @@ export default async function CallManageAndLogsPage({
       id: agent.id,
       "Agent Name": agent.name,
       "Employee ID": employeeId || "N/A",
-      "Office Hour": toAmPm(workStartTime) + " - " + toAmPm(workEndTime),
       "Success Call": successCalls,
       "Dropped Call": droppedCalls,
       Performance: ((successCalls / totalCalls || 0) * 100).toFixed(0) + "%",
@@ -168,7 +165,6 @@ export default async function CallManageAndLogsPage({
       : [
           "Agent Name",
           "Employee ID",
-          "Office Hour",
           "Success Call",
           "Dropped Call",
           "Performance",

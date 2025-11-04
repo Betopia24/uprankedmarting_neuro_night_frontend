@@ -31,7 +31,7 @@ export default async function CheckoutPage({
       {
         <Subscription
           only_ai={only_ai}
-          planPrice={planData.data.amount}
+          planPrice={Number(planData.data.price)}
           planId={planId as string}
           organizationId={ci as string}
           sid={ts as string}

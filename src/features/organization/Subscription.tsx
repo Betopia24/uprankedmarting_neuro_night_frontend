@@ -58,7 +58,7 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
 
   const [formData, setFormData] = useState<FormData>({
     cardholderName: "",
-    agentCount: 1,
+    agentCount: 0,
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -69,14 +69,14 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
 
   // ----------------- VALIDATION -----------------
   const validateCardholderName = (name: string) => name.trim().length >= 2;
-  const validateAgentCount = (count: number) => count >= 1 && count <= 100;
+  const validateAgentCount = (count: number) => count >= 0 && count <= 3;
 
   const validateForm = () => {
     const newErrors: FormErrors = {};
     if (!validateCardholderName(formData.cardholderName))
       newErrors.cardholderName = "Invalid cardholder name";
     if (!only_ai && !validateAgentCount(formData.agentCount))
-      newErrors.agentCount = "Agent count must be 1-100";
+      newErrors.agentCount = "Agent count must be 0-3";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -85,12 +85,23 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const { name, value } = e.target;
-      const processedValue = name === "agentCount" ? Number(value) : value;
-      setFormData((prev) => ({ ...prev, [name]: processedValue }));
-      if (name === "cardholderName" && validateCardholderName(value))
-        setErrors((prev) => ({ ...prev, cardholderName: undefined }));
-      if (name === "agentCount" && validateAgentCount(Number(value)))
-        setErrors((prev) => ({ ...prev, agentCount: undefined }));
+
+      if (name === "agentCount") {
+        const numValue = Math.min(Math.max(Number(value), 0), 3);
+        setFormData((prev) => ({
+          ...prev,
+          agentCount: numValue,
+        }));
+        if (validateAgentCount(numValue))
+          setErrors((prev) => ({ ...prev, agentCount: undefined }));
+      } else if (name === "cardholderName") {
+        setFormData((prev) => ({
+          ...prev,
+          cardholderName: value,
+        }));
+        if (validateCardholderName(value))
+          setErrors((prev) => ({ ...prev, cardholderName: undefined }));
+      }
     },
     []
   );
@@ -132,18 +143,29 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
       const paymentMethod = await createPaymentMethod();
 
       // 2) Ask your API to create the subscription and PI on the server
-      const subscriptionData = {
+      const subscriptionData: {
+        planId: string;
+        sid: string;
+        purchasedNumber: string;
+        paymentMethodId: string;
+        extraAgents?: number;
+      } = {
         planId,
-        organizationId,
         sid,
-        planLevel,
         purchasedNumber: "+" + number.toString().trim(),
-        numberOfAgents: formData.agentCount,
-        paymentMethodId: paymentMethod.id, // <-- server needs this
+        paymentMethodId: paymentMethod.id,
       };
 
+      // Only include extraAgents if not AI-only plan and agent count > 0
+      if (!only_ai && formData.agentCount > 0) {
+        subscriptionData.extraAgents = formData.agentCount;
+      }
+
+      // Log the request data for debugging
+      console.log("Sending subscription data:", subscriptionData);
+
       const createdSubscriptionResponse = await fetch(
-        process.env.NEXT_PUBLIC_API_URL + "/subscriptions/create-subscription",
+        process.env.NEXT_PUBLIC_API_URL + "/subscriptions",
         {
           method: "POST",
           headers: {
@@ -154,34 +176,75 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
         }
       );
 
+      // Enhanced logging BEFORE parsing
+      console.log("=== API REQUEST ===");
+      console.log("URL:", process.env.NEXT_PUBLIC_API_URL + "/subscriptions");
+      console.log(
+        "Subscription Request:",
+        JSON.stringify(subscriptionData, null, 2)
+      );
+      console.log("Auth Token Present:", !!auth.token);
+
+      console.log("=== API RESPONSE ===");
+      console.log("Status:", createdSubscriptionResponse.status);
+      console.log("Status Text:", createdSubscriptionResponse.statusText);
+      console.log("OK:", createdSubscriptionResponse.ok);
+
       const created = await createdSubscriptionResponse.json();
 
-      if (!createdSubscriptionResponse.ok || created?.success === false) {
-        throw new Error(created?.message || "Failed to create subscription");
+      console.log("Response Data:", JSON.stringify(created, null, 2));
+
+      if (!createdSubscriptionResponse.ok) {
+        // Better error message extraction
+        const errorMessage =
+          created?.message ||
+          created?.error?.message ||
+          created?.error ||
+          `Failed to create subscription (Status: ${createdSubscriptionResponse.status})`;
+
+        console.error("API Error Details:", {
+          status: createdSubscriptionResponse.status,
+          response: created,
+          message: errorMessage,
+        });
+
+        throw new Error(errorMessage);
+      }
+
+      // Only check success if it exists in response
+      if ("success" in created && created.success === false) {
+        const errorMessage =
+          created?.message ||
+          created?.error?.message ||
+          "Subscription creation failed";
+        console.error("Subscription Failed:", errorMessage);
+        throw new Error(errorMessage);
       }
 
       // 3) Confirm the PaymentIntent client-side using the provided clientSecret
       //    Stripe requires both the client_secret and the payment_method.
-      const clientSecret: string | undefined = created?.data?.clientSecret;
+      // const clientSecret: string | undefined = created?.data?.clientSecret;
 
-      if (!clientSecret) {
-        throw new Error("Missing client secret from server response.");
-      }
+      // if (!clientSecret) {
+      //   throw new Error("Missing client secret from server response.");
+      // }
 
       if (!stripe) {
         throw new Error("Stripe not initialized");
       }
 
       // Use the PaymentMethod we just created
-      const { error: confirmError, paymentIntent } =
-        await stripe.confirmCardPayment(clientSecret, {
-          payment_method: paymentMethod.id,
-        });
+      // const { error: confirmError } = await stripe.confirmCardPayment(
+      //   clientSecret,
+      //   {
+      //     payment_method: paymentMethod.id,
+      //   }
+      // );
 
-      if (confirmError) {
-        // Common 3DS/authentication errors will land here
-        throw new Error(confirmError.message);
-      }
+      // if (confirmError) {
+      //   // Common 3DS/authentication errors will land here
+      //   throw new Error(confirmError.message);
+      // }
 
       // Optional: you can inspect paymentIntent?.status === 'succeeded'
       // and (if you have an endpoint) notify your backend to finalize/refresh state.
@@ -194,17 +257,28 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
         );
       }
     } catch (err: unknown) {
-      env.NEXT_PUBLIC_APP_ENV === "development" && console.error("Error:", err);
+      console.error("Full error object:", err);
 
       let message = "Failed to process subscription";
 
       if (err instanceof Error) {
         message = err.message;
+        console.error("Error stack:", err.stack);
       } else if (typeof err === "string") {
         message = err;
-      } else if (typeof err === "object" && err && "message" in err) {
+      } else if (err && typeof err === "object" && "message" in err) {
         message = String((err as { message: unknown }).message);
       }
+
+      // Log the full error for debugging
+      console.error("Subscription error details:", {
+        errorType: err?.constructor?.name,
+        error: err,
+        message,
+        formData,
+        planId,
+        sid,
+      });
 
       toast.error(message);
     } finally {
@@ -288,14 +362,14 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
                 htmlFor="agent-count"
                 className="block text-lg font-semibold text-gray-700 mb-2"
               >
-                Number of Agents
+                Number of Agents (Optional)
               </label>
               <input
                 type="number"
                 id="agent-count"
                 name="agentCount"
-                min={1}
-                max={100}
+                min={0}
+                max={3}
                 value={formData.agentCount}
                 onChange={handleInputChange}
                 className={`block w-full rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors ${

@@ -5,7 +5,6 @@ import TableHeaderItem from "@/components/table/components/TableHeaderItem";
 import { parseFilters } from "@/components/table/utils/filters";
 import { env } from "@/env";
 import { getAccessToken } from "@/lib/auth";
-import { formatDateTime } from "@/utils/formatDateTime";
 import { adminPaymentsPath } from "@/paths";
 
 export interface TableSearchParams {
@@ -24,58 +23,62 @@ interface TableProps {
 
 interface Subscription {
   id: string;
-  amount: number;
-  paymentStatus: string;
+  organizationId: string;
+  planId: string;
+  stripeSubscriptionId: string;
+  stripeCustomerId: string;
   status: string;
+  currentPeriodStart: string;
+  currentPeriodEnd: string;
+  trialStart: string;
+  trialEnd: string;
+  canceledAt: string | null;
+  cancelAtPeriodEnd: boolean;
   planLevel: string;
   purchasedNumber: string;
+  sid: string;
   numberOfAgents: number;
-  startDate: string;
-  endDate: string;
-  organization: {
-    name: string;
-    organizationNumber: string;
-    industry: string;
-    websiteLink: string;
-    ownedOrganization: {
-      name: string;
-      email: string;
-      phone: string;
-    };
-  };
+  totalMinuteLimit: number;
+  createdAt: string;
+  updatedAt: string;
   plan: {
-    planName: string;
+    id: string;
+    name: string;
+    price: number;
     currency: string;
     interval: string;
-    intervalCount: number;
+    trialDays: number;
+    stripePriceId: string;
+    stripeProductId: string;
+    isActive: boolean;
+    description: string;
+    features: string[];
+    planLevel: string;
+    defaultAgents: number;
+    extraAgentPricing: Array<{
+      agents: number;
+      price: number;
+    }>;
+    totalMinuteLimit: number;
+    isDeleted: boolean;
+    deletedAt: string | null;
+    createdAt: string;
+    updatedAt: string;
   };
 }
 
 interface SubscriptionsApiResponse {
   success: boolean;
   message: string;
-  meta: {
-    total: number;
-    page: number;
-    limit: number;
-    totalPage: number;
-  };
   data: Subscription[];
 }
 
 interface TableRow {
   id: string;
-  customer: string;
   plan: string;
   amount: string;
   interval: string;
-  paymentStatus: string;
   status: string;
-  number: string;
-  agents: number;
-  startDate: string;
-  endDate: string;
-  contactEmail: string;
 }
 
 const DEFAULT_PAGE = 1;
@@ -91,7 +94,7 @@ async function getSubscriptions(
   const limit = params.limit ?? DEFAULT_LIMIT;
   const query = typeof params.query === "string" ? params.query : "";
 
-  const url = new URL(`${env.API_BASE_URL}/subscriptions`);
+  const url = new URL(`${env.API_BASE_URL}/subscriptions/billing-history`);
   url.searchParams.set("page", String(page));
   url.searchParams.set("limit", String(limit));
   if (query) url.searchParams.set("searchTerm", query);
@@ -130,9 +133,7 @@ function filterData(data: TableRow[], query: string): TableRow[] {
   const q = query.toLowerCase();
   return data.filter(
     (item) =>
-      item.customer.toLowerCase().includes(q) ||
       item.plan.toLowerCase().includes(q) ||
-      item.paymentStatus.toLowerCase().includes(q) ||
       item.status.toLowerCase().includes(q)
   );
 }
@@ -170,21 +171,23 @@ export default async function AdminSubscriptionsPage(props: {
     );
   }
 
-  const { data: subscriptions, meta } = response;
+  const { data: subscriptions } = response;
+
+  const limit = queryParams.limit ?? DEFAULT_LIMIT;
+  const page = queryParams.page ?? DEFAULT_PAGE;
+
+  const totalItems = subscriptions.length;
+  const totalPages = Math.ceil(totalItems / limit);
+  const currentPage = Math.min(Math.max(1, page), totalPages);
 
   const tableData: TableRow[] = subscriptions.map((sub) => ({
     id: sub.id,
-    customer: sub.organization.name,
-    plan: sub.plan.planName,
-    amount: `${sub.amount} ${sub.plan.currency.toUpperCase()}`,
-    interval: `${sub.plan.intervalCount} ${sub.plan.interval}`,
-    paymentStatus: sub.paymentStatus,
+    plan: sub.plan?.name || "N/A",
+    amount: `${sub.plan?.price || 0} ${(
+      sub.plan?.currency || "usd"
+    ).toUpperCase()}`,
+    interval: sub.plan?.interval || "N/A",
     status: sub.status,
-    number: sub.purchasedNumber,
-    agents: sub.numberOfAgents,
-    startDate: formatDateTime(sub.startDate),
-    endDate: formatDateTime(sub.endDate),
-    contactEmail: sub.organization.ownedOrganization.email,
   }));
 
   const [sortField, sortDirection] = (queryParams.sort || "").split(":") as [
@@ -201,23 +204,14 @@ export default async function AdminSubscriptionsPage(props: {
       )
     : filtered;
 
-  const totalPages = meta.totalPage;
-  const currentPage = Math.min(Math.max(1, meta.page), totalPages);
-  const basePath = adminPaymentsPath(); // ✅ Admin subscriptions page path
+  const basePath = adminPaymentsPath();
   const currentFilters = parseFilters(queryParams);
 
   const columns: { key: keyof TableRow; label: string }[] = [
-    { key: "customer", label: "Customer" },
     { key: "plan", label: "Plan" },
     { key: "amount", label: "Amount" },
     { key: "interval", label: "Interval" },
-    { key: "paymentStatus", label: "Payment Status" },
     { key: "status", label: "Status" },
-    { key: "number", label: "Purchased Number" },
-    { key: "agents", label: "Agents" },
-    { key: "startDate", label: "Start Date" },
-    { key: "endDate", label: "End Date" },
-    { key: "contactEmail", label: "Contact Email" },
   ];
 
   return (
@@ -240,7 +234,7 @@ export default async function AdminSubscriptionsPage(props: {
                   currentSort={sortField}
                   sortDirection={sortDirection === "desc" ? "desc" : "asc"}
                   currentPage={currentPage}
-                  limit={meta.limit}
+                  limit={limit}
                   searchQuery={queryParams.query || ""}
                   basePath={basePath}
                   currentFilters={currentFilters}
@@ -284,7 +278,7 @@ export default async function AdminSubscriptionsPage(props: {
         totalPages={totalPages}
         hasNextPage={currentPage < totalPages}
         hasPrevPage={currentPage > 1}
-        limit={meta.limit}
+        limit={limit}
         sortField={sortField}
         sortDirection={sortDirection === "desc" ? "desc" : "asc"}
         basePath={basePath}

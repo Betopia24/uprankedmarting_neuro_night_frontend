@@ -7,11 +7,11 @@ export const dashboardNavigation = {
       icon: "layoutDashboard",
       href: paths.adminDashboardPath(),
     },
-    {
-      name: "Number Management",
-      icon: "phone",
-      href: paths.adminNumberManagementPath(),
-    },
+    // {
+    //   name: "Number Management",
+    //   icon: "phone",
+    //   href: paths.adminNumberManagementPath(),
+    // },
     {
       name: "Agent Management",
       icon: "userCog",
@@ -22,16 +22,16 @@ export const dashboardNavigation = {
       icon: "users",
       href: paths.adminOrganizationManagementPath(),
     },
-    { 
-      name: "Approval", 
-      icon: "userCog", 
-      href: paths.adminApprovalPath() 
-    },
+    // {
+    //   name: "Approval",
+    //   icon: "userCog",
+    //   href: paths.adminApprovalPath(),
+    // },
     {
       name: "Numbers",
       icon: "Hash",
       href: paths.adminNumbersPath(),
-    }
+    },
   ],
   organization: [
     {
@@ -54,26 +54,26 @@ export const dashboardNavigation = {
       icon: "userCog",
       href: paths.organizationAgentManagementPath(),
     },
-    {
-      name: "AI Management",
-      icon: "userCog",
-      href: paths.organizationAIManagementPath(),
-    },
-    {
-      name: "Document Upload",
-      icon: "fileUp",
-      href: paths.organizationDocumentsPath(),
-    },
-    {
-      name: "Voice Upload",
-      icon: "mic",
-      href: paths.organizationVoiceUpload(),
-    },
-    {
-      name: "Lead Questions",
-      icon: "workflow",
-      href: paths.organizationLeadQuestionsPath(),
-    },
+    // {
+    //   name: "AI Management",
+    //   icon: "userCog",
+    //   href: paths.organizationAIManagementPath(),
+    // },
+    // {
+    //   name: "Document Upload",
+    //   icon: "fileUp",
+    //   href: paths.organizationDocumentsPath(),
+    // },
+    // {
+    //   name: "Voice Upload",
+    //   icon: "mic",
+    //   href: paths.organizationVoiceUpload(),
+    // },
+    // {
+    //   name: "Lead Questions",
+    //   icon: "workflow",
+    //   href: paths.organizationLeadQuestionsPath(),
+    // },
     {
       name: "Tools",
       icon: "settings",
