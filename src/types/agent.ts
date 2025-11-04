@@ -101,21 +101,12 @@ export type AgentUpdateFormData = {
     name: string;
     bio: string;
     phone: string;
+    email: "";
   };
   agentData: {
-    dateOfBirth: string;
-    gender: "male" | "female" | "others";
-    address: string;
-    emergencyPhone: string;
-    ssn: string;
-    skills: string[];
-    jobTitle: string;
-    employmentType: "full_time" | "part_time" | "contract";
-    department: string;
-    workStartTime: string;
-    workEndTime: string;
-    startWorkDateTime: string;
-    endWorkDateTime: string | null;
+    sip_domain: string;
+    sip_password: "";
+    skills: string | string[];
   };
 };
 
