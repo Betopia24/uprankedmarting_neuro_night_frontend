@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState } from "react";
 
 interface Agent {
+  id: string;
   sip_username: string;
   isAvailable: boolean;
   totalCalls: number;

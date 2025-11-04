@@ -7,6 +7,7 @@ import { parseFilters } from "@/components/table/utils/filters";
 import { env } from "@/env";
 import { getServerAuth } from "@/lib/auth";
 import Link from "next/link";
+import ManageUserStatus from "./_components/ManageUserStatus";
 
 export interface TableSearchParams {
   page?: number;
@@ -246,6 +247,9 @@ export default async function OrganizationAdminPage(props: {
                   currentFilters={currentFilters}
                 />
               ))}
+              <th scope="col" className="px-4 py-3 border border-gray-200">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -284,6 +288,7 @@ export default async function OrganizationAdminPage(props: {
                         </td>
                       );
                     })}
+                    <ManageUserStatus userId={""} />
                   </tr>
                 );
               })
