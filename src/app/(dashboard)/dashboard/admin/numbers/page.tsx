@@ -6,7 +6,7 @@ import ViewNumberListPage from './_components/ViewNumberList';
 import ViewRequestNumberListPage from './_components/ViewRequestNumberList';
 const NumberPage = () => {
   return (
-    <Tabs defaultValue="view_number_list" className="w-[400px]">
+    <Tabs defaultValue="view_number_list" className="">
       <h1 className="text-2xl font-semibold mb-6">Number Management</h1>
 
       <TabsList>
