@@ -63,8 +63,6 @@ const ViewRequestNumberListPage = () => {
         ]);
 
         const [data1, data2] = await Promise.all([res1.json(), res2.json()]);
-        console.log("Fetched Requests:", data1);
-        console.log("Fetched All Numbers:", data2);
 
         // set available numbers from data2 (only those not pinned)
         if (data2.success) {
@@ -144,8 +142,6 @@ const ViewRequestNumberListPage = () => {
       );
 
       const json = await res.json();
-      console.log("Pin Response:", json);
-
       if (json.success) {
         // remove pinned from dropdown
         setAvailableNumbers((prev) => prev.filter((n) => n.id !== availableNumberId));
@@ -216,7 +212,6 @@ const ViewRequestNumberListPage = () => {
       );
 
       const json = await res.json();
-      console.log("Unpin Response:", json);
 
       if (json.success) {
         // server returns the number object in json.data (per your docs)
