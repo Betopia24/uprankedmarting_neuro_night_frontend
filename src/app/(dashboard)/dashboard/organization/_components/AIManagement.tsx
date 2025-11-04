@@ -25,8 +25,6 @@ export default async function AIManagement() {
     const subscription = await getSubscriptionType(auth.accessToken);
 
     planLevel = subscription?.data[0].planLevel;
-
-    console.log({ planLevel });
   } catch (err) {
     console.error("Error fetching subscription:", err);
   }

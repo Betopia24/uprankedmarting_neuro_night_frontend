@@ -54,6 +54,11 @@ export const dashboardNavigation = {
       icon: "userCog",
       href: paths.organizationAgentManagementPath(),
     },
+    {
+      name: "Plans",
+      icon: "fileUp",
+      href: "/dashboard/organization/plans",
+    },
     // {
     //   name: "AI Management",
     //   icon: "userCog",

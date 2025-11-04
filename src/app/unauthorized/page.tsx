@@ -14,7 +14,6 @@ import { useAuth } from "@/components/AuthProvider";
 
 export default function Unauthorized() {
   const auth = useAuth();
-  console.log(auth);
 
   return (
     <main className="min-h-[100dvh] bg-gradient-to-b from-blue-50 to-white dark:from-blue-950/20 dark:to-background flex items-center justify-center px-4">

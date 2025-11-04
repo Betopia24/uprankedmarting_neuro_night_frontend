@@ -55,14 +55,11 @@ export default async function Pricing({
   });
 
   if (!response.ok) {
-    console.log(response);
     throw new Error("Failed to fetch plans");
   }
 
   const apiResponse: ApiResponse = await response.json();
   const plans = apiResponse.data;
-
-  console.log(plans);
 
   if (!plans || !plans.length) {
     return <div className="text-center py-6">No plans found</div>;

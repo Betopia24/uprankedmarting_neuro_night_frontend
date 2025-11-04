@@ -41,8 +41,6 @@ type PricingProps = {
 };
 
 export function Pricing({ plans }: PricingProps) {
-  console.log(plans);
-
   if (!plans.length) {
     return <div className="text-center py-6 text-gray-500">No plans found</div>;
   }

@@ -3,7 +3,7 @@
 import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { Button, InputField } from "@/components";
+import { Button, InputField, SelectDropdown } from "@/components";
 import { toast } from "sonner";
 import { env } from "@/env";
 import { z } from "zod";
@@ -32,6 +32,9 @@ const agentSchema = z.object({
         }
       ),
     phone: z.string().min(5).max(20),
+    bio: z.string({
+      message: "Bio must be at least 5 characters long",
+    }),
   }),
   agentData: z.object({
     sip_domain: z.string().min(5).max(100),
@@ -49,8 +52,8 @@ const agentSchema = z.object({
             "Password must be at least 12 characters, include uppercase, lowercase, number, and special character",
         }
       ),
-
     skills: z.string(),
+    shift: z.enum(shiftTypes).default("morning"),
   }),
 });
 
@@ -64,6 +67,19 @@ function parseSkills(skills: string): string[] {
     .filter(Boolean);
 }
 
+const shiftTimeMap: Record<
+  (typeof shiftTypes)[number],
+  { start: string; end: string; label: string }
+> = {
+  morning: { start: "06:00:00", end: "14:00:00", label: "06:00 AM – 02:00 PM" },
+  evening: { start: "14:00:00", end: "22:00:00", label: "02:00 PM – 10:00 PM" },
+  night: { start: "22:00:00", end: "06:00:00", label: "10:00 PM – 06:00 AM" },
+};
+
+function getShiftStartEnd(shift: (typeof shiftTypes)[number]) {
+  return shiftTimeMap[shift];
+}
+
 // --- Default Values ---
 const defaultValues: AgentFormInput = {
   userData: {
@@ -71,11 +87,13 @@ const defaultValues: AgentFormInput = {
     email: "",
     password: "",
     phone: "",
+    bio: "",
   },
   agentData: {
     sip_domain: "production-answersmart.sip.twilio.com",
     sip_password: "",
     skills: "",
+    shift: "morning",
   },
 };
 
@@ -92,11 +110,15 @@ export default function AgentForm() {
         userData: data.userData,
         agentData: {
           ...data.agentData,
-
+          workStartTime: getShiftStartEnd(data?.agentData?.shift ?? "morning")
+            .start,
+          workEndTime: getShiftStartEnd(data?.agentData?.shift ?? "morning")
+            .end,
           sip_password: data?.agentData?.sip_password,
           skills: parseSkills(data?.agentData?.skills),
         },
       };
+      delete payload?.agentData?.shift;
 
       const response = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/users/register-agent`,
@@ -145,6 +167,12 @@ export default function AgentForm() {
               type="tel"
               placeholder="+14155552671"
             />
+            <InputField
+              label="Bio"
+              name="userData.bio"
+              type="text"
+              placeholder="Update your bio"
+            />
           </div>
         </FormGroup>
 
@@ -168,6 +196,15 @@ export default function AgentForm() {
               name="agentData.sip_password"
               type="text"
               placeholder="Strong password"
+            />
+            <SelectDropdown
+              label="Work Shift"
+              name="agentData.shift"
+              options={[
+                { label: "Morning (06:00 AM – 02:00 PM)", value: "morning" },
+                { label: "Evening (02:00 PM – 10:00 PM)", value: "evening" },
+                { label: "Night (10:00 PM – 06:00 AM)", value: "night" },
+              ]}
             />
           </div>
         </FormGroup>

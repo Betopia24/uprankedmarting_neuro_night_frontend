@@ -65,7 +65,7 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
 
   const router = useRouter();
 
-  const subTotal = (planPrice * formData.agentCount).toFixed(2);
+  const subTotal = (planPrice * (formData.agentCount + 1)).toFixed(2);
 
   // ----------------- VALIDATION -----------------
   const validateCardholderName = (name: string) => name.trim().length >= 2;
@@ -162,7 +162,6 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
       }
 
       // Log the request data for debugging
-      console.log("Sending subscription data:", subscriptionData);
 
       const createdSubscriptionResponse = await fetch(
         process.env.NEXT_PUBLIC_API_URL + "/subscriptions",
@@ -177,22 +176,8 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
       );
 
       // Enhanced logging BEFORE parsing
-      console.log("=== API REQUEST ===");
-      console.log("URL:", process.env.NEXT_PUBLIC_API_URL + "/subscriptions");
-      console.log(
-        "Subscription Request:",
-        JSON.stringify(subscriptionData, null, 2)
-      );
-      console.log("Auth Token Present:", !!auth.token);
-
-      console.log("=== API RESPONSE ===");
-      console.log("Status:", createdSubscriptionResponse.status);
-      console.log("Status Text:", createdSubscriptionResponse.statusText);
-      console.log("OK:", createdSubscriptionResponse.ok);
 
       const created = await createdSubscriptionResponse.json();
-
-      console.log("Response Data:", JSON.stringify(created, null, 2));
 
       if (!createdSubscriptionResponse.ok) {
         // Better error message extraction
@@ -332,7 +317,9 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
                   • Billed monthly
                 </p>
               </div>
-              <p className="font-semibold text-base">${subTotal}</p>
+              <p className="font-semibold text-base">
+                ${Math.min(Number(subTotal) - planPrice, 0).toFixed(2)}
+              </p>
             </div>
           </div>
 
@@ -341,7 +328,7 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
           <div className="space-y-4 text-sm font-medium">
             <div className="flex justify-between items-center text-blue-200">
               <p>Subtotal</p>
-              <p>${subTotal}</p>
+              <p>${subTotal} </p>
             </div>
             <div className="flex justify-between items-center text-blue-200">
               <p>Tax</p>

@@ -40,7 +40,6 @@ export async function POST(request: Request) {
 
     if (accessToken) {
       user = JSON.parse(atob(accessToken.split(".")[1]));
-      console.log("43... user", user);
     }
 
     if (refreshToken) {

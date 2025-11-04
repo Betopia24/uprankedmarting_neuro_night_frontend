@@ -76,7 +76,6 @@ export default function OrganizationDashboardPage() {
 
         if (!res.ok) throw new Error(`API responded with status ${res.status}`);
         const json = await res.json();
-        console.log(json, res);
         if (!json.success)
           throw new Error(json.message || "Failed to fetch stats");
 
@@ -112,8 +111,6 @@ export default function OrganizationDashboardPage() {
           cache: "no-store",
           headers: { Authorization: token },
         });
-
-        console.log(res);
 
         if (!res.ok) throw new Error(`API responded with status ${res.status}`);
         const json = await res.json();
