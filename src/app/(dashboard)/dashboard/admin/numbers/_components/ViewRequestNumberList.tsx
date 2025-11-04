@@ -23,7 +23,9 @@ interface RequestData {
   requestedPhonePattern: string;
   status: string;
   createdAt: string;
-  organization: Organization & { requestedTwilioNumbers?: { phoneNumber: string }[] };
+  organization: Organization & {
+    requestedTwilioNumbers?: { phoneNumber: string }[];
+  };
   pinnedNumber?: {
     id?: string | null; // actual phone record id (if found)
     friendlyName: string;
@@ -43,9 +45,13 @@ interface AvailableNumber {
 const ViewRequestNumberListPage = () => {
   const { token } = useAuth();
   const [requests, setRequests] = useState<RequestData[]>([]);
-  const [availableNumbers, setAvailableNumbers] = useState<AvailableNumber[]>([]);
+  const [availableNumbers, setAvailableNumbers] = useState<AvailableNumber[]>(
+    []
+  );
   const [loading, setLoading] = useState(true);
-  const [selectedNumbers, setSelectedNumbers] = useState<Record<string, string>>({});
+  const [selectedNumbers, setSelectedNumbers] = useState<
+    Record<string, string>
+  >({});
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -63,8 +69,6 @@ const ViewRequestNumberListPage = () => {
         ]);
 
         const [data1, data2] = await Promise.all([res1.json(), res2.json()]);
-        console.log("Fetched Requests:", data1);
-        console.log("Fetched All Numbers:", data2);
 
         // set available numbers from data2 (only those not pinned)
         if (data2.success) {
@@ -76,33 +80,37 @@ const ViewRequestNumberListPage = () => {
 
         if (data1.success) {
           // map requests and try to resolve pinnedNumber -> actual phone record id from data2
-          const allNumbers: AvailableNumber[] = data2.success ? (data2.data || []) : [];
+          const allNumbers: AvailableNumber[] = data2.success
+            ? data2.data || []
+            : [];
 
-          const mappedRequests: RequestData[] = (data1.data || []).map((req: any) => {
-            const firstTwilio = req.organization?.requestedTwilioNumbers?.[0];
-            if (!firstTwilio) {
-              return { ...req, pinnedNumber: null };
-            }
+          const mappedRequests: RequestData[] = (data1.data || []).map(
+            (req: any) => {
+              const firstTwilio = req.organization?.requestedTwilioNumbers?.[0];
+              if (!firstTwilio) {
+                return { ...req, pinnedNumber: null };
+              }
 
-            // Try to find the corresponding phone record in `allNumbers` by phoneNumber
-            const matchingNumber = allNumbers.find(
-              (n) => n.phoneNumber === firstTwilio.phoneNumber
-            );
+              // Try to find the corresponding phone record in `allNumbers` by phoneNumber
+              const matchingNumber = allNumbers.find(
+                (n) => n.phoneNumber === firstTwilio.phoneNumber
+              );
 
-            return {
-              ...req,
-              pinnedNumber: {
-                id: matchingNumber ? matchingNumber.id : null, // important: actual phone record id
-                friendlyName: firstTwilio.phoneNumber, // or matchingNumber?.friendlyName ?? firstTwilio.phoneNumber
-                phoneNumber: firstTwilio.phoneNumber,
-                countryCode: matchingNumber
-                  ? matchingNumber.countryCode
-                  : firstTwilio.phoneNumber.startsWith("+1")
+              return {
+                ...req,
+                pinnedNumber: {
+                  id: matchingNumber ? matchingNumber.id : null, // important: actual phone record id
+                  friendlyName: firstTwilio.phoneNumber, // or matchingNumber?.friendlyName ?? firstTwilio.phoneNumber
+                  phoneNumber: firstTwilio.phoneNumber,
+                  countryCode: matchingNumber
+                    ? matchingNumber.countryCode
+                    : firstTwilio.phoneNumber.startsWith("+1")
                     ? "US"
                     : "BD",
-              },
-            };
-          });
+                },
+              };
+            }
+          );
 
           setRequests(mappedRequests);
 
@@ -125,7 +133,11 @@ const ViewRequestNumberListPage = () => {
     fetchData();
   }, [token]);
 
-  const handlePin = async (requestId: string, availableNumberId: string, orgId: string) => {
+  const handlePin = async (
+    requestId: string,
+    availableNumberId: string,
+    orgId: string
+  ) => {
     if (!availableNumberId) return;
     try {
       const res = await fetch(
@@ -144,11 +156,12 @@ const ViewRequestNumberListPage = () => {
       );
 
       const json = await res.json();
-      console.log("Pin Response:", json);
 
       if (json.success) {
         // remove pinned from dropdown
-        setAvailableNumbers((prev) => prev.filter((n) => n.id !== availableNumberId));
+        setAvailableNumbers((prev) =>
+          prev.filter((n) => n.id !== availableNumberId)
+        );
         setSelectedNumbers((prev) => ({
           ...prev,
           [requestId]: availableNumberId,
@@ -162,11 +175,15 @@ const ViewRequestNumberListPage = () => {
               id: json.data.id,
               friendlyName: json.data.friendlyName ?? json.data.phoneNumber,
               phoneNumber: json.data.phoneNumber ?? json.data.friendlyName,
-              countryCode: json.data.countryCode ?? (json.data.phoneNumber?.startsWith("+1") ? "US" : "BD"),
+              countryCode:
+                json.data.countryCode ??
+                (json.data.phoneNumber?.startsWith("+1") ? "US" : "BD"),
             };
           }
           // fallback: find from availableNumbers state (we removed it above so reference from previous state)
-          const found = (availableNumbers || []).find((n) => n.id === availableNumberId);
+          const found = (availableNumbers || []).find(
+            (n) => n.id === availableNumberId
+          );
           if (found) {
             return {
               id: found.id,
@@ -182,9 +199,9 @@ const ViewRequestNumberListPage = () => {
           prev.map((r) =>
             r.id === requestId
               ? {
-                ...r,
-                pinnedNumber: pinnedObj,
-              }
+                  ...r,
+                  pinnedNumber: pinnedObj,
+                }
               : r
           )
         );
@@ -196,7 +213,10 @@ const ViewRequestNumberListPage = () => {
     }
   };
 
-  const handleUnpin = async (requestId: string, pinnedNumberId: string | undefined | null) => {
+  const handleUnpin = async (
+    requestId: string,
+    pinnedNumberId: string | undefined | null
+  ) => {
     if (!pinnedNumberId) {
       console.warn("No pinnedNumberId available for unpin. Unpin skipped.");
       return;
@@ -216,7 +236,6 @@ const ViewRequestNumberListPage = () => {
       );
 
       const json = await res.json();
-      console.log("Unpin Response:", json);
 
       if (json.success) {
         // server returns the number object in json.data (per your docs)
@@ -225,7 +244,9 @@ const ViewRequestNumberListPage = () => {
         }
 
         setRequests((prev) =>
-          prev.map((r) => (r.id === requestId ? { ...r, pinnedNumber: null } : r))
+          prev.map((r) =>
+            r.id === requestId ? { ...r, pinnedNumber: null } : r
+          )
         );
 
         setSelectedNumbers((prev) => {
@@ -248,7 +269,9 @@ const ViewRequestNumberListPage = () => {
       req.organization.ownedOrganization.email
         .toLowerCase()
         .includes(searchQuery.toLowerCase()) ||
-      req.requestedPhonePattern.toLowerCase().includes(searchQuery.toLowerCase())
+      req.requestedPhonePattern
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -271,13 +294,25 @@ const ViewRequestNumberListPage = () => {
           <table className="w-full border-collapse text-sm text-gray-700">
             <thead>
               <tr className="bg-gray-100 text-left">
-                <th className="border border-gray-200 px-3 py-2">Organization</th>
+                <th className="border border-gray-200 px-3 py-2">
+                  Organization
+                </th>
                 <th className="border border-gray-200 px-3 py-2">Email</th>
-                <th className="border border-gray-200 px-3 py-2">Requested Number</th>
-                <th className="border border-gray-200 px-3 py-2">Select Number</th>
-                <th className="border border-gray-200 px-3 py-2">Pinned Number</th>
-                <th className="border border-gray-200 px-3 py-2">Country Code</th>
-                <th className="border border-gray-200 px-3 py-2 text-center">Action</th>
+                <th className="border border-gray-200 px-3 py-2">
+                  Requested Number
+                </th>
+                <th className="border border-gray-200 px-3 py-2">
+                  Select Number
+                </th>
+                <th className="border border-gray-200 px-3 py-2">
+                  Pinned Number
+                </th>
+                <th className="border border-gray-200 px-3 py-2">
+                  Country Code
+                </th>
+                <th className="border border-gray-200 px-3 py-2 text-center">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -290,7 +325,9 @@ const ViewRequestNumberListPage = () => {
               ) : filteredRequests.length > 0 ? (
                 filteredRequests.map((req) => (
                   <tr key={req.id} className="hover:bg-gray-50">
-                    <td className="border border-gray-200 px-3 py-2">{req.organization.name}</td>
+                    <td className="border border-gray-200 px-3 py-2">
+                      {req.organization.name}
+                    </td>
                     <td className="border border-gray-200 px-3 py-2">
                       {req.organization.ownedOrganization.email}
                     </td>
@@ -333,17 +370,25 @@ const ViewRequestNumberListPage = () => {
                     <td className="border border-gray-200 px-3 py-2 text-center">
                       {req.pinnedNumber && req.pinnedNumber.id ? (
                         <button
-                          onClick={() => handleUnpin(req.id, req.pinnedNumber!.id)}
+                          onClick={() =>
+                            handleUnpin(req.id, req.pinnedNumber!.id)
+                          }
                           className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600"
                         >
                           Unpin
                         </button>
                       ) : req.pinnedNumber ? (
-                        <span className="text-xs text-yellow-600">Pinned (no id)</span>
+                        <span className="text-xs text-yellow-600">
+                          Pinned (no id)
+                        </span>
                       ) : (
                         <button
                           onClick={() =>
-                            handlePin(req.id, selectedNumbers[req.id], req.organization.id)
+                            handlePin(
+                              req.id,
+                              selectedNumbers[req.id],
+                              req.organization.id
+                            )
                           }
                           className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600"
                         >
@@ -369,5 +414,3 @@ const ViewRequestNumberListPage = () => {
 };
 
 export default ViewRequestNumberListPage;
-
-

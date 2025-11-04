@@ -170,7 +170,6 @@ export default async function OrganizationAdminPage(props: {
   const { data: organizations, meta } = response.data;
 
   const tableData: TableRow[] = organizations.map((org) => {
-    console.log({ org });
     const subs = org.ownedOrganization.subscriptions ?? [];
     const packageTypes =
       subs.map((s) => `${s.planLevel} (${s.purchasedNumber})`).join(", ") ||
@@ -252,7 +251,6 @@ export default async function OrganizationAdminPage(props: {
           <tbody className="divide-y divide-gray-100">
             {sorted.length > 0 ? (
               sorted.map((item) => {
-                console.log(item);
                 return (
                   <tr
                     key={item.id}

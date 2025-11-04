@@ -69,8 +69,6 @@ export default async function PricingPage() {
 
     const json: ApiResponse = await res.json();
 
-    console.log(json);
-
     if (json.success && Array.isArray(json.data)) {
       plans = json.data.map<Plan>((p) => ({
         id: p.id,
