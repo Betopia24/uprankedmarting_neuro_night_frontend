@@ -100,13 +100,11 @@ export type AgentUpdateFormData = {
   userData: {
     name: string;
     bio: string;
-    phone: string;
-    email: "";
   };
   agentData: {
-    sip_domain: string;
-    sip_password: "";
-    skills: string | string[];
+    skills: string[];
+    workStartTime: string;
+    workEndTime: string | null;
   };
 };
 

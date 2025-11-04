@@ -89,29 +89,11 @@ export default function UpdateAgentForm({
       bio: agent.bio ?? "",
     },
     agentData: {
-      dateOfBirth: agent.Agent?.dateOfBirth
-        ? agent.Agent.dateOfBirth.split("T")[0]
-        : "",
-      gender: agent.Agent?.gender as (typeof genderOptions)[number] | undefined,
-      address: agent.Agent?.address ?? "",
-      emergencyPhone: agent.Agent?.emergencyPhone ?? "",
-      ssn: agent.Agent?.ssn ?? "",
       skills: agent.Agent?.skills?.join(", ") ?? "",
-      jobTitle: agent.Agent?.jobTitle ?? "",
-      employmentType: agent.Agent?.employmentType as
-        | (typeof employmentTypes)[number]
-        | undefined,
-      department: agent.Agent?.department ?? "",
       shift: inferShiftFromTimes(
         agent.Agent?.workStartTime,
         agent.Agent?.workEndTime
       ),
-      startWorkDateTime: agent.Agent?.startWorkDateTime
-        ? agent.Agent.startWorkDateTime.split("T")[0]
-        : "",
-      endWorkDateTime: agent.Agent?.endWorkDateTime
-        ? agent.Agent.endWorkDateTime.split("T")[0]
-        : "",
     },
   };
 
@@ -132,26 +114,15 @@ export default function UpdateAgentForm({
       userData: {
         name: values.userData?.name ?? "",
         bio: values.userData?.bio ?? "",
-        phone: values.userData?.phone ?? "",
       },
       agentData: {
-        dateOfBirth: values.agentData?.dateOfBirth ?? "",
-        gender: values.agentData?.gender ?? "male",
-        address: values.agentData?.address ?? "",
-        emergencyPhone: values.agentData?.emergencyPhone ?? "",
-        ssn: values.agentData?.ssn ?? "",
         skills:
           values.agentData?.skills
             ?.split(",")
             .map((s) => s.trim())
             .filter(Boolean) ?? [],
-        jobTitle: values.agentData?.jobTitle ?? "",
-        employmentType: values.agentData?.employmentType ?? "full_time",
-        department: values.agentData?.department ?? "",
-        workStartTime,
-        workEndTime,
-        startWorkDateTime: values.agentData?.startWorkDateTime ?? "",
-        endWorkDateTime: values.agentData?.endWorkDateTime ?? null,
+        workStartTime: workStartTime,
+        workEndTime: workEndTime,
       },
     };
 
@@ -196,54 +167,15 @@ export default function UpdateAgentForm({
         <FormGroup title="User Information">
           <div className="grid md:grid-cols-2 gap-4">
             <InputField label="Full Name" name="userData.name" type="text" />
-            <InputField label="Phone" name="userData.phone" type="tel" />
+            {/* <InputField label="Phone" name="userData.phone" type="tel" /> */}
             <InputField label="Bio" name="userData.bio" type="text" />
           </div>
         </FormGroup>
 
         <FormGroup title="Agent Information">
           <div className="grid md:grid-cols-2 gap-4">
-            <InputField
-              label="Date of Birth"
-              name="agentData.dateOfBirth"
-              type="date"
-            />
-            <SelectDropdown
-              label="Gender"
-              name="agentData.gender"
-              options={[
-                { label: "Male", value: "male" },
-                { label: "Female", value: "female" },
-                { label: "Other", value: "others" },
-              ]}
-            />
-            <InputField label="Address" name="agentData.address" type="text" />
-            <InputField
-              label="Emergency Phone"
-              name="agentData.emergencyPhone"
-              type="tel"
-            />
-            <InputField label="SSN" name="agentData.ssn" type="text" />
             <InputField label="Skills" name="agentData.skills" type="text" />
-            <InputField
-              label="Job Title"
-              name="agentData.jobTitle"
-              type="text"
-            />
-            <SelectDropdown
-              label="Employment Type"
-              name="agentData.employmentType"
-              options={[
-                { label: "Full-time", value: "full_time" },
-                { label: "Part-time", value: "part_time" },
-                { label: "Contract", value: "contract" },
-              ]}
-            />
-            <InputField
-              label="Department"
-              name="agentData.department"
-              type="text"
-            />
+
             <SelectDropdown
               label="Work Shift"
               name="agentData.shift"
@@ -252,11 +184,6 @@ export default function UpdateAgentForm({
                 { label: "Evening (02:00 PM – 10:00 PM)", value: "evening" },
                 { label: "Night (10:00 PM – 06:00 AM)", value: "night" },
               ]}
-            />
-            <InputField
-              label="Start Work Date"
-              name="agentData.startWorkDateTime"
-              type="date"
             />
           </div>
         </FormGroup>

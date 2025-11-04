@@ -65,7 +65,7 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
 
   const router = useRouter();
 
-  const subTotal = (planPrice * formData.agentCount).toFixed(2);
+  const subTotal = (planPrice * (formData.agentCount + 1)).toFixed(2);
 
   // ----------------- VALIDATION -----------------
   const validateCardholderName = (name: string) => name.trim().length >= 2;
@@ -332,7 +332,9 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
                   • Billed monthly
                 </p>
               </div>
-              <p className="font-semibold text-base">${subTotal}</p>
+              <p className="font-semibold text-base">
+                ${Math.min(Number(subTotal) - planPrice, 0).toFixed(2)}
+              </p>
             </div>
           </div>
 
@@ -341,7 +343,7 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
           <div className="space-y-4 text-sm font-medium">
             <div className="flex justify-between items-center text-blue-200">
               <p>Subtotal</p>
-              <p>${subTotal}</p>
+              <p>${subTotal} </p>
             </div>
             <div className="flex justify-between items-center text-blue-200">
               <p>Tax</p>
