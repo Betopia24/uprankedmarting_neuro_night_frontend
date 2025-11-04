@@ -414,8 +414,6 @@ const ViewRequestNumberListPage = () => {
             </div>
           </div>
         )}
-
-
       </div>
     </div>
   );

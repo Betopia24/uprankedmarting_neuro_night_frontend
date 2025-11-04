@@ -1,6 +1,457 @@
+// "use client";
+
+// import React from "react";
+// import { useAuth } from "@/components/AuthProvider";
+// import { useCall } from "@/contexts/CallContext";
+// import CallPanel from "@/components/CallPanel";
+// import TwilioInboundAgent from "@/components/TwilioClient";
+// import Container from "@/components/Container";
+// import { motion, AnimatePresence } from "framer-motion";
+// import {
+//   UserCircleIcon,
+//   PhoneIcon,
+//   CheckBadgeIcon,
+//   XCircleIcon,
+//   ChartBarIcon,
+//   SignalIcon,
+// } from "@heroicons/react/24/solid";
+// import useTimeOfDay from "@/hooks/useTimeOfDay";
+// import Toggle from "./_components/Toggle";
+// import {
+//   Accordion,
+//   AccordionContent,
+//   AccordionItem,
+//   AccordionTrigger,
+// } from "@/components/ui/accordion"
+
+// const Dashboard = () => {
+//   const { user } = useAuth();
+//   const { currentCall, callStatus } = useCall();
+//   const [openItem, setOpenItem] = React.useState<string | null>(null);
+
+//   const getStatusText = (status: string) => {
+//     switch (status) {
+//       case "ready":
+//         return "Ready";
+//       case "connecting":
+//         return "Connecting...";
+//       case "ringing":
+//         return "Ringing...";
+//       case "connected":
+//         return "Connected";
+//       case "error":
+//         return "Error";
+//       case "incoming":
+//         return "Incoming Call";
+//       default:
+//         return "Initializing...";
+//     }
+//   };
+
+//   if (!user) {
+//     return (
+//       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+//         <motion.div
+//           initial={{ opacity: 0 }}
+//           animate={{ opacity: 1 }}
+//           className="text-center"
+//         >
+//           <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+//           <p className="text-gray-600">Loading...</p>
+//         </motion.div>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="min-h-screen bg-gray-50">
+//       <Container>
+//         <motion.div
+//           initial={{ opacity: 0, y: 20 }}
+//           animate={{ opacity: 1, y: 0 }}
+//           transition={{ duration: 0.3 }}
+//           className="space-y-6"
+//         >
+//           {/* Welcome Header */}
+//           <div className="mb-8 flex flex-wrap justify-between items-center gap-6">
+//             <div className="space-y-2">
+//               <h1 className="text-3xl font-bold text-gray-900">
+//                 Good {useTimeOfDay()}, {user.name.split(" ")[0]}
+//               </h1>
+//               <p className="text-gray-600">Welcome to your dashboard</p>
+//             </div>
+//             <Toggle />
+//           </div>
+
+//           {/* Call Status */}
+//           <AnimatePresence>
+//             {currentCall && (
+//               <motion.div
+//                 initial={{ opacity: 0, height: 0 }}
+//                 animate={{ opacity: 1, height: "auto" }}
+//                 exit={{ opacity: 0, height: 0 }}
+//                 className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6"
+//               >
+//                 <div className="flex items-center justify-between">
+//                   <div className="flex items-center space-x-3">
+//                     <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse" />
+//                     <div>
+//                       <p className="text-sm font-medium text-blue-900">
+//                         Call in Progress
+//                       </p>
+//                     </div>
+//                   </div>
+//                   <div className="text-sm font-medium text-blue-900">
+//                     {getStatusText(callStatus)}
+//                   </div>
+//                 </div>
+//               </motion.div>
+//             )}
+//           </AnimatePresence>
+
+//           {/* Main Content */}
+//           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+//             {/* Call Panel */}
+//             <motion.div
+//               initial={{ opacity: 0, x: -20 }}
+//               animate={{ opacity: 1, x: 0 }}
+//               transition={{ duration: 0.4 }}
+//               className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+//             >
+//               <div className="flex items-center space-x-3 mb-6">
+//                 <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+//                   <PhoneIcon className="w-5 h-5 text-blue-600" />
+//                 </div>
+
+//                 <div>
+//                   <h2 className="text-lg font-semibold text-gray-900">
+//                     Inbound Calls
+//                   </h2>
+//                   <p className="text-sm text-gray-600">
+//                     Receive incoming calls
+//                   </p>
+//                 </div>
+//               </div>
+
+//               <TwilioInboundAgent
+//                 identity={(user.Agent && user.Agent.sip_username) || ""}
+//               />
+//             </motion.div>
+
+//             {/* Inbound Agent */}
+//             <motion.div
+//               initial={{ opacity: 0, x: 20 }}
+//               animate={{ opacity: 1, x: 0 }}
+//               transition={{ duration: 0.4, delay: 0.1 }}
+//               className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+//             >
+//               <div className="flex items-center space-x-3 mb-6">
+//                 <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+//                   <SignalIcon className="w-5 h-5 text-green-600" />
+//                 </div>
+//                 <div>
+//                   <h2 className="text-lg font-semibold text-gray-900">
+//                     Make a Call
+//                   </h2>
+//                   <p className="text-sm text-gray-600">Outbound dialer</p>
+//                 </div>
+//               </div>
+//               <CallPanel />
+//             </motion.div>
+//           </div>
+
+//           {/* Profile & Agent Info */}
+//           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+//             {/* Profile */}
+//             <motion.div
+//               initial={{ opacity: 0, y: 20 }}
+//               animate={{ opacity: 1, y: 0 }}
+//               transition={{ duration: 0.4, delay: 0.2 }}
+//               className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+//             >
+//               <div className="flex items-center space-x-3 mb-6">
+//                 <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+//                   <UserCircleIcon className="w-5 h-5 text-gray-600" />
+//                 </div>
+//                 <div>
+//                   <h3 className="text-lg font-semibold text-gray-900">
+//                     Profile
+//                   </h3>
+//                   <p className="text-sm text-gray-600">Account information</p>
+//                 </div>
+//               </div>
+
+//               <div className="space-y-4">
+//                 <div>
+//                   <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+//                     Name
+//                   </label>
+//                   <p className="text-sm font-medium text-gray-900 mt-1">
+//                     {user.name}
+//                   </p>
+//                 </div>
+//                 <div>
+//                   <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+//                     Email
+//                   </label>
+//                   <p className="text-sm font-medium text-gray-900 mt-1">
+//                     {user.email}
+//                   </p>
+//                 </div>
+//                 <div>
+//                   <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+//                     Role
+//                   </label>{" "}
+//                   <span className="inline-block mt-1 px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded capitalize">
+//                     {user.role}
+//                   </span>
+//                 </div>
+//                 <div>
+//                   <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+//                     Phone
+//                   </label>
+//                   <p className="text-sm font-medium text-gray-900 mt-1">
+//                     {user.phone || "Not provided"}
+//                   </p>
+//                 </div>
+//                 <div>
+//                   <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+//                     Organization Name
+//                   </label>
+//                   <p className="text-sm font-medium text-gray-900 mt-1">
+//                     {user.Agent?.organization?.name ||
+//                       "No organization assigned"}
+//                   </p>
+//                 </div>
+
+//                 <div>
+//                   <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+//                     Organization Number
+//                   </label>
+//                   <p className="text-sm font-medium text-gray-900 mt-1">
+//                     {user.Agent?.organization?.organizationNumber ||
+//                       "Organization number unavailable"}
+//                   </p>
+//                 </div>
+//                 <div>
+//                   <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+//                     Status
+//                   </label>
+//                   <div className="mt-1">
+//                     <span
+//                       className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded ${user.isVerified
+//                         ? "bg-green-100 text-green-800"
+//                         : "bg-red-100 text-red-800"
+//                         }`}
+//                     >
+//                       {user.isVerified ? (
+//                         <CheckBadgeIcon className="w-3 h-3 mr-1" />
+//                       ) : (
+//                         <XCircleIcon className="w-3 h-3 mr-1" />
+//                       )}
+//                       {user.isVerified ? "Verified" : "Not Verified"}
+//                     </span>
+//                   </div>
+//                 </div>
+//               </div>
+//             </motion.div>
+
+//             {/* Agent Details */}
+//             {user.Agent && (
+//               <motion.div
+//                 initial={{ opacity: 0, y: 20 }}
+//                 animate={{ opacity: 1, y: 0 }}
+//                 transition={{ duration: 0.4, delay: 0.3 }}
+//                 className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+//               >
+//                 <div className="flex items-center space-x-3 mb-6">
+//                   <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+//                     <ChartBarIcon className="w-5 h-5 text-purple-600" />
+//                   </div>
+//                   <div>
+//                     <h3 className="text-lg font-semibold text-gray-900">
+//                       Agent Details
+//                     </h3>
+//                     <p className="text-sm text-gray-600">
+//                       Professional information
+//                     </p>
+//                   </div>
+//                 </div>
+
+//                 <div className="space-y-4">
+//                   <div>
+//                     <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+//                       Job Title
+//                     </label>
+//                     <p className="text-sm font-medium text-gray-900 mt-1">
+//                       {user.Agent.jobTitle}
+//                     </p>
+//                   </div>
+//                   <div>
+//                     <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+//                       Department
+//                     </label>
+//                     <p className="text-sm font-medium text-gray-900 mt-1">
+//                       {user.Agent.department}
+//                     </p>
+//                   </div>
+//                   <div>
+//                     <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+//                       Status
+//                     </label>
+//                     <div className="mt-1">
+//                       <span
+//                         className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded ${user.Agent.status === "online"
+//                           ? "bg-green-100 text-green-800"
+//                           : "bg-gray-100 text-gray-800"
+//                           }`}
+//                       >
+//                         <div
+//                           className={`w-2 h-2 rounded-full mr-2 ${user.Agent.status === "online"
+//                             ? "bg-green-500"
+//                             : "bg-gray-500"
+//                             }`}
+//                         />
+//                         {user.Agent.status}
+//                       </span>
+//                     </div>
+//                   </div>
+//                   <div>
+//                     <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+//                       SIP Username
+//                     </label>
+//                     <p className="text-sm font-mono bg-gray-50 px-2 py-1 rounded mt-1">
+//                       {user.Agent.sip_username || "N/A"}
+//                     </p>
+//                   </div>
+//                 </div>
+//               </motion.div>
+//             )}
+//           </div>
+
+//           {/* <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+//             <Accordion
+//               type="single"
+//               collapsible
+//               value={openItem || ""}
+//               onValueChange={(val) => setOpenItem(val || null)}
+//             >
+//               <AccordionItem value="item-1">
+//                 <AccordionTrigger>Is it accessible?</AccordionTrigger>
+//                 <AnimatePresence mode="wait">
+//                   {openItem === "item-1" && (
+//                     <AccordionContent asChild>
+//                       <motion.div
+//                         key="content-1"
+//                         initial={{ opacity: 0, height: 0 }}
+//                         animate={{ opacity: 1, height: "auto" }}
+//                         exit={{ opacity: 0, height: 0 }}
+//                         transition={{ duration: 0.35, ease: "easeInOut" }}
+//                       >
+//                         Yes. It adheres to the WAI-ARIA design pattern.
+//                       </motion.div>
+//                     </AccordionContent>
+//                   )}
+//                 </AnimatePresence>
+//               </AccordionItem>
+
+//               <AccordionItem value="item-2">
+//                 <AccordionTrigger>Is it animated?</AccordionTrigger>
+//                 <AnimatePresence mode="wait">
+//                   {openItem === "item-2" && (
+//                     <AccordionContent asChild>
+//                       <motion.div
+//                         key="content-2"
+//                         initial={{ opacity: 0, height: 0 }}
+//                         animate={{ opacity: 1, height: "auto" }}
+//                         exit={{ opacity: 0, height: 0 }}
+//                         transition={{ duration: 0.35, ease: "easeInOut" }}
+//                       >
+//                         Yes, now it opens and closes smoothly!
+//                       </motion.div>
+//                     </AccordionContent>
+//                   )}
+//                 </AnimatePresence>
+//               </AccordionItem>
+//             </Accordion>
+//           </div> */}
+
+
+//           {/* Performance Stats */}
+//           {user.Agent && (
+//             <motion.div
+//               initial={{ opacity: 0, y: 20 }}
+//               animate={{ opacity: 1, y: 0 }}
+//               transition={{ duration: 0.4, delay: 0.4 }}
+//               className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+//             >
+//               <div className="mb-6">
+//                 <h3 className="text-lg font-semibold text-gray-900 mb-1">
+//                   Performance Summary
+//                 </h3>
+//                 <p className="text-sm text-gray-600">Your calling statistics</p>
+//               </div>
+
+//               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+//                 <div className="text-center p-4 bg-gray-50 rounded-lg">
+//                   <div className="text-2xl font-bold text-gray-900 mb-1">
+//                     {user.callStatistics.totalCalls || 0}
+//                   </div>
+//                   <div className="text-xs text-gray-600 font-medium">
+//                     Total Calls
+//                   </div>
+//                 </div>
+//                 <div className="text-center p-4 bg-green-50 rounded-lg">
+//                   <div className="text-2xl font-bold text-green-600 mb-1">
+//                     {user.callStatistics.totalSuccessCalls || 0}
+//                   </div>
+//                   <div className="text-xs text-green-700 font-medium">
+//                     Successful
+//                   </div>
+//                 </div>
+//                 <div className="text-center p-4 bg-red-50 rounded-lg">
+//                   <div className="text-2xl font-bold text-red-600 mb-1">
+//                     {Number(user.callStatistics.totalCalls) -
+//                       Number(user.callStatistics.totalSuccessCalls) || 0}
+//                   </div>
+//                   <div className="text-xs text-red-700 font-medium">
+//                     Dropped
+//                   </div>
+//                 </div>
+//                 <div className="text-center p-4 bg-blue-50 rounded-lg">
+//                   <div className="text-2xl font-bold text-blue-600 mb-1">
+//                     {isNaN(
+//                       Number(user.callStatistics.totalSuccessCalls) /
+//                       Number(user.callStatistics.totalCalls)
+//                     )
+//                       ? 0
+//                       : (
+//                         (Number(user.callStatistics.totalSuccessCalls) /
+//                           Number(user.callStatistics.totalCalls)) *
+//                         100
+//                       ).toFixed(2)}
+//                     %
+//                   </div>
+//                   <div className="text-xs text-blue-700 font-medium">
+//                     Success Rate
+//                   </div>
+//                 </div>
+//               </div>
+//             </motion.div>
+//           )}
+//         </motion.div>
+//       </Container>
+//     </div>
+//   );
+// };
+
+// export default Dashboard;
+
+
+
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useCall } from "@/contexts/CallContext";
 import CallPanel from "@/components/CallPanel";
@@ -17,10 +468,68 @@ import {
 } from "@heroicons/react/24/solid";
 import useTimeOfDay from "@/hooks/useTimeOfDay";
 import Toggle from "./_components/Toggle";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { env } from "@/env";
+
+interface Question {
+  id: string;
+  org_id: string;
+  question_text: string;
+  question_keywords: string[];
+  createdAt: string;
+  updatedAt: string;
+  organization: {
+    id: string;
+    name: string;
+    organizationNumber: string | null;
+  };
+}
 
 const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const { currentCall, callStatus } = useCall();
+  const [openItem, setOpenItem] = React.useState<string | null>(null);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/agents/my-questions`, {
+          method: "GET",
+          headers: {
+            "Authorization": `${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch questions");
+        }
+
+        const result = await response.json();
+
+        if (result.success && result.data?.data) {
+          setQuestions(result.data.data);
+        }
+      } catch (err) {
+        console.error("Error fetching questions:", err);
+        setError(err instanceof Error ? err.message : "Failed to load questions");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchQuestions();
+    }
+  }, [user]);
 
   const getStatusText = (status: string) => {
     switch (status) {
@@ -232,11 +741,10 @@ const Dashboard = () => {
                   </label>
                   <div className="mt-1">
                     <span
-                      className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded ${
-                        user.isVerified
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
+                      className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded ${user.isVerified
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
+                        }`}
                     >
                       {user.isVerified ? (
                         <CheckBadgeIcon className="w-3 h-3 mr-1" />
@@ -295,18 +803,16 @@ const Dashboard = () => {
                     </label>
                     <div className="mt-1">
                       <span
-                        className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded ${
-                          user.Agent.status === "online"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
+                        className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded ${user.Agent.status === "online"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-gray-100 text-gray-800"
+                          }`}
                       >
                         <div
-                          className={`w-2 h-2 rounded-full mr-2 ${
-                            user.Agent.status === "online"
-                              ? "bg-green-500"
-                              : "bg-gray-500"
-                          }`}
+                          className={`w-2 h-2 rounded-full mr-2 ${user.Agent.status === "online"
+                            ? "bg-green-500"
+                            : "bg-gray-500"
+                            }`}
                         />
                         {user.Agent.status}
                       </span>
@@ -324,6 +830,94 @@ const Dashboard = () => {
               </motion.div>
             )}
           </div>
+
+          {/* Frequently Asked Questions Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.35 }}
+            className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+          >
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                Frequently Asked Questions
+              </h3>
+              <p className="text-sm text-gray-600">
+                Common questions from your organization
+              </p>
+            </div>
+
+            {loading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                <span className="ml-3 text-gray-600">Loading questions...</span>
+              </div>
+            ) : error ? (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <p className="text-sm text-red-800">{error}</p>
+              </div>
+            ) : questions.length === 0 ? (
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
+                <p className="text-gray-600">No questions available yet.</p>
+              </div>
+            ) : (
+              <Accordion
+                type="single"
+                collapsible
+                value={openItem || ""}
+                onValueChange={(val) => setOpenItem(val || null)}
+              >
+                {questions.map((question, index) => (
+                  <AccordionItem key={question.id} value={`item-${index}`}>
+                    <AccordionTrigger className="text-left">
+                      {question.question_text}
+                    </AccordionTrigger>
+                    <AnimatePresence mode="wait">
+                      {openItem === `item-${index}` && (
+                        <AccordionContent asChild>
+                          <motion.div
+                            key={`content-${index}`}
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.35, ease: "easeInOut" }}
+                            className="space-y-3"
+                          >
+                            <div>
+                              <p className="text-sm text-gray-700 mb-3">
+                                This question is associated with{" "}
+                                <span className="font-medium">
+                                  {question.organization.name}
+                                </span>
+                              </p>
+
+                              {question.question_keywords.length > 0 && (
+                                <div>
+                                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+                                    Keywords
+                                  </p>
+                                  <div className="flex flex-wrap gap-2">
+                                    {question.question_keywords.map((keyword, i) => (
+                                      <span
+                                        key={i}
+                                        className="inline-block px-2 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded"
+                                      >
+                                        {keyword}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </motion.div>
+                        </AccordionContent>
+                      )}
+                    </AnimatePresence>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            )}
+          </motion.div>
 
           {/* Performance Stats */}
           {user.Agent && (
@@ -370,14 +964,14 @@ const Dashboard = () => {
                   <div className="text-2xl font-bold text-blue-600 mb-1">
                     {isNaN(
                       Number(user.callStatistics.totalSuccessCalls) /
-                        Number(user.callStatistics.totalCalls)
+                      Number(user.callStatistics.totalCalls)
                     )
                       ? 0
                       : (
-                          (Number(user.callStatistics.totalSuccessCalls) /
-                            Number(user.callStatistics.totalCalls)) *
-                          100
-                        ).toFixed(2)}
+                        (Number(user.callStatistics.totalSuccessCalls) /
+                          Number(user.callStatistics.totalCalls)) *
+                        100
+                      ).toFixed(2)}
                     %
                   </div>
                   <div className="text-xs text-blue-700 font-medium">
