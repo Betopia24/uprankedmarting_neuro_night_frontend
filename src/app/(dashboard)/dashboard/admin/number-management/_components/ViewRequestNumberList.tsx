@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { env } from "@/env";
 import { useAuth } from "@/components/AuthProvider";
 import { Search } from "lucide-react";
+import { Loading } from "@/components";
 
 interface Organization {
   id: string;
@@ -27,7 +28,7 @@ interface RequestData {
     requestedTwilioNumbers?: { phoneNumber: string }[];
   };
   pinnedNumber?: {
-    id?: string | null; // actual phone record id (if found)
+    id?: string | null;
     friendlyName: string;
     phoneNumber: string;
     countryCode: string;
@@ -45,14 +46,14 @@ interface AvailableNumber {
 const ViewRequestNumberListPage = () => {
   const { token } = useAuth();
   const [requests, setRequests] = useState<RequestData[]>([]);
-  const [availableNumbers, setAvailableNumbers] = useState<AvailableNumber[]>(
-    []
-  );
+  const [availableNumbers, setAvailableNumbers] = useState<AvailableNumber[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedNumbers, setSelectedNumbers] = useState<
-    Record<string, string>
-  >({});
+  const [selectedNumbers, setSelectedNumbers] = useState<Record<string, string>>({});
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
 
   useEffect(() => {
     if (!token) return;
@@ -70,7 +71,6 @@ const ViewRequestNumberListPage = () => {
 
         const [data1, data2] = await Promise.all([res1.json(), res2.json()]);
 
-        // set available numbers from data2 (only those not pinned)
         if (data2.success) {
           const filteredNumbers = (data2.data || []).filter(
             (num: AvailableNumber) => !num.isPinned
@@ -79,42 +79,33 @@ const ViewRequestNumberListPage = () => {
         }
 
         if (data1.success) {
-          // map requests and try to resolve pinnedNumber -> actual phone record id from data2
-          const allNumbers: AvailableNumber[] = data2.success
-            ? data2.data || []
-            : [];
+          const allNumbers: AvailableNumber[] = data2.success ? data2.data || [] : [];
 
-          const mappedRequests: RequestData[] = (data1.data || []).map(
-            (req: any) => {
-              const firstTwilio = req.organization?.requestedTwilioNumbers?.[0];
-              if (!firstTwilio) {
-                return { ...req, pinnedNumber: null };
-              }
+          const mappedRequests: RequestData[] = (data1.data || []).map((req: any) => {
+            const firstTwilio = req.organization?.requestedTwilioNumbers?.[0];
+            if (!firstTwilio) return { ...req, pinnedNumber: null };
 
-              // Try to find the corresponding phone record in `allNumbers` by phoneNumber
-              const matchingNumber = allNumbers.find(
-                (n) => n.phoneNumber === firstTwilio.phoneNumber
-              );
+            const matchingNumber = allNumbers.find(
+              (n) => n.phoneNumber === firstTwilio.phoneNumber
+            );
 
-              return {
-                ...req,
-                pinnedNumber: {
-                  id: matchingNumber ? matchingNumber.id : null, // important: actual phone record id
-                  friendlyName: firstTwilio.phoneNumber, // or matchingNumber?.friendlyName ?? firstTwilio.phoneNumber
-                  phoneNumber: firstTwilio.phoneNumber,
-                  countryCode: matchingNumber
-                    ? matchingNumber.countryCode
-                    : firstTwilio.phoneNumber.startsWith("+1")
+            return {
+              ...req,
+              pinnedNumber: {
+                id: matchingNumber ? matchingNumber.id : null,
+                friendlyName: firstTwilio.phoneNumber,
+                phoneNumber: firstTwilio.phoneNumber,
+                countryCode: matchingNumber
+                  ? matchingNumber.countryCode
+                  : firstTwilio.phoneNumber.startsWith("+1")
                     ? "US"
                     : "BD",
-                },
-              };
-            }
-          );
+              },
+            };
+          });
 
           setRequests(mappedRequests);
 
-          // build selectedNumbers only for those where we found a real phone-record id
           const pinnedMap: Record<string, string> = {};
           mappedRequests.forEach((req) => {
             if (req.pinnedNumber && req.pinnedNumber.id) {
@@ -133,11 +124,7 @@ const ViewRequestNumberListPage = () => {
     fetchData();
   }, [token]);
 
-  const handlePin = async (
-    requestId: string,
-    availableNumberId: string,
-    orgId: string
-  ) => {
+  const handlePin = async (requestId: string, availableNumberId: string, orgId: string) => {
     if (!availableNumberId) return;
     try {
       const res = await fetch(
@@ -156,20 +143,11 @@ const ViewRequestNumberListPage = () => {
       );
 
       const json = await res.json();
-
       if (json.success) {
-        // remove pinned from dropdown
-        setAvailableNumbers((prev) =>
-          prev.filter((n) => n.id !== availableNumberId)
-        );
-        setSelectedNumbers((prev) => ({
-          ...prev,
-          [requestId]: availableNumberId,
-        }));
+        setAvailableNumbers((prev) => prev.filter((n) => n.id !== availableNumberId));
+        setSelectedNumbers((prev) => ({ ...prev, [requestId]: availableNumberId }));
 
-        // update the request to show pinnedNumber (use json.data if it returns the phone object)
         const pinnedObj = (() => {
-          // prefer server response if available
           if (json.data) {
             return {
               id: json.data.id,
@@ -180,10 +158,7 @@ const ViewRequestNumberListPage = () => {
                 (json.data.phoneNumber?.startsWith("+1") ? "US" : "BD"),
             };
           }
-          // fallback: find from availableNumbers state (we removed it above so reference from previous state)
-          const found = (availableNumbers || []).find(
-            (n) => n.id === availableNumberId
-          );
+          const found = (availableNumbers || []).find((n) => n.id === availableNumberId);
           if (found) {
             return {
               id: found.id,
@@ -196,14 +171,7 @@ const ViewRequestNumberListPage = () => {
         })();
 
         setRequests((prev) =>
-          prev.map((r) =>
-            r.id === requestId
-              ? {
-                  ...r,
-                  pinnedNumber: pinnedObj,
-                }
-              : r
-          )
+          prev.map((r) => (r.id === requestId ? { ...r, pinnedNumber: pinnedObj } : r))
         );
       } else {
         console.error("Failed to pin:", json.message);
@@ -213,10 +181,7 @@ const ViewRequestNumberListPage = () => {
     }
   };
 
-  const handleUnpin = async (
-    requestId: string,
-    pinnedNumberId: string | undefined | null
-  ) => {
+  const handleUnpin = async (requestId: string, pinnedNumberId: string | undefined | null) => {
     if (!pinnedNumberId) {
       console.warn("No pinnedNumberId available for unpin. Unpin skipped.");
       return;
@@ -238,15 +203,12 @@ const ViewRequestNumberListPage = () => {
       const json = await res.json();
 
       if (json.success) {
-        // server returns the number object in json.data (per your docs)
         if (json.data) {
           setAvailableNumbers((prev) => [...prev, json.data]);
         }
 
         setRequests((prev) =>
-          prev.map((r) =>
-            r.id === requestId ? { ...r, pinnedNumber: null } : r
-          )
+          prev.map((r) => (r.id === requestId ? { ...r, pinnedNumber: null } : r))
         );
 
         setSelectedNumbers((prev) => {
@@ -262,20 +224,24 @@ const ViewRequestNumberListPage = () => {
     }
   };
 
-  // Filter search
+  // Filter and Pagination Logic
   const filteredRequests = requests.filter(
     (req) =>
       req.organization.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       req.organization.ownedOrganization.email
         .toLowerCase()
         .includes(searchQuery.toLowerCase()) ||
-      req.requestedPhonePattern
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase())
+      req.requestedPhonePattern.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredRequests.length / rowsPerPage);
+  const paginatedRequests = filteredRequests.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
   );
 
   return (
-    <div className="bg-gray-50 min-h-screen p-5">
+    <div className="bg-gray-50 min-h-screen">
       <div className="bg-white p-4 rounded-md shadow">
         {/* Search */}
         <div className="flex items-center mb-4 border border-gray-200 rounded-md px-3 py-2">
@@ -285,7 +251,10 @@ const ViewRequestNumberListPage = () => {
             placeholder="Search by Organization or Number"
             className="w-full outline-none text-sm"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1); // নতুন সার্চে প্রথম পেজে যাক
+            }}
           />
         </div>
 
@@ -294,36 +263,24 @@ const ViewRequestNumberListPage = () => {
           <table className="w-full border-collapse text-sm text-gray-700">
             <thead>
               <tr className="bg-gray-100 text-left">
-                <th className="border border-gray-200 px-3 py-2">
-                  Organization
-                </th>
+                <th className="border border-gray-200 px-3 py-2">Organization</th>
                 <th className="border border-gray-200 px-3 py-2">Email</th>
-                <th className="border border-gray-200 px-3 py-2">
-                  Requested Number
-                </th>
-                <th className="border border-gray-200 px-3 py-2">
-                  Select Number
-                </th>
-                <th className="border border-gray-200 px-3 py-2">
-                  Pinned Number
-                </th>
-                <th className="border border-gray-200 px-3 py-2">
-                  Country Code
-                </th>
-                <th className="border border-gray-200 px-3 py-2 text-center">
-                  Action
-                </th>
+                <th className="border border-gray-200 px-3 py-2">Requested Number</th>
+                <th className="border border-gray-200 px-3 py-2">Select Number</th>
+                <th className="border border-gray-200 px-3 py-2">Pinned Number</th>
+                <th className="border border-gray-200 px-3 py-2">Country Code</th>
+                <th className="border border-gray-200 px-3 py-2 text-center">Action</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
                   <td colSpan={8} className="text-center py-6 text-gray-500">
-                    Loading...
+                    <Loading />
                   </td>
                 </tr>
-              ) : filteredRequests.length > 0 ? (
-                filteredRequests.map((req) => (
+              ) : paginatedRequests.length > 0 ? (
+                paginatedRequests.map((req) => (
                   <tr key={req.id} className="hover:bg-gray-50">
                     <td className="border border-gray-200 px-3 py-2">
                       {req.organization.name}
@@ -370,9 +327,7 @@ const ViewRequestNumberListPage = () => {
                     <td className="border border-gray-200 px-3 py-2 text-center">
                       {req.pinnedNumber && req.pinnedNumber.id ? (
                         <button
-                          onClick={() =>
-                            handleUnpin(req.id, req.pinnedNumber!.id)
-                          }
+                          onClick={() => handleUnpin(req.id, req.pinnedNumber!.id)}
                           className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600"
                         >
                           Unpin
@@ -408,6 +363,57 @@ const ViewRequestNumberListPage = () => {
             </tbody>
           </table>
         </div>
+
+        {/* ✅ Pagination Controls */}
+        {!loading && filteredRequests.length > 0 && (
+          <div className="flex justify-between items-center mt-4 text-sm">
+            <span className="text-gray-600">
+              Showing {(currentPage - 1) * rowsPerPage + 1}–
+              {Math.min(currentPage * rowsPerPage, filteredRequests.length)} of{" "}
+              {filteredRequests.length}
+            </span>
+
+            <div className="flex gap-2">
+              {/* Previous Button */}
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 border rounded ${currentPage === 1
+                  ? "text-gray-400 border-gray-200"
+                  : "hover:bg-gray-100 border-gray-300"
+                  }`}
+              >
+                Previous
+              </button>
+
+              {/* Page Numbers */}
+              {[...Array(totalPages)].map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentPage(i + 1)}
+                  className={`px-3 py-1 border rounded ${currentPage === i + 1
+                    ? "bg-blue-500 text-white border-blue-500"
+                    : "hover:bg-gray-100 border-gray-300"
+                    }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+
+              {/* Next Button */}
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className={`px-3 py-1 border rounded ${currentPage === totalPages
+                  ? "text-gray-400 border-gray-200"
+                  : "hover:bg-gray-100 border-gray-300"
+                  }`}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -29,7 +29,7 @@
     ".next/types/**/*.ts",
     "src/app/(dashboard)/dashboard/organization/page.tsx",
     "src/app/(dashboard)/dashboard/admin/approval/page.tsx.backup",
-    "src/app/(dashboard)/dashboard/admin/number-management/page.tsx.backup"
+    "src/app/(dashboard)/dashboard/admin/number-management-backup/page.tsx.backup"
   ],
   "exclude": ["node_modules"]
 }
