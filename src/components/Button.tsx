@@ -9,7 +9,8 @@ type Shape = "default" | "pill";
 
 const buttonVariantClasses: Record<Variant, Record<Partial<Tone>, string>> = {
   primary: {
-    default: "bg-primary text-white hover:bg-color-primary/80",
+    default:
+      "bg-primary text-white hover:bg-primary/80 disabled:bg-primary/50 disabled:hover:bg-primary/50",
     outline:
       "border border-primary text-primary hover:bg-primary hover:text-white",
   },
