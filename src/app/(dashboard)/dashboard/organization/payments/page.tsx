@@ -42,29 +42,31 @@ interface Subscription {
   totalMinuteLimit: number;
   createdAt: string;
   updatedAt: string;
-  plan: {
-    id: string;
-    name: string;
-    price: number;
-    currency: string;
-    interval: string;
-    trialDays: number;
-    stripePriceId: string;
-    stripeProductId: string;
-    isActive: boolean;
-    description: string;
-    features: string[];
-    planLevel: string;
-    defaultAgents: number;
-    extraAgentPricing: Array<{
-      agents: number;
+  subscription: {
+    plan: {
+      id: string;
+      name: string;
       price: number;
-    }>;
-    totalMinuteLimit: number;
-    isDeleted: boolean;
-    deletedAt: string | null;
-    createdAt: string;
-    updatedAt: string;
+      currency: string;
+      interval: string;
+      trialDays: number;
+      stripePriceId: string;
+      stripeProductId: string;
+      isActive: boolean;
+      description: string;
+      features: string[];
+      planLevel: string;
+      defaultAgents: number;
+      extraAgentPricing: Array<{
+        agents: number;
+        price: number;
+      }>;
+      totalMinuteLimit: number;
+      isDeleted: boolean;
+      deletedAt: string | null;
+      createdAt: string;
+      updatedAt: string;
+    };
   };
 }
 
@@ -183,11 +185,11 @@ export default async function AdminSubscriptionsPage(props: {
 
   const tableData: TableRow[] = subscriptions.map((sub) => ({
     id: sub.id,
-    plan: sub.plan?.name || "N/A",
-    amount: `${sub.plan?.price || 0} ${(
-      sub.plan?.currency || "usd"
+    plan: sub.subscription.plan?.name || "N/A",
+    amount: `${sub.subscription.plan?.price || 0} ${(
+      sub.subscription.plan?.currency || "usd"
     ).toUpperCase()}`,
-    interval: sub.plan?.interval || "N/A",
+    interval: sub.subscription.plan?.interval || "N/A",
     status: sub.status,
   }));
 

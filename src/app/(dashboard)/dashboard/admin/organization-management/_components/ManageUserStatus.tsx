@@ -13,18 +13,24 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
-type UserStatus = "ACTIVE" | "BLOCKED";
+type UserStatus = string;
 
 type ManageUserStatusProps = {
   userId: string;
+  status: UserStatus;
 };
 
-export default function ManageUserStatus({ userId }: ManageUserStatusProps) {
+export default function ManageUserStatus({
+  userId,
+  status,
+}: ManageUserStatusProps) {
   const { token } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [actionType, setActionType] = useState<UserStatus>("ACTIVE");
+  const router = useRouter();
 
   const handleOpenDialog = (status: UserStatus) => {
     setActionType(status);
@@ -54,6 +60,7 @@ export default function ManageUserStatus({ userId }: ManageUserStatusProps) {
           json.message || `User ${actionType.toLowerCase()} successfully`
         );
         setIsOpen(false);
+        router.refresh();
       } else {
         throw new Error(json.message || "Failed to update user status");
       }
@@ -68,16 +75,16 @@ export default function ManageUserStatus({ userId }: ManageUserStatusProps) {
   };
 
   return (
-    <>
+    <td className="px-4 py-3 border border-gray-200 whitespace-nowrap">
       <div className="flex gap-2">
         <Button
           size="sm"
           variant="destructive"
           onClick={() => handleOpenDialog("BLOCKED")}
           className="gap-2"
+          disabled={status === "BLOCKED"}
         >
           <Ban size={16} />
-          Block
         </Button>
 
         <Button
@@ -85,9 +92,9 @@ export default function ManageUserStatus({ userId }: ManageUserStatusProps) {
           variant="default"
           onClick={() => handleOpenDialog("ACTIVE")}
           className="gap-2"
+          disabled={status === "ACTIVE"}
         >
           <ShieldCheck size={16} />
-          Unblock
         </Button>
       </div>
 
@@ -125,6 +132,6 @@ export default function ManageUserStatus({ userId }: ManageUserStatusProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </td>
   );
 }

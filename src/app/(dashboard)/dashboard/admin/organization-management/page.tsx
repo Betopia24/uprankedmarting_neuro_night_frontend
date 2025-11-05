@@ -49,6 +49,7 @@ interface OrganizationAdmin {
   name: string;
   phone: string;
   ownedOrganization: OwnedOrganization;
+  status: string;
 }
 
 interface OrganizationApiResponse {
@@ -73,6 +74,8 @@ interface TableRow {
   assignAgent: string;
   contactInfo: string;
   website: string;
+  userId: string;
+  status: string;
 }
 
 const DEFAULT_PAGE = 1;
@@ -183,6 +186,7 @@ export default async function OrganizationAdminPage(props: {
         .join(", ") || "N/A";
 
     return {
+      userId: org.id,
       id: org.ownedOrganization.id,
       name: org.name,
       serviceType: org.ownedOrganization.industry,
@@ -190,6 +194,7 @@ export default async function OrganizationAdminPage(props: {
       assignAgent: agentNames,
       contactInfo: org.phone,
       website: org.ownedOrganization.websiteLink,
+      status: org.status,
     };
   });
 
@@ -211,6 +216,8 @@ export default async function OrganizationAdminPage(props: {
   const currentPage = Math.min(Math.max(1, meta.page), totalPages);
   const basePath = adminOrganizationManagementPath();
   const currentFilters = parseFilters(queryParams);
+
+  console.log({ sorted });
 
   const columns: { key: keyof TableRow; label: string }[] = [
     { key: "name", label: "Customer Name" },
@@ -255,6 +262,7 @@ export default async function OrganizationAdminPage(props: {
           <tbody className="divide-y divide-gray-100">
             {sorted.length > 0 ? (
               sorted.map((item) => {
+                console.log({ item });
                 return (
                   <tr
                     key={item.id}
@@ -288,7 +296,10 @@ export default async function OrganizationAdminPage(props: {
                         </td>
                       );
                     })}
-                    <ManageUserStatus userId={""} />
+                    <ManageUserStatus
+                      userId={item.userId}
+                      status={item.status}
+                    />
                   </tr>
                 );
               })

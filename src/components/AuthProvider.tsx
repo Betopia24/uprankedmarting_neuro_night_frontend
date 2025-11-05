@@ -39,6 +39,7 @@ interface User {
     totalSuccessCalls: number;
     totalCalls: number;
   };
+  status: string;
 }
 
 interface AuthContextType {

@@ -41,36 +41,46 @@ interface Subscription {
   totalMinuteLimit: number;
   createdAt: string;
   updatedAt: string;
-  plan: {
-    id: string;
-    name: string;
-    price: number;
-    currency: string;
-    interval: string;
-    trialDays: number;
-    stripePriceId: string;
-    stripeProductId: string;
-    isActive: boolean;
-    description: string;
-    features: string[];
-    planLevel: string;
-    defaultAgents: number;
-    extraAgentPricing: Array<{
-      agents: number;
+  subscription: {
+    plan: {
+      id: string;
+      name: string;
       price: number;
-    }>;
-    totalMinuteLimit: number;
-    isDeleted: boolean;
-    deletedAt: string | null;
-    createdAt: string;
-    updatedAt: string;
+      currency: string;
+      interval: string;
+      trialDays: number;
+      stripePriceId: string;
+      stripeProductId: string;
+      isActive: boolean;
+      description: string;
+      features: string[];
+      planLevel: string;
+      defaultAgents: number;
+      extraAgentPricing: Array<{
+        agents: number;
+        price: number;
+      }>;
+      totalMinuteLimit: number;
+      isDeleted: boolean;
+      deletedAt: string | null;
+      createdAt: string;
+      updatedAt: string;
+    };
   };
 }
 
 interface SubscriptionsApiResponse {
+  totalPages: any;
+  pagination: any;
   success: boolean;
   message: string;
   data: Subscription[];
+  meta?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPage: number;
+  };
 }
 
 interface TableRow {
@@ -94,11 +104,14 @@ async function getSubscriptions(
   const limit = params.limit ?? DEFAULT_LIMIT;
   const query = typeof params.query === "string" ? params.query : "";
 
-  const url = new URL(`${env.API_BASE_URL}/subscriptions/billing-history`);
+  const url = new URL(
+    `${env.API_BASE_URL}/subscriptions/admin/billing-history`
+  );
   url.searchParams.set("page", String(page));
   url.searchParams.set("limit", String(limit));
   if (query) url.searchParams.set("searchTerm", query);
-  if (params.sort) url.searchParams.set("sort", String(params.sort));
+  // Remove sort from API call - we'll sort client-side only
+  // if (params.sort) url.searchParams.set("sort", String(params.sort));
 
   const res = await fetch(url.toString(), {
     headers: {
@@ -126,16 +139,6 @@ function sortData<T>(
     const bS = String(bV ?? "");
     return direction === "asc" ? aS.localeCompare(bS) : bS.localeCompare(aS);
   });
-}
-
-function filterData(data: TableRow[], query: string): TableRow[] {
-  if (!query) return data;
-  const q = query.toLowerCase();
-  return data.filter(
-    (item) =>
-      item.plan.toLowerCase().includes(q) ||
-      item.status.toLowerCase().includes(q)
-  );
 }
 
 export default async function AdminSubscriptionsPage(props: {
@@ -176,33 +179,38 @@ export default async function AdminSubscriptionsPage(props: {
   const limit = queryParams.limit ?? DEFAULT_LIMIT;
   const page = queryParams.page ?? DEFAULT_PAGE;
 
-  const totalItems = subscriptions.length;
-  const totalPages = Math.ceil(totalItems / limit);
+  // Server returns total count and pages - use those for pagination
+  const totalPages =
+    response.totalPages ?? response.pagination?.totalPages ?? 1; // Fallback to 1 page if not provided
+
   const currentPage = Math.min(Math.max(1, page), totalPages);
 
-  const tableData: TableRow[] = subscriptions.map((sub) => ({
-    id: sub.id,
-    plan: sub.plan?.name || "N/A",
-    amount: `${sub.plan?.price || 0} ${(
-      sub.plan?.currency || "usd"
-    ).toUpperCase()}`,
-    interval: sub.plan?.interval || "N/A",
-    status: sub.status,
-  }));
+  // Map subscriptions to table rows
+  const tableData: TableRow[] = subscriptions.map((sub) => {
+    return {
+      id: sub.id,
+      plan: sub.subscription.plan?.name || "N/A",
+      amount: `${sub.subscription.plan?.price || 0} ${(
+        sub.subscription.plan?.currency || "usd"
+      ).toUpperCase()}`,
+      interval: sub.subscription.plan?.interval || "N/A",
+      status: sub.status,
+    };
+  });
 
   const [sortField, sortDirection] = (queryParams.sort || "").split(":") as [
     string,
     string?
   ];
 
-  const filtered = filterData(tableData, queryParams.query || "");
-  const sorted = sortField
+  // Apply client-side sorting to current page data only
+  const sortedData = sortField
     ? sortData(
-        filtered,
+        tableData,
         sortField as keyof TableRow,
         sortDirection === "desc" ? "desc" : "asc"
       )
-    : filtered;
+    : tableData;
 
   const basePath = adminPaymentsPath();
   const currentFilters = parseFilters(queryParams);
@@ -243,8 +251,8 @@ export default async function AdminSubscriptionsPage(props: {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {sorted.length > 0 ? (
-              sorted.map((item) => (
+            {sortedData.length > 0 ? (
+              sortedData.map((item) => (
                 <tr
                   key={item.id}
                   className="hover:bg-gray-50 transition-colors cursor-pointer"
