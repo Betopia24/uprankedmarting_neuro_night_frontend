@@ -176,8 +176,6 @@ export default async function AdminSubscriptionsPage(props: {
 
   const { data: subscriptions } = response;
 
-  console.log({ subscriptions });
-
   const limit = queryParams.limit ?? DEFAULT_LIMIT;
   const page = queryParams.page ?? DEFAULT_PAGE;
 

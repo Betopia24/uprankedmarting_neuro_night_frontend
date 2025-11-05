@@ -122,10 +122,5 @@ export default async function PricingPage() {
   const plans = response[0];
   const myPlan = response[1];
 
-  console.log({
-    plans,
-    myPlan,
-  });
-
   return <Pricing plans={plans} myPlanId={myPlan} />;
 }

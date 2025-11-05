@@ -217,8 +217,6 @@ export default async function OrganizationAdminPage(props: {
   const basePath = adminOrganizationManagementPath();
   const currentFilters = parseFilters(queryParams);
 
-  console.log({ sorted });
-
   const columns: { key: keyof TableRow; label: string }[] = [
     { key: "name", label: "Customer Name" },
     { key: "serviceType", label: "Service Type" },
@@ -262,7 +260,6 @@ export default async function OrganizationAdminPage(props: {
           <tbody className="divide-y divide-gray-100">
             {sorted.length > 0 ? (
               sorted.map((item) => {
-                console.log({ item });
                 return (
                   <tr
                     key={item.id}

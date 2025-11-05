@@ -38,8 +38,6 @@ export default function OrganizationDocumentUploadPageClient() {
     fetchSubscription();
   }, []);
 
-  console.log({ subscription });
-
   if (!token) {
     return (
       <div className="text-center mt-10 text-red-500">No access token</div>

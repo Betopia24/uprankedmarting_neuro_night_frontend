@@ -51,13 +51,16 @@ const Dashboard = () => {
     const fetchQuestions = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/agents/my-questions`, {
-          method: "GET",
-          headers: {
-            "Authorization": `${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await fetch(
+          `${env.NEXT_PUBLIC_API_URL}/agents/my-questions`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
         if (!response.ok) {
           throw new Error("Failed to fetch questions");
         }
@@ -69,7 +72,9 @@ const Dashboard = () => {
         }
       } catch (err) {
         console.error("Error fetching questions:", err);
-        setError(err instanceof Error ? err.message : "Failed to load questions");
+        setError(
+          err instanceof Error ? err.message : "Failed to load questions"
+        );
       } finally {
         setLoading(false);
       }
@@ -113,8 +118,6 @@ const Dashboard = () => {
       </div>
     );
   }
-
-  console.log({ user });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -292,10 +295,11 @@ const Dashboard = () => {
                   </label>
                   <div className="mt-1">
                     <span
-                      className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded ${user.isVerified
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                        }`}
+                      className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded ${
+                        user.isVerified
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
                     >
                       {user.isVerified ? (
                         <CheckBadgeIcon className="w-3 h-3 mr-1" />
@@ -354,16 +358,18 @@ const Dashboard = () => {
                     </label>
                     <div className="mt-1">
                       <span
-                        className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded ${user.Agent.status === "online"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-800"
-                          }`}
+                        className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded ${
+                          user.Agent.status === "online"
+                            ? "bg-green-100 text-green-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
                       >
                         <div
-                          className={`w-2 h-2 rounded-full mr-2 ${user.Agent.status === "online"
-                            ? "bg-green-500"
-                            : "bg-gray-500"
-                            }`}
+                          className={`w-2 h-2 rounded-full mr-2 ${
+                            user.Agent.status === "online"
+                              ? "bg-green-500"
+                              : "bg-gray-500"
+                          }`}
                         />
                         {user.Agent.status}
                       </span>
@@ -445,14 +451,16 @@ const Dashboard = () => {
                                     Keywords
                                   </p>
                                   <div className="flex flex-wrap gap-2">
-                                    {question.question_keywords.map((keyword, i) => (
-                                      <span
-                                        key={i}
-                                        className="inline-block px-2 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded"
-                                      >
-                                        {keyword}
-                                      </span>
-                                    ))}
+                                    {question.question_keywords.map(
+                                      (keyword, i) => (
+                                        <span
+                                          key={i}
+                                          className="inline-block px-2 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded"
+                                        >
+                                          {keyword}
+                                        </span>
+                                      )
+                                    )}
                                   </div>
                                 </div>
                               )}
@@ -512,14 +520,14 @@ const Dashboard = () => {
                   <div className="text-2xl font-bold text-blue-600 mb-1">
                     {isNaN(
                       Number(user.callStatistics.totalSuccessCalls) /
-                      Number(user.callStatistics.totalCalls)
+                        Number(user.callStatistics.totalCalls)
                     )
                       ? 0
                       : (
-                        (Number(user.callStatistics.totalSuccessCalls) /
-                          Number(user.callStatistics.totalCalls)) *
-                        100
-                      ).toFixed(2)}
+                          (Number(user.callStatistics.totalSuccessCalls) /
+                            Number(user.callStatistics.totalCalls)) *
+                          100
+                        ).toFixed(2)}
                     %
                   </div>
                   <div className="text-xs text-blue-700 font-medium">
