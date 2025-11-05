@@ -176,6 +176,8 @@ export default async function AdminSubscriptionsPage(props: {
 
   const { data: subscriptions } = response;
 
+  console.log({ subscriptions });
+
   const limit = queryParams.limit ?? DEFAULT_LIMIT;
   const page = queryParams.page ?? DEFAULT_PAGE;
 
@@ -185,11 +187,11 @@ export default async function AdminSubscriptionsPage(props: {
 
   const tableData: TableRow[] = subscriptions.map((sub) => ({
     id: sub.id,
-    plan: sub.subscription.plan?.name || "N/A",
-    amount: `${sub.subscription.plan?.price || 0} ${(
-      sub.subscription.plan?.currency || "usd"
+    plan: sub.subscription?.plan?.name || "N/A",
+    amount: `${sub.subscription?.plan?.price || 0} ${(
+      sub.subscription?.plan?.currency || "usd"
     ).toUpperCase()}`,
-    interval: sub.subscription.plan?.interval || "N/A",
+    interval: sub.subscription?.plan?.interval || "N/A",
     status: sub.status,
   }));
 

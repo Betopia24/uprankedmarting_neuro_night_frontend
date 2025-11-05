@@ -23,10 +23,10 @@ export default function OrganizationDocumentUploadPageClient() {
       try {
         const res = await getSubscriptionType(token);
         const sub = res?.data[0];
-        if (!sub || sub.status !== "ACTIVE") {
-          setError("No active subscription found");
-        } else {
+        if (sub && (sub.status === "ACTIVE" || sub.status === "TRIALING")) {
           setSubscription(sub);
+        } else {
+          setError("No active subscription found");
         }
       } catch (err: any) {
         setError(err.message || "Failed to fetch subscription");
@@ -36,7 +36,9 @@ export default function OrganizationDocumentUploadPageClient() {
     };
 
     fetchSubscription();
-  }, [token]);
+  }, []);
+
+  console.log({ subscription });
 
   if (!token) {
     return (

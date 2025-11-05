@@ -14,11 +14,11 @@ export default function page() {
       <AccordionItem id="Voice Upload" title="Voice">
         <VoiceUpload />
       </AccordionItem>
-      <AccordionItem id="AI Management" title="AI">
-        <AIManagement />
-      </AccordionItem>
       <AccordionItem id="Document Upload" title="Document">
         <OrganizationDocumentUpload />
+      </AccordionItem>
+      <AccordionItem id="AI Management" title="AI">
+        <AIManagement />
       </AccordionItem>
     </Accordion>
   );
