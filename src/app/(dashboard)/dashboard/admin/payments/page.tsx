@@ -21,61 +21,49 @@ interface TableProps {
   };
 }
 
-interface Subscription {
+interface BillingHistory {
   id: string;
+  stripeInvoiceId: string;
   organizationId: string;
-  planId: string;
-  stripeSubscriptionId: string;
-  stripeCustomerId: string;
+  subscriptionId: string | null;
+  customerId: string;
+  amountDue: number;
+  amountPaid: number;
+  amountRemaining: number;
+  subtotal: number;
+  total: number;
+  currency: string;
+  periodStart: string;
+  periodEnd: string;
+  invoiceCreatedAt: string;
   status: string;
-  currentPeriodStart: string;
-  currentPeriodEnd: string;
-  trialStart: string;
-  trialEnd: string;
-  canceledAt: string | null;
-  cancelAtPeriodEnd: boolean;
-  planLevel: string;
-  purchasedNumber: string;
-  sid: string;
-  numberOfAgents: number;
-  totalMinuteLimit: number;
+  lineItems: Array<{
+    description: string;
+    amount: number;
+    quantity: number;
+    period: {
+      start: string;
+      end: string;
+    };
+  }>;
+  hostedInvoiceUrl: string;
+  invoicePdf: string;
+  number: string;
   createdAt: string;
   updatedAt: string;
-  subscription: {
-    plan: {
-      id: string;
-      name: string;
-      price: number;
-      currency: string;
-      interval: string;
-      trialDays: number;
-      stripePriceId: string;
-      stripeProductId: string;
-      isActive: boolean;
-      description: string;
-      features: string[];
-      planLevel: string;
-      defaultAgents: number;
-      extraAgentPricing: Array<{
-        agents: number;
-        price: number;
-      }>;
-      totalMinuteLimit: number;
-      isDeleted: boolean;
-      deletedAt: string | null;
-      createdAt: string;
-      updatedAt: string;
-    };
+  organization: {
+    id: string;
+    name: string;
+    stripeCustomerId: string;
   };
+  subscription: any | null;
 }
 
-interface SubscriptionsApiResponse {
-  totalPages: any;
-  pagination: any;
+interface BillingHistoryApiResponse {
   success: boolean;
   message: string;
-  data: Subscription[];
-  meta?: {
+  data: BillingHistory[];
+  meta: {
     page: number;
     limit: number;
     total: number;
@@ -85,19 +73,22 @@ interface SubscriptionsApiResponse {
 
 interface TableRow {
   id: string;
-  plan: string;
+  invoiceNumber: string;
+  organization: string;
+  description: string;
   amount: string;
-  interval: string;
   status: string;
+  period: string;
+  invoiceDate: string;
 }
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 10;
 const DEFAULT_SORT = "";
 
-async function getSubscriptions(
+async function getBillingHistory(
   params: TableSearchParams
-): Promise<SubscriptionsApiResponse | null> {
+): Promise<BillingHistoryApiResponse | null> {
   const accessToken = await getAccessToken();
 
   const page = params.page ?? DEFAULT_PAGE;
@@ -110,8 +101,6 @@ async function getSubscriptions(
   url.searchParams.set("page", String(page));
   url.searchParams.set("limit", String(limit));
   if (query) url.searchParams.set("searchTerm", query);
-  // Remove sort from API call - we'll sort client-side only
-  // if (params.sort) url.searchParams.set("sort", String(params.sort));
 
   const res = await fetch(url.toString(), {
     headers: {
@@ -141,7 +130,34 @@ function sortData<T>(
   });
 }
 
-export default async function AdminSubscriptionsPage(props: {
+function formatCurrency(amount: number, currency: string): string {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency.toUpperCase(),
+  }).format(amount / 100); // Assuming amount is in cents
+}
+
+function formatDate(dateString: string): string {
+  return new Date(dateString).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function formatPeriod(start: string, end: string): string {
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+
+  // If period is just one day (like in trial)
+  if (startDate.toDateString() === endDate.toDateString()) {
+    return formatDate(start);
+  }
+
+  return `${formatDate(start)} - ${formatDate(end)}`;
+}
+
+export default async function AdminBillingHistoryPage(props: {
   searchParams: Promise<TableProps["searchParams"]>;
 }) {
   const sp = (await props.searchParams) ?? {};
@@ -164,37 +180,36 @@ export default async function AdminSubscriptionsPage(props: {
     query: sp.query ? (Array.isArray(sp.query) ? sp.query[0] : sp.query) : "",
   };
 
-  const response = await getSubscriptions(queryParams);
+  const response = await getBillingHistory(queryParams);
 
   if (!response || !response.data) {
     return (
       <div className="py-16 text-center text-gray-500 bg-white shadow-sm rounded-lg">
-        No subscription found
+        No billing history found
       </div>
     );
   }
 
-  const { data: subscriptions } = response;
+  const { data: billingHistory, meta } = response;
 
   const limit = queryParams.limit ?? DEFAULT_LIMIT;
   const page = queryParams.page ?? DEFAULT_PAGE;
 
-  // Server returns total count and pages - use those for pagination
-  const totalPages =
-    response.totalPages ?? response.pagination?.totalPages ?? 1; // Fallback to 1 page if not provided
-
+  const totalPages = meta?.totalPage ?? 1;
   const currentPage = Math.min(Math.max(1, page), totalPages);
 
-  // Map subscriptions to table rows
-  const tableData: TableRow[] = subscriptions.map((sub) => {
+  // Map billing history to table rows
+  const tableData: TableRow[] = billingHistory.map((invoice) => {
+    const mainLineItem = invoice.lineItems[0];
     return {
-      id: sub.id,
-      plan: sub.subscription.plan?.name || "N/A",
-      amount: `${sub.subscription.plan?.price || 0} ${(
-        sub.subscription.plan?.currency || "usd"
-      ).toUpperCase()}`,
-      interval: sub.subscription.plan?.interval || "N/A",
-      status: sub.status,
+      id: invoice.id,
+      invoiceNumber: invoice.number,
+      organization: invoice.organization.name,
+      description: mainLineItem?.description || "Invoice",
+      amount: formatCurrency(invoice.total, invoice.currency),
+      status: invoice.status,
+      period: formatPeriod(invoice.periodStart, invoice.periodEnd),
+      invoiceDate: formatDate(invoice.invoiceCreatedAt),
     };
   });
 
@@ -216,14 +231,55 @@ export default async function AdminSubscriptionsPage(props: {
   const currentFilters = parseFilters(queryParams);
 
   const columns: { key: keyof TableRow; label: string }[] = [
-    { key: "plan", label: "Plan" },
+    { key: "invoiceNumber", label: "Invoice #" },
+    { key: "organization", label: "Organization" },
+    { key: "description", label: "Description" },
     { key: "amount", label: "Amount" },
-    { key: "interval", label: "Interval" },
     { key: "status", label: "Status" },
+    { key: "period", label: "Period" },
+    { key: "invoiceDate", label: "Invoice Date" },
   ];
+
+  const getStatusBadge = (status: string) => {
+    const statusConfig = {
+      paid: { color: "bg-green-100 text-green-800", label: "Paid" },
+      draft: { color: "bg-gray-100 text-gray-800", label: "Draft" },
+      open: { color: "bg-blue-100 text-blue-800", label: "Open" },
+      void: { color: "bg-red-100 text-red-800", label: "Void" },
+      uncollectible: {
+        color: "bg-orange-100 text-orange-800",
+        label: "Uncollectible",
+      },
+    };
+
+    const config = statusConfig[status as keyof typeof statusConfig] || {
+      color: "bg-gray-100 text-gray-800",
+      label: status,
+    };
+
+    return (
+      <span
+        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}
+      >
+        {config.label}
+      </span>
+    );
+  };
 
   return (
     <div className="space-y-6 px-4 sm:px-6 lg:px-8">
+      <div className="sm:flex sm:items-center">
+        <div className="sm:flex-auto">
+          <h1 className="text-2xl font-semibold text-gray-900">
+            Billing History
+          </h1>
+          <p className="mt-2 text-sm text-gray-700">
+            A list of all invoices and billing transactions across
+            organizations.
+          </p>
+        </div>
+      </div>
+
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <SearchField
           basePath={basePath}
@@ -257,14 +313,27 @@ export default async function AdminSubscriptionsPage(props: {
                   key={item.id}
                   className="hover:bg-gray-50 transition-colors cursor-pointer"
                 >
-                  {columns.map((col) => (
-                    <td
-                      key={col.key}
-                      className="px-4 py-3 border border-gray-200 whitespace-nowrap"
-                    >
-                      {item[col.key]}
-                    </td>
-                  ))}
+                  <td className="px-4 py-3 border border-gray-200 whitespace-nowrap font-medium">
+                    {item.invoiceNumber}
+                  </td>
+                  <td className="px-4 py-3 border border-gray-200 whitespace-nowrap">
+                    {item.organization}
+                  </td>
+                  <td className="px-4 py-3 border border-gray-200">
+                    {item.description}
+                  </td>
+                  <td className="px-4 py-3 border border-gray-200 whitespace-nowrap font-medium">
+                    {item.amount}
+                  </td>
+                  <td className="px-4 py-3 border border-gray-200 whitespace-nowrap">
+                    {getStatusBadge(item.status)}
+                  </td>
+                  <td className="px-4 py-3 border border-gray-200 whitespace-nowrap">
+                    {item.period}
+                  </td>
+                  <td className="px-4 py-3 border border-gray-200 whitespace-nowrap">
+                    {item.invoiceDate}
+                  </td>
                 </tr>
               ))
             ) : (
@@ -273,7 +342,7 @@ export default async function AdminSubscriptionsPage(props: {
                   colSpan={columns.length}
                   className="px-4 py-10 text-center text-gray-500 border border-gray-200"
                 >
-                  No subscriptions found.
+                  No billing history found.
                 </td>
               </tr>
             )}

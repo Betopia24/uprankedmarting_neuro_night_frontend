@@ -5,6 +5,7 @@ import { loginPath } from "@/paths";
 import { Button } from "@/components/ui/button";
 import type { Metadata } from "next";
 import { useAuth } from "@/components/AuthProvider";
+import { useEffect } from "react";
 
 // export const metadata: Metadata = {
 //   title: "Unauthorized • 401",
@@ -13,7 +14,9 @@ import { useAuth } from "@/components/AuthProvider";
 // };
 
 export default function Unauthorized() {
-  const auth = useAuth();
+  useEffect(() => {
+    window.location.href = "/";
+  }, []);
 
   return (
     <main className="min-h-[100dvh] bg-gradient-to-b from-blue-50 to-white dark:from-blue-950/20 dark:to-background flex items-center justify-center px-4">
