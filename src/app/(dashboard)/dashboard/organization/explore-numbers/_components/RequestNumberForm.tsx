@@ -46,15 +46,45 @@ const formSchema = z.object({
 
 export default function RequestNumberForm() {
 
+  // const form = useForm<z.infer<typeof formSchema>>({
+  //   resolver: zodResolver(formSchema),
+
+  // })
+  // const { token } = useAuth();
+
+  // async function onSubmit(values: z.infer<typeof formSchema>) {
+  //   if (!token) return;
+  //   try {
+  //     const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/active-numbers/organization/request`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: token || "",
+  //       },
+  //       body: JSON.stringify(values),
+  //     })
+  //     const json = await response.json();
+  //     if (!json.success) {
+  //       throw new Error(json.message || "Failed to submit the form.");
+  //     }
+  //     toast.success("Number request submitted successfully!");
+  //   } catch (error: any) {
+  //     toast.error(error?.message || "Something went wrong");
+  //   }
+  // }
+
+  const { token } = useAuth();
+  const [loading, setLoading] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-
-  })
-  const { token } = useAuth();
+  });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!token) return;
     try {
+      setLoading(true);
+
       const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/active-numbers/organization/request`, {
         method: "POST",
         headers: {
@@ -62,14 +92,19 @@ export default function RequestNumberForm() {
           Authorization: token || "",
         },
         body: JSON.stringify(values),
-      })
+      });
+
       const json = await response.json();
       if (!json.success) {
         throw new Error(json.message || "Failed to submit the form.");
       }
+
       toast.success("Number request submitted successfully!");
+      form.reset();
     } catch (error: any) {
       toast.error(error?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -133,7 +168,10 @@ export default function RequestNumberForm() {
             </FormItem>
           )}
         />
-        <Button type="submit">Send</Button>
+        <Button type="submit" disabled={loading}>
+          {loading ? "Sending..." : "Send"}
+        </Button>
+        {/* <Button type="submit">Send</Button> */}
       </form>
     </Form>
   )
