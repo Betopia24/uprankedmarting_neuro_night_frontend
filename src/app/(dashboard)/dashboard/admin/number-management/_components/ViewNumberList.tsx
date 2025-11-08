@@ -66,13 +66,11 @@ const ViewNumberListPage = () => {
       num.countryCode.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // ✅ Pagination calculation
   const totalPages = Math.ceil(filteredNumbers.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredNumbers.slice(indexOfFirstItem, indexOfLastItem);
 
-  // ✅ Handle page change
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
@@ -80,7 +78,7 @@ const ViewNumberListPage = () => {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 min-h-screen w-full">
       {/* Search Bar */}
       <div className="bg-white p-4 rounded-md shadow mb-4">
         <div className="flex items-center mb-4 border border-gray-200 rounded-md px-3 py-2">
@@ -92,23 +90,33 @@ const ViewNumberListPage = () => {
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
-              setCurrentPage(1); // নতুন সার্চ হলে প্রথম পেজে যাক
+              setCurrentPage(1);
             }}
           />
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto w-full">
           <table className="w-full border-collapse text-sm text-gray-700">
             <thead>
               <tr className="bg-gray-100 text-left">
                 <th className="border border-gray-200 px-3 py-2">Id</th>
                 <th className="border border-gray-200 px-3 py-2">Sid</th>
-                <th className="border border-gray-200 px-3 py-2">Phone Number</th>
-                <th className="border border-gray-200 px-3 py-2">Friendly Name</th>
-                <th className="border border-gray-200 px-3 py-2">Capabilities</th>
-                <th className="border border-gray-200 px-3 py-2">Country Code</th>
-                <th className="border border-gray-200 px-3 py-2">Is Purchased</th>
+                <th className="border border-gray-200 px-3 py-2">
+                  Phone Number
+                </th>
+                <th className="border border-gray-200 px-3 py-2">
+                  Friendly Name
+                </th>
+                <th className="border border-gray-200 px-3 py-2">
+                  Capabilities
+                </th>
+                <th className="border border-gray-200 px-3 py-2">
+                  Country Code
+                </th>
+                <th className="border border-gray-200 px-3 py-2">
+                  Is Purchased
+                </th>
               </tr>
             </thead>
 
@@ -122,8 +130,12 @@ const ViewNumberListPage = () => {
               ) : currentItems.length > 0 ? (
                 currentItems.map((num) => (
                   <tr key={num.id} className="hover:bg-gray-50">
-                    <td className="border border-gray-200 px-3 py-2">{num.id}</td>
-                    <td className="border border-gray-200 px-3 py-2">{num.sid}</td>
+                    <td className="border border-gray-200 px-3 py-2">
+                      {num.id}
+                    </td>
+                    <td className="border border-gray-200 px-3 py-2">
+                      {num.sid}
+                    </td>
                     <td className="border border-gray-200 px-3 py-2">
                       {num.phoneNumber}
                     </td>
@@ -149,8 +161,9 @@ const ViewNumberListPage = () => {
                     </td>
                     <td className="border border-gray-200 px-3 py-2">
                       <span
-                        className={`text-xs px-2 py-1 rounded text-white ${num.isPurchased ? "bg-gray-600" : "bg-green-500"
-                          }`}
+                        className={`text-xs px-2 py-1 rounded text-white ${
+                          num.isPurchased ? "bg-gray-600" : "bg-green-500"
+                        }`}
                       >
                         {num.isPurchased ? "Purchased" : "Available"}
                       </span>
@@ -180,10 +193,11 @@ const ViewNumberListPage = () => {
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className={`px-3 py-1 border rounded ${currentPage === 1
-                  ? "text-gray-400 border-gray-200"
-                  : "hover:bg-gray-100 border-gray-300"
-                  }`}
+                className={`px-3 py-1 border rounded ${
+                  currentPage === 1
+                    ? "text-gray-400 border-gray-200"
+                    : "hover:bg-gray-100 border-gray-300"
+                }`}
               >
                 Previous
               </button>
@@ -192,10 +206,11 @@ const ViewNumberListPage = () => {
                 <button
                   key={i}
                   onClick={() => handlePageChange(i + 1)}
-                  className={`px-3 py-1 border rounded ${currentPage === i + 1
-                    ? "bg-blue-500 text-white border-blue-500"
-                    : "hover:bg-gray-100 border-gray-300"
-                    }`}
+                  className={`px-3 py-1 border rounded ${
+                    currentPage === i + 1
+                      ? "bg-blue-500 text-white border-blue-500"
+                      : "hover:bg-gray-100 border-gray-300"
+                  }`}
                 >
                   {i + 1}
                 </button>
@@ -204,10 +219,11 @@ const ViewNumberListPage = () => {
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className={`px-3 py-1 border rounded ${currentPage === totalPages
-                  ? "text-gray-400 border-gray-200"
-                  : "hover:bg-gray-100 border-gray-300"
-                  }`}
+                className={`px-3 py-1 border rounded ${
+                  currentPage === totalPages
+                    ? "text-gray-400 border-gray-200"
+                    : "hover:bg-gray-100 border-gray-300"
+                }`}
               >
                 Next
               </button>

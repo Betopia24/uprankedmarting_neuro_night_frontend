@@ -46,9 +46,13 @@ interface AvailableNumber {
 const ViewRequestNumberListPage = () => {
   const { token } = useAuth();
   const [requests, setRequests] = useState<RequestData[]>([]);
-  const [availableNumbers, setAvailableNumbers] = useState<AvailableNumber[]>([]);
+  const [availableNumbers, setAvailableNumbers] = useState<AvailableNumber[]>(
+    []
+  );
   const [loading, setLoading] = useState(true);
-  const [selectedNumbers, setSelectedNumbers] = useState<Record<string, string>>({});
+  const [selectedNumbers, setSelectedNumbers] = useState<
+    Record<string, string>
+  >({});
   const [searchQuery, setSearchQuery] = useState("");
 
   // Pagination state
@@ -79,30 +83,34 @@ const ViewRequestNumberListPage = () => {
         }
 
         if (data1.success) {
-          const allNumbers: AvailableNumber[] = data2.success ? data2.data || [] : [];
+          const allNumbers: AvailableNumber[] = data2.success
+            ? data2.data || []
+            : [];
 
-          const mappedRequests: RequestData[] = (data1.data || []).map((req: any) => {
-            const firstTwilio = req.organization?.requestedTwilioNumbers?.[0];
-            if (!firstTwilio) return { ...req, pinnedNumber: null };
+          const mappedRequests: RequestData[] = (data1.data || []).map(
+            (req: any) => {
+              const firstTwilio = req.organization?.requestedTwilioNumbers?.[0];
+              if (!firstTwilio) return { ...req, pinnedNumber: null };
 
-            const matchingNumber = allNumbers.find(
-              (n) => n.phoneNumber === firstTwilio.phoneNumber
-            );
+              const matchingNumber = allNumbers.find(
+                (n) => n.phoneNumber === firstTwilio.phoneNumber
+              );
 
-            return {
-              ...req,
-              pinnedNumber: {
-                id: matchingNumber ? matchingNumber.id : null,
-                friendlyName: firstTwilio.phoneNumber,
-                phoneNumber: firstTwilio.phoneNumber,
-                countryCode: matchingNumber
-                  ? matchingNumber.countryCode
-                  : firstTwilio.phoneNumber.startsWith("+1")
+              return {
+                ...req,
+                pinnedNumber: {
+                  id: matchingNumber ? matchingNumber.id : null,
+                  friendlyName: firstTwilio.phoneNumber,
+                  phoneNumber: firstTwilio.phoneNumber,
+                  countryCode: matchingNumber
+                    ? matchingNumber.countryCode
+                    : firstTwilio.phoneNumber.startsWith("+1")
                     ? "US"
                     : "BD",
-              },
-            };
-          });
+                },
+              };
+            }
+          );
 
           setRequests(mappedRequests);
 
@@ -124,7 +132,11 @@ const ViewRequestNumberListPage = () => {
     fetchData();
   }, [token]);
 
-  const handlePin = async (requestId: string, availableNumberId: string, orgId: string) => {
+  const handlePin = async (
+    requestId: string,
+    availableNumberId: string,
+    orgId: string
+  ) => {
     if (!availableNumberId) return;
     try {
       const res = await fetch(
@@ -144,8 +156,13 @@ const ViewRequestNumberListPage = () => {
 
       const json = await res.json();
       if (json.success) {
-        setAvailableNumbers((prev) => prev.filter((n) => n.id !== availableNumberId));
-        setSelectedNumbers((prev) => ({ ...prev, [requestId]: availableNumberId }));
+        setAvailableNumbers((prev) =>
+          prev.filter((n) => n.id !== availableNumberId)
+        );
+        setSelectedNumbers((prev) => ({
+          ...prev,
+          [requestId]: availableNumberId,
+        }));
 
         const pinnedObj = (() => {
           if (json.data) {
@@ -158,7 +175,9 @@ const ViewRequestNumberListPage = () => {
                 (json.data.phoneNumber?.startsWith("+1") ? "US" : "BD"),
             };
           }
-          const found = (availableNumbers || []).find((n) => n.id === availableNumberId);
+          const found = (availableNumbers || []).find(
+            (n) => n.id === availableNumberId
+          );
           if (found) {
             return {
               id: found.id,
@@ -171,7 +190,9 @@ const ViewRequestNumberListPage = () => {
         })();
 
         setRequests((prev) =>
-          prev.map((r) => (r.id === requestId ? { ...r, pinnedNumber: pinnedObj } : r))
+          prev.map((r) =>
+            r.id === requestId ? { ...r, pinnedNumber: pinnedObj } : r
+          )
         );
       } else {
         console.error("Failed to pin:", json.message);
@@ -181,7 +202,10 @@ const ViewRequestNumberListPage = () => {
     }
   };
 
-  const handleUnpin = async (requestId: string, pinnedNumberId: string | undefined | null) => {
+  const handleUnpin = async (
+    requestId: string,
+    pinnedNumberId: string | undefined | null
+  ) => {
     if (!pinnedNumberId) {
       console.warn("No pinnedNumberId available for unpin. Unpin skipped.");
       return;
@@ -208,7 +232,9 @@ const ViewRequestNumberListPage = () => {
         }
 
         setRequests((prev) =>
-          prev.map((r) => (r.id === requestId ? { ...r, pinnedNumber: null } : r))
+          prev.map((r) =>
+            r.id === requestId ? { ...r, pinnedNumber: null } : r
+          )
         );
 
         setSelectedNumbers((prev) => {
@@ -231,7 +257,9 @@ const ViewRequestNumberListPage = () => {
       req.organization.ownedOrganization.email
         .toLowerCase()
         .includes(searchQuery.toLowerCase()) ||
-      req.requestedPhonePattern.toLowerCase().includes(searchQuery.toLowerCase())
+      req.requestedPhonePattern
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
   );
 
   const totalPages = Math.ceil(filteredRequests.length / rowsPerPage);
@@ -241,7 +269,7 @@ const ViewRequestNumberListPage = () => {
   );
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-gray-50 min-h-screen w-full">
       <div className="bg-white p-4 rounded-md shadow">
         {/* Search */}
         <div className="flex items-center mb-4 border border-gray-200 rounded-md px-3 py-2">
@@ -259,17 +287,29 @@ const ViewRequestNumberListPage = () => {
         </div>
 
         {/* Table */}
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto w-full">
           <table className="w-full border-collapse text-sm text-gray-700">
             <thead>
               <tr className="bg-gray-100 text-left">
-                <th className="border border-gray-200 px-3 py-2">Organization</th>
+                <th className="border border-gray-200 px-3 py-2">
+                  Organization
+                </th>
                 <th className="border border-gray-200 px-3 py-2">Email</th>
-                <th className="border border-gray-200 px-3 py-2">Requested Number</th>
-                <th className="border border-gray-200 px-3 py-2">Select Number</th>
-                <th className="border border-gray-200 px-3 py-2">Pinned Number</th>
-                <th className="border border-gray-200 px-3 py-2">Country Code</th>
-                <th className="border border-gray-200 px-3 py-2 text-center">Action</th>
+                <th className="border border-gray-200 px-3 py-2">
+                  Requested Number
+                </th>
+                <th className="border border-gray-200 px-3 py-2">
+                  Select Number
+                </th>
+                <th className="border border-gray-200 px-3 py-2">
+                  Pinned Number
+                </th>
+                <th className="border border-gray-200 px-3 py-2">
+                  Country Code
+                </th>
+                <th className="border border-gray-200 px-3 py-2 text-center">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -327,7 +367,9 @@ const ViewRequestNumberListPage = () => {
                     <td className="border border-gray-200 px-3 py-2 text-center">
                       {req.pinnedNumber && req.pinnedNumber.id ? (
                         <button
-                          onClick={() => handleUnpin(req.id, req.pinnedNumber!.id)}
+                          onClick={() =>
+                            handleUnpin(req.id, req.pinnedNumber!.id)
+                          }
                           className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600"
                         >
                           Unpin
@@ -378,10 +420,11 @@ const ViewRequestNumberListPage = () => {
               <button
                 onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                 disabled={currentPage === 1}
-                className={`px-3 py-1 border rounded ${currentPage === 1
-                  ? "text-gray-400 border-gray-200"
-                  : "hover:bg-gray-100 border-gray-300"
-                  }`}
+                className={`px-3 py-1 border rounded ${
+                  currentPage === 1
+                    ? "text-gray-400 border-gray-200"
+                    : "hover:bg-gray-100 border-gray-300"
+                }`}
               >
                 Previous
               </button>
@@ -391,10 +434,11 @@ const ViewRequestNumberListPage = () => {
                 <button
                   key={i}
                   onClick={() => setCurrentPage(i + 1)}
-                  className={`px-3 py-1 border rounded ${currentPage === i + 1
-                    ? "bg-blue-500 text-white border-blue-500"
-                    : "hover:bg-gray-100 border-gray-300"
-                    }`}
+                  className={`px-3 py-1 border rounded ${
+                    currentPage === i + 1
+                      ? "bg-blue-500 text-white border-blue-500"
+                      : "hover:bg-gray-100 border-gray-300"
+                  }`}
                 >
                   {i + 1}
                 </button>
@@ -402,12 +446,15 @@ const ViewRequestNumberListPage = () => {
 
               {/* Next Button */}
               <button
-                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(p + 1, totalPages))
+                }
                 disabled={currentPage === totalPages}
-                className={`px-3 py-1 border rounded ${currentPage === totalPages
-                  ? "text-gray-400 border-gray-200"
-                  : "hover:bg-gray-100 border-gray-300"
-                  }`}
+                className={`px-3 py-1 border rounded ${
+                  currentPage === totalPages
+                    ? "text-gray-400 border-gray-200"
+                    : "hover:bg-gray-100 border-gray-300"
+                }`}
               >
                 Next
               </button>
