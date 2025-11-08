@@ -3,8 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { env } from "@/env";
 import { useAuth } from "@/components/AuthProvider";
-import { Search } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 import { Loading } from "@/components";
+import { toast } from "sonner";
 
 interface Organization {
   id: string;
@@ -54,6 +55,10 @@ const ViewRequestNumberListPage = () => {
     Record<string, string>
   >({});
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Loading states for pin/unpin actions
+  const [pinningId, setPinningId] = useState<string | null>(null);
+  const [unpinningId, setUnpinningId] = useState<string | null>(null);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -138,6 +143,9 @@ const ViewRequestNumberListPage = () => {
     orgId: string
   ) => {
     if (!availableNumberId) return;
+
+    setPinningId(requestId);
+
     try {
       const res = await fetch(
         `${env.NEXT_PUBLIC_API_URL}/active-numbers/admin/${availableNumberId}/pin`,
@@ -199,6 +207,8 @@ const ViewRequestNumberListPage = () => {
       }
     } catch (error) {
       console.error("Error pinning number:", error);
+    } finally {
+      setPinningId(null);
     }
   };
 
@@ -207,9 +217,10 @@ const ViewRequestNumberListPage = () => {
     pinnedNumberId: string | undefined | null
   ) => {
     if (!pinnedNumberId) {
-      console.warn("No pinnedNumberId available for unpin. Unpin skipped.");
       return;
     }
+
+    setUnpinningId(requestId);
 
     try {
       const res = await fetch(
@@ -223,6 +234,9 @@ const ViewRequestNumberListPage = () => {
           body: JSON.stringify({ isPinned: false }),
         }
       );
+
+      if (!res.ok)
+        return toast.error("Failed to unpin number, already purchased number");
 
       const json = await res.json();
 
@@ -242,11 +256,12 @@ const ViewRequestNumberListPage = () => {
           delete newState[requestId];
           return newState;
         });
-      } else {
-        console.error("Failed to unpin:", json.message);
       }
     } catch (error) {
-      console.error("Error unpinning number:", error);
+      if (error instanceof Error)
+        console.error("Error unpinning number:", error.message);
+    } finally {
+      setUnpinningId(null);
     }
   };
 
@@ -281,7 +296,7 @@ const ViewRequestNumberListPage = () => {
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
-              setCurrentPage(1); // নতুন সার্চে প্রথম পেজে যাক
+              setCurrentPage(1);
             }}
           />
         </div>
@@ -320,81 +335,108 @@ const ViewRequestNumberListPage = () => {
                   </td>
                 </tr>
               ) : paginatedRequests.length > 0 ? (
-                paginatedRequests.map((req) => (
-                  <tr key={req.id} className="hover:bg-gray-50">
-                    <td className="border border-gray-200 px-3 py-2">
-                      {req.organization.name}
-                    </td>
-                    <td className="border border-gray-200 px-3 py-2">
-                      {req.organization.ownedOrganization.email}
-                    </td>
-                    <td className="border border-gray-200 px-3 py-2">
-                      {req.requestedPhonePattern}
-                    </td>
+                paginatedRequests.map((req) => {
+                  const isPinning = pinningId === req.id;
+                  const isUnpinning = unpinningId === req.id;
+                  const isProcessing = isPinning || isUnpinning;
 
-                    <td className="border border-gray-200 px-3 py-2">
-                      <select
-                        className="border border-gray-300 rounded px-2 py-1 text-sm"
-                        value={selectedNumbers[req.id] || ""}
-                        onChange={(e) =>
-                          handlePin(req.id, e.target.value, req.organization.id)
-                        }
-                        disabled={!!req.pinnedNumber && !!req.pinnedNumber.id}
-                      >
-                        <option value="">Select Number</option>
-                        {availableNumbers.map((num) => (
-                          <option key={num.id} value={num.id}>
-                            {num.friendlyName} ({num.countryCode})
-                          </option>
-                        ))}
-                      </select>
-                    </td>
+                  return (
+                    <tr
+                      key={req.id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="border border-gray-200 px-3 py-2">
+                        {req.organization.name}
+                      </td>
+                      <td className="border border-gray-200 px-3 py-2">
+                        {req.organization.ownedOrganization.email}
+                      </td>
+                      <td className="border border-gray-200 px-3 py-2">
+                        {req.requestedPhonePattern}
+                      </td>
 
-                    <td className="border border-gray-200 px-3 py-2">
-                      {req.pinnedNumber ? (
-                        <span className="text-sm font-medium text-green-700">
-                          {req.pinnedNumber.friendlyName}
-                        </span>
-                      ) : (
-                        "—"
-                      )}
-                    </td>
-
-                    <td className="border border-gray-200 px-3 py-2 text-center">
-                      {req.pinnedNumber ? req.pinnedNumber.countryCode : "—"}
-                    </td>
-
-                    <td className="border border-gray-200 px-3 py-2 text-center">
-                      {req.pinnedNumber && req.pinnedNumber.id ? (
-                        <button
-                          onClick={() =>
-                            handleUnpin(req.id, req.pinnedNumber!.id)
-                          }
-                          className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600"
-                        >
-                          Unpin
-                        </button>
-                      ) : req.pinnedNumber ? (
-                        <span className="text-xs text-yellow-600">
-                          Pinned (no id)
-                        </span>
-                      ) : (
-                        <button
-                          onClick={() =>
+                      <td className="border border-gray-200 px-3 py-2">
+                        <select
+                          className="border border-gray-300 rounded px-2 py-1 text-sm w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                          value={selectedNumbers[req.id] || ""}
+                          onChange={(e) =>
                             handlePin(
                               req.id,
-                              selectedNumbers[req.id],
+                              e.target.value,
                               req.organization.id
                             )
                           }
-                          className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600"
+                          disabled={
+                            (!!req.pinnedNumber && !!req.pinnedNumber.id) ||
+                            isProcessing
+                          }
                         >
-                          Pin
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))
+                          <option value="">Select Number</option>
+                          {availableNumbers.map((num) => (
+                            <option key={num.id} value={num.id}>
+                              {num.friendlyName} ({num.countryCode})
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+
+                      <td className="border border-gray-200 px-3 py-2">
+                        {req.pinnedNumber ? (
+                          <span className="text-sm font-medium text-green-700 flex items-center gap-1">
+                            {isPinning && (
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                            )}
+                            {req.pinnedNumber.friendlyName}
+                          </span>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+
+                      <td className="border border-gray-200 px-3 py-2 text-center">
+                        {req.pinnedNumber ? req.pinnedNumber.countryCode : "—"}
+                      </td>
+
+                      <td className="border border-gray-200 px-3 py-2 text-center">
+                        {req.pinnedNumber && req.pinnedNumber.id ? (
+                          <button
+                            onClick={() =>
+                              handleUnpin(req.id, req.pinnedNumber!.id)
+                            }
+                            disabled={isProcessing}
+                            className="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-1 mx-auto"
+                          >
+                            {isUnpinning && (
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                            )}
+                            {isUnpinning ? "Unpinning..." : "Unpin"}
+                          </button>
+                        ) : req.pinnedNumber ? (
+                          <span className="text-xs text-yellow-600">
+                            Pinned (no id)
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() =>
+                              handlePin(
+                                req.id,
+                                selectedNumbers[req.id],
+                                req.organization.id
+                              )
+                            }
+                            disabled={!selectedNumbers[req.id] || isProcessing}
+                            className="bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-1 mx-auto"
+                          >
+                            {isPinning && (
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                            )}
+                            {isPinning ? "Pinning..." : "Pin"}
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
                   <td colSpan={8} className="text-center py-6 text-gray-500">
@@ -406,7 +448,7 @@ const ViewRequestNumberListPage = () => {
           </table>
         </div>
 
-        {/* ✅ Pagination Controls */}
+        {/* Pagination Controls */}
         {!loading && filteredRequests.length > 0 && (
           <div className="flex justify-between items-center mt-4 text-sm">
             <span className="text-gray-600">
@@ -420,9 +462,9 @@ const ViewRequestNumberListPage = () => {
               <button
                 onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                 disabled={currentPage === 1}
-                className={`px-3 py-1 border rounded ${
+                className={`px-3 py-1 border rounded transition-colors ${
                   currentPage === 1
-                    ? "text-gray-400 border-gray-200"
+                    ? "text-gray-400 border-gray-200 cursor-not-allowed"
                     : "hover:bg-gray-100 border-gray-300"
                 }`}
               >
@@ -434,7 +476,7 @@ const ViewRequestNumberListPage = () => {
                 <button
                   key={i}
                   onClick={() => setCurrentPage(i + 1)}
-                  className={`px-3 py-1 border rounded ${
+                  className={`px-3 py-1 border rounded transition-colors ${
                     currentPage === i + 1
                       ? "bg-blue-500 text-white border-blue-500"
                       : "hover:bg-gray-100 border-gray-300"
@@ -450,9 +492,9 @@ const ViewRequestNumberListPage = () => {
                   setCurrentPage((p) => Math.min(p + 1, totalPages))
                 }
                 disabled={currentPage === totalPages}
-                className={`px-3 py-1 border rounded ${
+                className={`px-3 py-1 border rounded transition-colors ${
                   currentPage === totalPages
-                    ? "text-gray-400 border-gray-200"
+                    ? "text-gray-400 border-gray-200 cursor-not-allowed"
                     : "hover:bg-gray-100 border-gray-300"
                 }`}
               >
