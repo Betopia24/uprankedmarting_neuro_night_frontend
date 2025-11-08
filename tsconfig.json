@@ -30,7 +30,7 @@
     "src/app/(dashboard)/dashboard/organization/page.tsx",
     "src/app/(dashboard)/dashboard/admin/approval/page.tsx.backup",
     "src/app/(dashboard)/dashboard/admin/number-management-backup/page.tsx.backup",
-    "src/app/(dashboard)/dashboard/organization/voice-upload/page.tsx.back"
+    "src/app/(dashboard)/dashboard/organization/voice-upload/page.tsx"
   ],
   "exclude": ["node_modules"]
 }

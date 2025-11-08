@@ -11,7 +11,6 @@ import { parseFilters } from "@/components/table/utils/filters";
 import { env } from "@/env";
 import { getAccessToken } from "@/lib/auth";
 import Link from "next/link";
-import { toAmPm } from "@/lib/ampm";
 import { Button } from "@/components";
 
 const config = {
@@ -116,7 +115,7 @@ export default async function CallManageAndLogsPage({
   if (!response) {
     return (
       <div className="py-16 text-center text-gray-500 bg-white shadow-sm rounded-lg">
-        Failed to load agents.
+        No agents found
       </div>
     );
   }
@@ -208,7 +207,7 @@ export default async function CallManageAndLogsPage({
               sortedData.map((item) => (
                 <tr
                   key={item.id}
-                  className="hover:bg-gray-50 transition-colors cursor-pointer"
+                  className="hover:bg-gray-50 transition-colors cursor-pointer relative"
                 >
                   {Object.values(item).map((field, index) => (
                     <td
@@ -217,7 +216,7 @@ export default async function CallManageAndLogsPage({
                     >
                       <Link
                         href={adminAgentDetailsPath(item.id)}
-                        className="hover:text-blue-600 font-medium"
+                        className="hover:text-blue-600 font-medium after:absolute after:inset-0"
                       >
                         {field}
                       </Link>

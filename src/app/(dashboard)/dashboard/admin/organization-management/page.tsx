@@ -42,6 +42,7 @@ interface OwnedOrganization {
   subscriptions: Subscription[];
   agents: Agent[];
   id: string;
+  assignAgent: number;
 }
 
 interface OrganizationAdmin {
@@ -186,7 +187,7 @@ export default async function OrganizationAdminPage(props: {
       name: org.name,
       serviceType: org.ownedOrganization.industry,
       packageType: packageTypes,
-      assignAgent: org?.assignAgent || 0,
+      assignAgent: org?.ownedOrganization?.assignAgent || 0,
       contactInfo: org.phone,
       website: org.ownedOrganization.websiteLink,
       status: org.status,
@@ -264,7 +265,7 @@ export default async function OrganizationAdminPage(props: {
                   sorted.map((item) => (
                     <tr
                       key={item.id}
-                      className="hover:bg-gray-50 transition-colors"
+                      className="hover:bg-gray-50 transition-colors relative"
                     >
                       {columns.map((col) => (
                         <td
@@ -273,7 +274,7 @@ export default async function OrganizationAdminPage(props: {
                         >
                           <Link
                             href={`${basePath}/${item.id}`}
-                            className="hover:text-blue-600 transition-colors"
+                            className="hover:text-blue-600 transition-colors after:absolute after:inset-0"
                           >
                             {item[col.key]}
                           </Link>
