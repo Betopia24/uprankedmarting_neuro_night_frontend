@@ -10,6 +10,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { env } from "@/env";
 import Image from "next/image";
 import { Button } from "@/components";
@@ -195,6 +204,7 @@ function Review({
   mode: Mode;
 }) {
   const token = useAuth()?.token;
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   if (!reviews.length)
     return <p className="text-gray-500 p-2 mt-8">No {mode} feedback yet.</p>;
@@ -203,6 +213,8 @@ function Review({
 
   const handleDelete = async (id: string) => {
     if (!token) return;
+
+    setDeletingId(id);
     const prevReviews = [...reviews];
     setReviews((current) => current.filter((r) => r.id !== id));
 
@@ -214,6 +226,8 @@ function Review({
       if (!res.ok) throw new Error(`Failed with status ${res.status}`);
     } catch {
       setReviews(prevReviews);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -222,7 +236,7 @@ function Review({
       {reviews.map((review) => (
         <div
           key={review.id}
-          className="p-2 border border-gray-200 rounded shadow flex gap-4 items-center hover:bg-red-50"
+          className="p-2 border border-gray-200 rounded shadow flex gap-4 items-center hover:bg-gray-50 transition-colors"
         >
           <div className="shrink-0">
             {review?.client?.image ? (
@@ -248,14 +262,56 @@ function Review({
             </span>
             <RatingViewer rating={review.rating} size={12} />
           </div>
-          <Button
-            onClick={() => handleDelete(review.id)}
-            variant="secondary"
-            size="icon"
-            className="shrink-0 hover:bg-rose-400"
-          >
-            <LucideTrash2 />
-          </Button>
+
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                variant="secondary"
+                size="icon"
+                className="shrink-0 hover:bg-rose-100"
+                disabled={deletingId === review.id}
+              >
+                <LucideTrash2 className="w-4 h-4 text-rose-600" />
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Delete Feedback?</DialogTitle>
+                <DialogDescription>
+                  Are you sure you want to delete this feedback from{" "}
+                  <span className="font-semibold text-gray-900">
+                    {review?.client?.name}
+                  </span>
+                  ? This action cannot be undone.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="gap-2">
+                <Button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const dialog = (e.target as HTMLElement).closest(
+                      '[role="dialog"]'
+                    );
+                    dialog?.dispatchEvent(
+                      new KeyboardEvent("keydown", {
+                        key: "Escape",
+                        bubbles: true,
+                      })
+                    );
+                  }}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => handleDelete(review.id)}
+                  className="bg-rose-600 hover:bg-rose-700"
+                  disabled={deletingId === review.id}
+                >
+                  {deletingId === review.id ? "Deleting..." : "Delete"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       ))}
     </div>
