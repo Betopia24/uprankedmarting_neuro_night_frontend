@@ -50,6 +50,7 @@ interface OrganizationAdmin {
   phone: string;
   ownedOrganization: OwnedOrganization;
   status: string;
+  assignAgent?: number;
 }
 
 interface OrganizationApiResponse {
@@ -71,7 +72,7 @@ interface TableRow {
   name: string;
   serviceType: string;
   packageType: string;
-  assignAgent: string;
+  assignAgent: number;
   contactInfo: string;
   website: string;
   userId: string;
@@ -166,7 +167,7 @@ export default async function OrganizationAdminPage(props: {
   if (!response || !response.data) {
     return (
       <div className="py-16 text-center text-gray-500 bg-white shadow-sm rounded-lg">
-        Failed to load organization admins.
+        No Organizations Found
       </div>
     );
   }
@@ -179,19 +180,13 @@ export default async function OrganizationAdminPage(props: {
       subs.map((s) => `${s.planLevel} (${s.purchasedNumber})`).join(", ") ||
       "N/A";
 
-    const agents = org.ownedOrganization.agents ?? [];
-    const agentNames =
-      agents
-        .map((a) => a.user?.name || a.name || a.userId || "N/A")
-        .join(", ") || "N/A";
-
     return {
       userId: org.id,
       id: org.ownedOrganization.id,
       name: org.name,
       serviceType: org.ownedOrganization.industry,
       packageType: packageTypes,
-      assignAgent: agentNames,
+      assignAgent: org?.assignAgent || 0,
       contactInfo: org.phone,
       website: org.ownedOrganization.websiteLink,
       status: org.status,
@@ -228,6 +223,7 @@ export default async function OrganizationAdminPage(props: {
 
   return (
     <div className="space-y-6 px-4 sm:px-6 lg:px-8">
+      {/* Search Section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <SearchField
           basePath={basePath}
@@ -235,85 +231,77 @@ export default async function OrganizationAdminPage(props: {
         />
       </div>
 
-      <div className="w-full overflow-x-auto bg-white shadow rounded-lg border border-gray-200">
-        <table className="min-w-full text-sm text-left text-gray-700 border-collapse">
-          <thead className="bg-gray-50 text-gray-900 text-sm font-medium border-b border-gray-200">
-            <tr>
-              {columns.map((col) => (
-                <TableHeaderItem
-                  key={col.key}
-                  field={col.key}
-                  currentSort={sortField}
-                  sortDirection={sortDirection === "desc" ? "desc" : "asc"}
-                  currentPage={currentPage}
-                  limit={meta.limit}
-                  searchQuery={queryParams.query || ""}
-                  basePath={basePath}
-                  currentFilters={currentFilters}
-                />
-              ))}
-              <th scope="col" className="px-4 py-3 border border-gray-200">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {sorted.length > 0 ? (
-              sorted.map((item) => {
-                return (
-                  <tr
-                    key={item.id}
-                    className="hover:bg-gray-50 transition-colors cursor-pointer"
+      {/* Responsive Table Container */}
+      <div className="overflow-x-auto">
+        <div className="inline-block min-w-full align-middle">
+          <div className="overflow-hidden border border-gray-200 rounded-lg shadow">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  {columns.map((col) => (
+                    <TableHeaderItem
+                      key={col.key}
+                      field={col.key}
+                      currentSort={sortField}
+                      sortDirection={sortDirection === "desc" ? "desc" : "asc"}
+                      currentPage={currentPage}
+                      limit={meta.limit}
+                      searchQuery={queryParams.query || ""}
+                      basePath={basePath}
+                      currentFilters={currentFilters}
+                    />
+                  ))}
+                  <th
+                    scope="col"
+                    className="px-4 py-3 text-left text-sm font-medium text-gray-900 border border-gray-200 whitespace-nowrap"
                   >
-                    {columns.map((col) => {
-                      if (col.key === "assignAgent") {
-                        const agentsArray =
-                          item.assignAgent && item.assignAgent !== "N/A"
-                            ? item.assignAgent.split(", ").filter(Boolean)
-                            : [];
-                        return (
-                          <td
-                            key={`${basePath}/${item.id}`}
-                            className="px-4 py-3 border border-gray-200 whitespace-nowrap"
-                            title={agentsArray.join("\n")}
-                          >
-                            <Link href={"#"}> {agentsArray.length}</Link>
-                          </td>
-                        );
-                      }
-                      return (
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {sorted.length > 0 ? (
+                  sorted.map((item) => (
+                    <tr
+                      key={item.id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
+                      {columns.map((col) => (
                         <td
                           key={col.key}
-                          className="px-4 py-3 border border-gray-200 whitespace-nowrap"
+                          className="px-4 py-3 text-sm text-gray-700 border border-gray-200 whitespace-nowrap"
                         >
-                          <Link href={`${basePath}/${item.id}`}>
-                            {" "}
+                          <Link
+                            href={`${basePath}/${item.id}`}
+                            className="hover:text-blue-600 transition-colors"
+                          >
                             {item[col.key]}
                           </Link>
                         </td>
-                      );
-                    })}
-                    <ManageUserStatus
-                      userId={item.userId}
-                      status={item.status}
-                    />
+                      ))}
+                      <ManageUserStatus
+                        userId={item.userId}
+                        status={item.status}
+                      />
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={columns.length + 1}
+                      className="px-4 py-10 text-center text-gray-500 border border-gray-200"
+                    >
+                      No organization admins found.
+                    </td>
                   </tr>
-                );
-              })
-            ) : (
-              <tr>
-                <td
-                  colSpan={columns.length}
-                  className="px-4 py-10 text-center text-gray-500 border border-gray-200"
-                >
-                  No organization admins found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
+      {/* Pagination */}
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}

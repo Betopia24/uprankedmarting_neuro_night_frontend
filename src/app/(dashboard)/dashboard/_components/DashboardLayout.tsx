@@ -36,7 +36,7 @@ export default function DashboardLayout({
       className={cn(`grid transition-[grid] duration-300`)}
     >
       <div className="[grid-area:sidebar]">{sidebar}</div>
-      <div className="[grid-area:main]">
+      <div className="[grid-area:main] pr-6 -mr-6 overflow-x-scroll">
         <div className="sticky top-0 z-50 px-4">
           {header && <DashboardHeader />}
         </div>

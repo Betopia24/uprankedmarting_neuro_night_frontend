@@ -45,10 +45,9 @@ const stripePromise = loadStripe(
 const SubscriptionForm: React.FC<SubscriptionProps> = ({
   only_ai,
   planPrice,
-  planLevel,
+  // planLevel,
   number,
   planId,
-  organizationId,
   sid,
   onBack,
 }) => {
@@ -106,7 +105,7 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
     []
   );
 
-  const handleBackClick = () => onBack && onBack();
+  // const handleBackClick = () => onBack && onBack();
 
   // ----------------- CREATE PAYMENT METHOD -----------------
   const createPaymentMethod = async () => {
@@ -279,9 +278,9 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
       }}
       className="bg-gray-50 flex items-center justify-center p-4"
     >
-      <div className="w-full max-w-6xl lg:grid lg:grid-cols-2 shadow-2xl rounded-2xl overflow-hidden">
+      <div className="w-full max-w-xl lg:grid lg:grid-cols-1 shadow-2xl rounded-2xl overflow-hidden">
         {/* Left Panel */}
-        <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white p-8 md:p-12">
+        {/* <div className="bg-gradient-to-br from-blue-600 to-blue-800 text-white p-8 md:p-12">
           <button
             onClick={handleBackClick}
             className="flex items-center space-x-2 opacity-80 hover:opacity-100 transition-opacity mb-10"
@@ -339,17 +338,20 @@ const SubscriptionForm: React.FC<SubscriptionProps> = ({
               <p>${subTotal}</p>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Right Panel */}
         <div className="bg-white p-8 md:p-12">
+          <h2 className="text-3xl font-semibold text-gray-700 mb-10">
+            Free 24-Hour Trial
+          </h2>
           {!only_ai && (
             <div className="mb-8">
               <label
                 htmlFor="agent-count"
                 className="block text-lg font-semibold text-gray-700 mb-2"
               >
-                Number of Agents (Optional)
+                Extra Agents (from 0 to 3)
               </label>
               <input
                 type="number"

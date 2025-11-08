@@ -134,7 +134,7 @@ function formatCurrency(amount: number, currency: string): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: currency.toUpperCase(),
-  }).format(amount / 100); // Assuming amount is in cents
+  }).format(amount); 
 }
 
 function formatDate(dateString: string): string {

@@ -199,6 +199,7 @@ export default async function CompanyDocsPage({ searchParams }: TableProps) {
   };
 
   const response = await getCompanyDocs(queryParams);
+
   if (!response || !response.data)
     return (
       <div className="py-16 text-center text-gray-500 bg-white shadow-sm rounded-lg">
