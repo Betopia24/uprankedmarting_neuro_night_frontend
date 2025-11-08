@@ -47,7 +47,7 @@ export default function DashboardLayout({
             }}
             className="bg-gray-50  border-l border-l-gray-100 shadow-xs p-4"
           >
-            <Container className="px-0">{children}</Container>
+            <Container>{children}</Container>
           </div>
         </div>
       </div>

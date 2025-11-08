@@ -1,6 +1,8 @@
-import { getAccessToken, getServerAuth } from "@/lib/auth";
+import { getAccessToken } from "@/lib/auth";
 import { Pricing } from "./_components/Pricing";
 import { env } from "@/env";
+
+export const dynamic = "force-dynamic";
 
 // New API Response Types
 type ExtraAgentPricing = {

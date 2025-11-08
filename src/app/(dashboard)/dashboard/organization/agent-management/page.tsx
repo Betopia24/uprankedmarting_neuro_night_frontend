@@ -5,6 +5,8 @@ import AIManagement from "../_components/AIManagement";
 import VoiceUpload from "../_components/VoiceUpload";
 import OrganizationDocumentUpload from "../_components/DocumentUpload";
 
+export const dynamic = "force-dynamic";
+
 export default function page() {
   return (
     <Accordion>

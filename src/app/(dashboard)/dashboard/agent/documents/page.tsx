@@ -37,6 +37,11 @@ interface CompanyDoc {
   fileFormat: string;
   createdAt: string;
   updatedAt: string;
+  organization: {
+    id: string;
+    name: string;
+    industry: string;
+  };
 }
 
 interface CompanyDocApiResponse {
@@ -56,6 +61,7 @@ interface TableRow {
   fileName: string;
   fileFormat: string;
   docFor: string;
+  organizationName: string;
   createdAt: string;
   actions: React.ReactNode;
   _rawCreatedAt: string;
@@ -159,10 +165,9 @@ async function getCompanyDocs(
   const auth = await getServerAuth();
   if (!auth?.accessToken) return null;
 
-  const orgId = auth?.data?.Agent?.organization?.id;
-  if (!orgId) return null;
-
-  const url = new URL(`${env.API_BASE_URL}/company-docs/organization/${orgId}`);
+  const url = new URL(
+    `${env.API_BASE_URL}/company-docs/assigned-organizations`
+  );
   url.searchParams.set("page", String(params.page ?? DEFAULT_PAGE));
   url.searchParams.set("limit", String(params.limit ?? DEFAULT_LIMIT));
   if (params.query) url.searchParams.set("searchTerm", String(params.query));
@@ -231,6 +236,7 @@ export default async function CompanyDocsPage({ searchParams }: TableProps) {
       fileName: doc.fileName,
       fileFormat: doc.fileFormat.toUpperCase(),
       docFor: doc.docFor,
+      organizationName: doc.organization.name,
       createdAt: formatDateTime(doc.createdAt),
       actions: (
         <Dialog modal>
@@ -367,7 +373,7 @@ export default async function CompanyDocsPage({ searchParams }: TableProps) {
   });
 
   // Frontend-only sorting
-  const sortKey = queryParams.sort; // example: "createdAt.asc"
+  const sortKey = queryParams.sort;
   if (sortKey) {
     const [field, direction] = sortKey.split(".");
     tableData.sort((a, b) => {
@@ -393,6 +399,7 @@ export default async function CompanyDocsPage({ searchParams }: TableProps) {
     "fileName",
     "fileFormat",
     "docFor",
+    "organizationName",
     "createdAt",
     "actions",
   ];
@@ -410,12 +417,6 @@ export default async function CompanyDocsPage({ searchParams }: TableProps) {
           basePath={basePath}
           defaultQuery={queryParams.query ?? ""}
         />
-
-        {/* Debug info - you can remove this after confirming it works */}
-        <div className="text-sm text-gray-500 bg-gray-100 p-2 rounded">
-          Sort: {currentSort || "none"} | Field: {sortField || "none"} | Dir:{" "}
-          {sortDirection || "none"}
-        </div>
       </div>
 
       <div className="w-full overflow-x-auto bg-white shadow rounded-lg border border-gray-200">
@@ -452,6 +453,9 @@ export default async function CompanyDocsPage({ searchParams }: TableProps) {
                     {item.docFor}
                   </td>
                   <td className="px-4 py-3 border border-gray-200 whitespace-nowrap">
+                    {item.organizationName}
+                  </td>
+                  <td className="px-4 py-3 border border-gray-200 whitespace-nowrap">
                     {item.createdAt}
                   </td>
                   <td className="px-4 py-3 border border-gray-200 whitespace-nowrap">
@@ -462,7 +466,7 @@ export default async function CompanyDocsPage({ searchParams }: TableProps) {
             ) : (
               <tr>
                 <td
-                  colSpan={5}
+                  colSpan={6}
                   className="px-4 py-10 text-center text-gray-500 border border-gray-200"
                 >
                   No documents found.

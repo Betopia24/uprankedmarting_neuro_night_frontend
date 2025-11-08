@@ -2,6 +2,8 @@ import ContactForm from "@/components/Contact";
 import { Pricing } from "@/components/landing/pricing/Pricing";
 import { env } from "@/env";
 
+export const dynamic = "force-dynamic";
+
 // New API Response Types
 type ExtraAgentPricing = {
   agents: number;

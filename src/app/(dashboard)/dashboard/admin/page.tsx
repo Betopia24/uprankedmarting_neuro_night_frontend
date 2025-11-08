@@ -1,15 +1,12 @@
 "use client";
 
-import { useEffect, useState, Suspense, lazy, useMemo } from "react";
+import { useEffect, useState, Suspense, useMemo } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { env } from "@/env";
 import Feedback from "@/features/dashboard/Feedback";
 import PageLoader from "@/components/PageLoader";
-
-const CallGraph = lazy(() => import("@/features/dashboard/CallGraph"));
-const CallGraphBarChart = lazy(
-  () => import("@/features/dashboard/CallGraphBarChart")
-);
+import CallGraph from "@/features/dashboard/CallGraph";
+import CallGraphBarChart from "@/features/dashboard/CallGraphBarChart";
 
 const DEFAULT_MONTH = 12;
 const DEFAULT_YEAR = new Date().getFullYear();
