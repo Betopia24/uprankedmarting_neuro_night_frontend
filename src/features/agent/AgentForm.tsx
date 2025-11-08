@@ -194,7 +194,7 @@ export default function AgentForm() {
             <InputField
               label="SIP Password"
               name="agentData.sip_password"
-              type="text"
+              type="password"
               placeholder="Strong password"
             />
             <SelectDropdown

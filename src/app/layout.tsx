@@ -34,7 +34,7 @@ export default async function RootLayout({
         <Toaster
           position="top-right"
           theme="dark"
-          richColors={true} // This is the key prop for error styling
+          richColors={true}
           expand={true}
           closeButton={true}
         />
